@@ -1,25 +1,25 @@
 <template>
   <div class="grid grid-cols-5">
-    <BpmnModelerCanvas
+    <BotModelerCanvas
       :diagram="diagramXML"
       @modeler-shown="modelerLoaded"
       @modeler-selection-changed="selectionChanged"
       @modeler-element-changed="elementChanged"
       @modeler-doubleclick="$emit('modeler-doubleclick', $event)"
       class="col-span-4 h-132"
-    ></BpmnModelerCanvas>
-    <BpmnModelerPropertiesPanel
+    ></BotModelerCanvas>
+    <BotModelerPropertiesPanel
       class="col-span-1"
       v-if="modelerShown"
       :modeler="modeler"
       :element="element"
-    ></BpmnModelerPropertiesPanel>
+    ></BotModelerPropertiesPanel>
   </div>
 </template>
 
 <script lang="ts">
 export default defineComponent({
-  name: "modeler",
+  name: "bot-modeler",
   emits: ["modeler-doubleclick"],
   data() {
     return {
@@ -65,8 +65,8 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { defineComponent } from "vue";
-import BpmnModelerCanvas from "./BpmnModelerCanvas.vue";
-import BpmnModelerPropertiesPanel from "./BpmnModelerPropertiesPanel.vue";
+import BotModelerCanvas from "./BotModelerCanvas.vue";
+import BotModelerPropertiesPanel from "./BotModelerPropertiesPanel.vue";
 import {
   ModelerElement,
   ModelerEvent,

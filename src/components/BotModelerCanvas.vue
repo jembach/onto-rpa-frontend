@@ -22,7 +22,7 @@ import {
 } from "../interfaces/ModelerEvents";
 
 export default defineComponent({
-  name: "vue-bpmn",
+  name: "bot-modeler-canvas",
   props: {
     diagram: {
       type: String,

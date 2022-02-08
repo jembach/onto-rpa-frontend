@@ -45,7 +45,7 @@
 import { defineComponent, markRaw, PropType, toRaw } from "vue";
 import { ModelerElement } from "../interfaces/ModelerEvents";
 export default defineComponent({
-  name: "bpmn-modeler-properties-panel",
+  name: "bot-modeler-properties-panel",
   props: {
     modeler: {
       type: Object,

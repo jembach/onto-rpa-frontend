@@ -5,7 +5,7 @@
   <hr />
   <div class="min-h-screen">
     <hr />
-    <BpmnModeler></BpmnModeler>
+    <BotModeler></BotModeler>
   </div>
 </template>
 
@@ -17,5 +17,5 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { defineComponent, PropType } from "vue";
-import BpmnModeler from "../components/BpmnModeler.vue";
+import BotModeler from "../components/BotModeler.vue";
 </script>
