@@ -24,7 +24,8 @@ export interface RpaOperationConcept extends RpaBaseConcept {}
 
 // Individuals in Ontology as children of some Operation-class
 export interface RpaOperation extends RpaBaseInstance {
-  automates?: RpaSoftware;
+  automates?: string;
+  accesses?: string;
 }
 
 // ============
@@ -35,7 +36,7 @@ export interface RpaSoftwareType extends RpaBaseType {}
 export interface RpaSoftwareConcept extends RpaBaseConcept {}
 
 export interface RpaSoftware extends RpaBaseInstance {
-  accesses: RpaData;
+  supports?: string;
 }
 
 // ========

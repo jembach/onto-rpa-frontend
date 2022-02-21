@@ -1,213 +1,776 @@
-[ {
-  "@id" : "http://cos.ontoware.org/cso#accesses",
-  "@type" : [ "http://www.w3.org/2002/07/owl#ObjectProperty" ]
-}, {
-  "@id" : "http://cos.ontoware.org/cso#computational-task",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ]
-}, {
-  "@id" : "http://cos.ontoware.org/cso#data",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ]
-}, {
-  "@id" : "http://cos.ontoware.org/cso#software",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Ontology" ],
-  "http://www.w3.org/2002/07/owl#imports" : [ {
-    "@id" : "http://cos.ontoware.org/cso"
-  }, {
-    "@id" : "http://www.ke.tu-darmstadt.de/ontologies/ui_detail_level.owl"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelReadCellValue",
-  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#read-cell-value" ],
-  "http://cos.ontoware.org/cso#accesses" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelWorkbook"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelWorkbook",
-  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet" ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GSuiteReadCellValue",
-  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#read-cell-value" ],
-  "http://cos.ontoware.org/cso#accesses" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSpreadsheet"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSheets",
-  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet-application" ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSpreadsheet",
-  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet" ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftExcel",
-  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet-application" ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://cos.ontoware.org/cso#software"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automation-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#browser",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#click-button",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#mouse-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#click-coordinates",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#mouse-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#cloud-storage-provider",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#service"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#control-flow-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-extraction-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-file-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-input-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automation-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-transformation-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#file",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://cos.ontoware.org/cso#data"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#fill-text-box",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#keyboard-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#human-interface-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automation-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#internal-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#keyboard-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#human-interface-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#mouse-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#human-interface-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ocr-service",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#service"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#operating-system",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://cos.ontoware.org/cso#software"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#press-key",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#keyboard-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#read-cell-value",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-extraction-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-bot",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://cos.ontoware.org/cso#software"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://cos.ontoware.org/cso#computational-task"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#service",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://cos.ontoware.org/cso#software"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-control-operation",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automation-operation"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#file"
-  } ]
-}, {
-  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet-application",
-  "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
-  "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
-    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
-  } ]
-} ]
+[
+  {
+    "@id": "http://cos.ontoware.org/cso#accesses",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#ObjectProperty"
+    ]
+  },
+  {
+    "@id": "http://cos.ontoware.org/cso#computational-task",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ]
+  },
+  {
+    "@id": "http://cos.ontoware.org/cso#data",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ]
+  },
+  {
+    "@id": "http://cos.ontoware.org/cso#software",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Ontology"
+    ],
+    "http://www.w3.org/2002/07/owl#imports": [
+      {
+        "@id": "http://cos.ontoware.org/cso"
+      },
+      {
+        "@id": "http://www.ke.tu-darmstadt.de/ontologies/ui_detail_level.owl"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#email"
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelReadCellValue",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#read-cell-value"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelWorkbook"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftExcel"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelSaveWorkbook",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#save-file"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelWorkbook"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftExcel"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelWorkbook",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet"
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelWriteCellValue",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#write-cell-value"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelWorkbook"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftExcel"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GSuiteGetEmails",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#get-emails"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleMail"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GSuiteReadCellValue",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#read-cell-value"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSpreadsheet"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSpreadsheet"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GSuiteSendEmail",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#send-email"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleMail"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GSuiteWriteCellValue",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#write-cell-value"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSpreadsheet"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSheets"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleDocs",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#word-processing-application"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleDocument"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleDocument",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rich-text-document"
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleMail",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#email-client"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSheets",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet-application"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSpreadsheet"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#GoogleSpreadsheet",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet"
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftExcel",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet-application"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelWorkbook"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftOutlook",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#email-client"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftWord",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#word-processing-application"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WordDocument"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#OutlookDeleteEmail",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#delete-file"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftOutlook"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#OutlookGetEmails",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#get-emails"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftOutlook"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#OutlookSendEmail",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#send-email"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftOutlook"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WordDocument",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rich-text-document"
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WordSaveDocument",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#save-file"
+    ],
+    "http://cos.ontoware.org/cso#accesses": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WordDocument"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftWord"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://cos.ontoware.org/cso#software"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#ObjectProperty"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#domain": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automation-operation"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#range": [
+      {
+        "@id": "http://cos.ontoware.org/cso#software"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automation-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#browser",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#click-button",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#mouse-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#click-coordinates",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#mouse-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#cloud-storage-provider",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#service"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#control-flow-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-extraction-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-file-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-input-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automation-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-transformation-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#delete-file",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-file-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#email",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#file"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#email-client",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#file",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://cos.ontoware.org/cso#data"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#fill-text-box",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#keyboard-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#get-emails",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-extraction-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#human-interface-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automation-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#internal-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#keyboard-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#human-interface-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#mouse-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#human-interface-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ocr-service",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#service"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#operating-system",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://cos.ontoware.org/cso#software"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#press-key",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#keyboard-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#read-cell-value",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-extraction-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rich-text-document",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#file"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-bot",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://cos.ontoware.org/cso#software"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://cos.ontoware.org/cso#computational-task"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#save-file",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-file-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#send-email",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-input-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#service",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://cos.ontoware.org/cso#software"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-control-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automation-operation"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#file"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet-application",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#ObjectProperty"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#domain": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
+      },
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#service"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#range": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#file"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#word-processing-application",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#write-cell-value",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#data-input-operation"
+      }
+    ]
+  }
+]
