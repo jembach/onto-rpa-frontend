@@ -1,42 +1,34 @@
 <template>
   <div v-if="element && element.businessObject">
-    <div>
+    <div class="text-center">
       {{ element.businessObject.$type }}
+      - {{ element.businessObject.id }}
     </div>
     <hr />
-    <div>Name: {{ element.businessObject.name || "" }}</div>
-    <div>ID: {{ element.businessObject.id }}</div>
-    <hr />
-    <input
-      type="text"
-      :value="element.businessObject.name"
-      placeholder="Label"
-      @input="updateLabel"
-    />
+    <o-field label="Task Name">
+      <o-input v-model="currentLabel" placeholder="Label" />
+    </o-field>
     <div v-if="element.businessObject.$type === 'bpmn:Task'">
-      <o-field label="Library">
-        <o-select
-          placeholder="Select a library"
-          @input="updateProperty($event, 'library')"
-        >
-          <option value="Excel">Excel</option>
-          <option value="Word">Word</option>
-          <option value="FireFox">FireFox</option>
-        </o-select>
-      </o-field>
-      <o-field label="Keyword">
-        <o-select
-          placeholder="Select a keyword"
-          @input="updateProperty($event, 'keyword')"
-        >
-          <option value="Open File">Open File</option>
-          <option value="Write Cell">Write Cell</option>
-          <option value="Get Cell">Get Cell</option>
+      <o-field label="RPA Operation">
+        <o-select placeholder="Select an operation" v-model="currentOperation">
+          <option v-for="operation in operations" :value="operation.name">
+            {{ operation.name }}
+          </option>
         </o-select>
       </o-field>
     </div>
     <hr />
-    <button @click="printCurrent">Print!</button>
+    <div v-if="currentOperation">
+      The operation
+      <span class="italic">{{ operations[currentOperation].name }}</span>
+      realizes the concept of
+      <span class="italic">{{ operations[currentOperation].concept }}</span
+      >. It automates the application
+      <span class="italic">{{ operations[currentOperation].automates }}</span>
+      and accesses
+      <span class="italic">{{ operations[currentOperation].accesses }}</span
+      >.
+    </div>
   </div>
   <div v-else>Please select an element in the modeler.</div>
 </template>
@@ -44,6 +36,12 @@
 <script lang="ts">
 import { defineComponent, markRaw, PropType, toRaw } from "vue";
 import { ModelerElement } from "../../interfaces/ModelerEvents";
+import {
+  rpaOperations,
+  rpaSoftware,
+  rpaData,
+} from "../../utils/ontologyParser";
+
 export default defineComponent({
   name: "bot-modeler-properties-panel",
   props: {
@@ -56,31 +54,64 @@ export default defineComponent({
       required: false,
     },
   },
+  data() {
+    return {
+      operations: rpaOperations.individuals,
+      currentOperation: "" as string | undefined,
+      currentLabel: "" as string | undefined,
+    };
+  },
   methods: {
-    updateLabel(event: Event): void {
-      if (!event.currentTarget) {
+    getLabel(): string | undefined {
+      if (!this.element || !this.element.id) {
         return;
       }
-      const modeling = this.modeler.get("modeling");
-      modeling.updateLabel(toRaw(this.element), event.currentTarget.value);
+      const elementRegistry = this.modeler.get("elementRegistry");
+      return elementRegistry.get(this.element.id).businessObject.name;
     },
-    updateProperty(event: Event, property: string): void {
-      if (!event.currentTarget) {
+    setLabel(newLabel: string): void {
+      const modeling = this.modeler.get("modeling");
+      modeling.updateLabel(toRaw(this.element), newLabel);
+    },
+    getRPAOperation(): string | undefined {
+      if (!this.element || !this.element.id) {
         return;
       }
+      const elementRegistry = this.modeler.get("elementRegistry");
+      const elementBO = elementRegistry.get(this.element.id).businessObject;
+      if ("rpa:operation" in elementBO.$attrs) {
+        return elementBO.$attrs["rpa:operation"];
+      }
+    },
+    setRPAOperation(newOperation: string) {
       const modeling = this.modeler.get("modeling");
-      const propertyKey = "rpa:" + property;
-      const newProperty = {};
-      newProperty[propertyKey] = event.currentTarget.value;
 
-      modeling.updateProperties(toRaw(this.element), newProperty);
-    },
-    printCurrent(): void {
-      console.log(this.element?.businessObject);
+      modeling.updateProperties(toRaw(this.element), {
+        "rpa:operation": newOperation,
+      });
     },
   },
-  computed: {
-    selectedLibrary(): string {},
+  watch: {
+    element: function () {
+      this.currentOperation = this.getRPAOperation();
+      this.currentLabel = this.getLabel();
+    },
+    currentOperation: function (newOperation, oldOperation) {
+      if (newOperation === this.getRPAOperation()) {
+        return;
+      }
+      this.setRPAOperation(newOperation);
+      console.log(this.currentLabel);
+      if (this.currentLabel === oldOperation || !this.currentLabel) {
+        this.currentLabel = newOperation;
+      }
+    },
+    currentLabel: function (newLabel, oldLabel) {
+      if (newLabel === this.getLabel()) {
+        return;
+      }
+      this.setLabel(newLabel);
+    },
   },
 });
 </script>
