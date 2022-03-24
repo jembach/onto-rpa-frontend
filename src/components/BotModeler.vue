@@ -47,9 +47,9 @@ export default defineComponent({
     },
 
     elementChanged(e: ModelerEvent) {
-      this.saveDiagram();
+      // this.saveDiagram();
 
-      if (!this.element) {
+      if (!this.element || !this.element.businessObject) {
         return;
       }
       if (this.element.businessObject.id === e.element.businessObject.id) {
