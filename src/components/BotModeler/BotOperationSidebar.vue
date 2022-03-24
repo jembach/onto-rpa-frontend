@@ -12,24 +12,25 @@
       </o-field>
     </div>
     <div class="overflow-y-auto max-h-128">
-      <div
+      <BotOperationCard
         v-for="operation in filteredOperations"
-        class="relative mx-auto my-6 rounded-lg h-20 w-44 shadow-md border-solid border-2 border-blue-500 cursor-pointer"
-      >
-        <div class="absolute top-1/2 -mt-3 w-full text-center">
-          {{ operation.name }}
-        </div>
-      </div>
+        :operation="operation"
+        draggable="true"
+        @dragstart="$emit('drag-operation', $event)"
+        @click="$emit('click-operation', $event)"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { RpaOperation } from "../interfaces/RpaOperation";
-import { rpaOperations } from "../utils/ontologyParser";
+import { RpaOperation } from "../../interfaces/RpaOperation";
+import { rpaOperations } from "../../utils/ontologyParser";
+import BotOperationCard from "./BotOperationSidebar/BotOperationCard.vue";
 export default defineComponent({
   name: "bot-operation-sidebar",
+  emits: ["drag-operation", "click-operation"],
   data() {
     return {
       operations: rpaOperations.individuals,
@@ -41,11 +42,17 @@ export default defineComponent({
   },
   computed: {
     filteredOperations(): RpaOperation[] {
-      const searchTerms = this.searchTerm.split(" ");
+      const searchTerms = this.searchTerm.toLowerCase().split(" ");
       return Object.values(this.operations).filter((operation) =>
-        searchTerms.every((term) => operation.name.includes(term))
+        searchTerms.every(
+          (term) =>
+            operation.name.toLowerCase().includes(term) ||
+            operation.accesses?.toLowerCase().includes(term) ||
+            operation.automates?.toLowerCase().includes(term)
+        )
       );
     },
   },
+  components: { BotOperationCard },
 });
 </script>
