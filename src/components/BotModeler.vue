@@ -65,36 +65,33 @@ export default defineComponent({
     saveDiagram: async function () {
       const diagramXML = await this.modeler.saveXML();
     },
+    newOperationShape(e) {
+      const operation = e.target.dataset["operation"];
 
-    clickOperation() {
       const elementFactory = this.modeler.get("elementFactory");
       const elementRegistry = this.modeler.get("elementRegistry");
       const modeling = this.modeler.get("modeling");
+      const shape = elementFactory.createShape({ type: "bpmn:Task" });
+      modeling.updateLabel(shape, operation);
+      modeling.updateProperties(shape, { "rpa:operation": operation });
 
+      return shape;
+    },
+    clickOperation(e) {
+      console.log(e);
+      const elementRegistry = this.modeler.get("elementRegistry");
+      const modeling = this.modeler.get("modeling");
       const process = elementRegistry.get("Process_1");
-
-      const task = elementFactory.createShape({ type: "bpmn:Task" });
-
-      modeling.createShape(task, { x: 400, y: 100 }, process);
-
-      modeling.updateLabel(task, "test");
+      const shape = this.newOperationShape(e);
+      modeling.createShape(shape, { x: 400, y: 100 }, process);
     },
     dragOperation(e) {
-      console.log(e);
-      const definition = '{"type": "bpmn:Task"}';
       e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/json", definition);
-
-      const bpmnDefinition = JSON.parse(definition);
 
       e.preventDefault();
 
-      const elementFactory = this.modeler.get("elementFactory");
       const create = this.modeler.get("create");
-      const modeling = this.modeler.get("modeling");
-
-      const shape = elementFactory.createShape(bpmnDefinition);
-      modeling.updateLabel(shape, "test");
+      const shape = this.newOperationShape(e);
       create.start(e, shape);
     },
   },

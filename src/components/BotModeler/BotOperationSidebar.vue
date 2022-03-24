@@ -15,6 +15,7 @@
       <BotOperationCard
         v-for="operation in filteredOperations"
         :operation="operation"
+        :data-operation="operation.name"
         draggable="true"
         @dragstart="$emit('drag-operation', $event)"
         @click="$emit('click-operation', $event)"

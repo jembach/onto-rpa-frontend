@@ -5,7 +5,7 @@
     <div class="absolute top-1/2 -mt-3 w-full text-center">
       {{ operation.name }}
     </div>
-    <div class="flex justify-between text-xs">
+    <div class="flex justify-between text-xs m-1">
       <div class="operation-card">
         {{ operation.automates }}
       </div>
@@ -32,6 +32,6 @@ export default defineComponent({
 
 <style>
 .operation-card {
-  @apply rounded-full bg-slate-500 text-white;
+  @apply rounded-full bg-slate-500 text-white px-1;
 }
 </style>

@@ -13,19 +13,9 @@
             ],
             "properties": [
                 {
-                    "name": "library",
+                    "name": "operation",
                     "isAttr": true,
                     "type": "String"
-                },
-                {
-                    "name": "keyword",
-                    "isAttr": true,
-                    "type": "String"
-                },
-                {
-                    "name": "comments",
-                    "isMany": true,
-                    "type": "Comment"
                 }
             ]
         }
