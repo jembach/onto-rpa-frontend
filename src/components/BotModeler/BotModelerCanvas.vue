@@ -28,10 +28,6 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    layer: {
-      type: String,
-      required: true,
-    },
     options: {
       type: Object,
     },
