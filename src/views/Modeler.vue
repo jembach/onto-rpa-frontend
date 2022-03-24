@@ -3,10 +3,7 @@
     <h1 class="text-4xl font-bold">Semantic RPA Bot Modeler</h1>
   </div>
   <hr />
-  <div class="min-h-screen">
-    <hr />
-    <BotModeler></BotModeler>
-  </div>
+  <BotModeler></BotModeler>
 </template>
 
 <script lang="ts">
@@ -16,6 +13,6 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { defineComponent, PropType } from "vue";
+import { defineComponent } from "vue";
 import BotModeler from "../components/BotModeler.vue";
 </script>

@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { defineComponent, markRaw, PropType, toRaw } from "vue";
-import { ModelerElement } from "../interfaces/ModelerEvents";
+import { ModelerElement } from "../../interfaces/ModelerEvents";
 export default defineComponent({
   name: "bot-modeler-properties-panel",
   props: {

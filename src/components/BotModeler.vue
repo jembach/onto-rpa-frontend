@@ -65,8 +65,8 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { defineComponent } from "vue";
-import BotModelerCanvas from "./BotModelerCanvas.vue";
-import BotModelerPropertiesPanel from "./BotModelerPropertiesPanel.vue";
+import BotModelerCanvas from "./BotModeler/BotModelerCanvas.vue";
+import BotModelerPropertiesPanel from "./BotModeler/BotModelerPropertiesPanel.vue";
 import {
   ModelerElement,
   ModelerEvent,
