@@ -1,5 +1,11 @@
 <template>
-  <div class="grid grid-cols-5">
+  <div class="grid grid-cols-6">
+    <BotOperationSidebar
+      @drag-operation="dragOperation"
+      @click-operation="clickOperation"
+      class="col-span-1"
+    >
+    </BotOperationSidebar>
     <BotModelerCanvas
       :diagram="diagramXML"
       @modeler-shown="modelerLoaded"
@@ -59,6 +65,38 @@ export default defineComponent({
     saveDiagram: async function () {
       const diagramXML = await this.modeler.saveXML();
     },
+
+    clickOperation() {
+      const elementFactory = this.modeler.get("elementFactory");
+      const elementRegistry = this.modeler.get("elementRegistry");
+      const modeling = this.modeler.get("modeling");
+
+      const process = elementRegistry.get("Process_1");
+
+      const task = elementFactory.createShape({ type: "bpmn:Task" });
+
+      modeling.createShape(task, { x: 400, y: 100 }, process);
+
+      modeling.updateLabel(task, "test");
+    },
+    dragOperation(e) {
+      console.log(e);
+      const definition = '{"type": "bpmn:Task"}';
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/json", definition);
+
+      const bpmnDefinition = JSON.parse(definition);
+
+      e.preventDefault();
+
+      const elementFactory = this.modeler.get("elementFactory");
+      const create = this.modeler.get("create");
+      const modeling = this.modeler.get("modeling");
+
+      const shape = elementFactory.createShape(bpmnDefinition);
+      modeling.updateLabel(shape, "test");
+      create.start(e, shape);
+    },
   },
 });
 </script>
@@ -73,4 +111,5 @@ import {
   ModelerSelectionChange,
 } from "../interfaces/ModelerEvents";
 import defaultDiagram from "../resources/defaultDiagram";
+import BotOperationSidebar from "./BotModeler/BotOperationSidebar.vue";
 </script>
