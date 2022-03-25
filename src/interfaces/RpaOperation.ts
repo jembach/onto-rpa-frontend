@@ -1,9 +1,11 @@
 interface RpaBaseElement {
   id: string;
+  label?: string;
+  comment?: string;
 }
 
 export interface RpaBaseType extends RpaBaseElement {
-  superType?: string;
+  type?: string;
 }
 
 export interface RpaBaseConcept extends RpaBaseElement {
@@ -17,13 +19,18 @@ export interface RpaBaseInstance extends RpaBaseElement {
 // ==============
 // RPA OPERATIONS
 
-export interface RpaOperationType extends RpaBaseType {}
+export interface RpaOperationType extends RpaBaseType {
+  bpmoConcept?: string;
+}
 
 // "Leaf"-Classes in Ontology as some subclasses of some Operation-class
-export interface RpaOperationConcept extends RpaBaseConcept {}
+export interface RpaOperationConcept extends RpaBaseConcept {
+  bpmoConcept?: string;
+}
 
 // Individuals in Ontology as children of some Operation-class
 export interface RpaOperation extends RpaBaseInstance {
+  bpmoConcept: string;
   automates?: string;
   accesses?: string;
 }

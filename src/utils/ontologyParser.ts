@@ -33,13 +33,18 @@ const RELATION_IRIS = [
   "http://cos.ontoware.org/cso#accesses",
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports",
 ];
+const PROPERTY_IRIS = [
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept",
+  "http://www.w3.org/2000/01/rdf-schema#label",
+  "http://www.w3.org/2000/01/rdf-schema#comment",
+];
 
-const individuals = rpaOperationsOntology.forEach((operation) => {
-  if (operation["@type"].includes(INDIVIDUAL_IRI)) {
-    // console.log(operation["@id"]);
-    return operation["@id"];
-  }
-});
+// const individuals = rpaOperationsOntology.forEach((operation) => {
+//   if (operation["@type"].includes(INDIVIDUAL_IRI)) {
+//     // console.log(operation["@id"]);
+//     return operation["@id"];
+//   }
+// });
 
 export const rpaOperations: rpaTaxonomy<
   RpaOperationType,
@@ -79,8 +84,14 @@ function exploreTree(
       // if the current element is a subclass of the currently examined class, add it as new type
       rpaTree.types[currentId] = {
         id: currentId,
-        superType: superClassId,
+        type: superClassId,
       };
+      PROPERTY_IRIS.forEach((property_iri) => {
+        if (property_iri in operation) {
+          rpaTree.types[currentId][getIdFromIri(property_iri)] =
+            operation[property_iri][0]["@value"];
+        }
+      });
       exploreTree(operation["@id"], rpaTree);
     } else if (
       operation["@type"] &&
@@ -96,12 +107,17 @@ function exploreTree(
         id: currentId,
         concept: superClassId,
       };
+      console.log(operation);
       RELATION_IRIS.forEach((relation_iri) => {
         if (relation_iri in operation) {
           rpaTree.individuals[currentId][getIdFromIri(relation_iri)] =
             getIdFromIri(operation[relation_iri][0]["@id"]);
         }
       });
+      PROPERTY_IRIS.forEach((property_iri) => {
+        if (property_iri in operation) {
+          rpaTree.individuals[currentId][getIdFromIri(property_iri)] =
+            operation[property_iri][0]["@value"];
         }
       });
     }
@@ -119,12 +135,8 @@ function convertTypeToConcept(
   typeKey: string,
   rpaTree: rpaTaxonomy<RpaBaseType, RpaBaseConcept, RpaBaseInstance>
 ) {
-  // if concept of operation in collection of types, move to collection of concepts
-  const newConcept = rpaTree.types[typeKey];
-  rpaTree.concepts[typeKey] = {
-    type: newConcept.superType!,
-    id: newConcept.id,
-  };
+  rpaTree.concepts[typeKey] = {};
+  Object.assign(rpaTree.concepts[typeKey], rpaTree.types[typeKey]);
   delete rpaTree.types[typeKey];
 }
 
