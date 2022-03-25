@@ -15,7 +15,7 @@
       <BotOperationCard
         v-for="operation in filteredOperations"
         :operation="operation"
-        :data-operation="operation.name"
+        :data-operation="operation.id"
         draggable="true"
         @dragstart="$emit('drag-operation', $event)"
         @click="$emit('click-operation', $event)"
@@ -47,7 +47,7 @@ export default defineComponent({
       return Object.values(this.operations).filter((operation) =>
         searchTerms.every(
           (term) =>
-            operation.name.toLowerCase().includes(term) ||
+            operation.id.toLowerCase().includes(term) ||
             operation.accesses?.toLowerCase().includes(term) ||
             operation.automates?.toLowerCase().includes(term)
         )

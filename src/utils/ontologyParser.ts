@@ -72,16 +72,18 @@ function exploreTree(
   rpaTree: rpaTaxonomy<RpaBaseType, RpaBaseConcept, RpaBaseInstance>
 ): void {
   rpaOperationsOntology.forEach((operation) => {
-    const superClassId = compressId(superClassIri);
-    const currentId = compressId(operation["@id"]);
+    const superClassId = getIdFromIri(superClassIri);
+    const currentId = getIdFromIri(operation["@id"]);
+
     if (operation[SUBCLASS_IRI]?.[0]["@id"] === superClassIri) {
       // if the current element is a subclass of the currently examined class, add it as new type
       rpaTree.types[currentId] = {
-        name: currentId,
+        id: currentId,
         superType: superClassId,
       };
       exploreTree(operation["@id"], rpaTree);
     } else if (
+      operation["@type"] &&
       operation["@type"].includes(INDIVIDUAL_IRI) &&
       operation["@type"].includes(superClassIri)
     ) {
@@ -91,14 +93,15 @@ function exploreTree(
         convertTypeToConcept(superClassId, rpaTree);
       }
       rpaTree.individuals[currentId] = {
-        name: currentId,
+        id: currentId,
         concept: superClassId,
       };
       RELATION_IRIS.forEach((relation_iri) => {
         if (relation_iri in operation) {
-          rpaTree.individuals[currentId][compressId(relation_iri)] = compressId(
-            operation[relation_iri][0]["@id"]
-          );
+          rpaTree.individuals[currentId][getIdFromIri(relation_iri)] =
+            getIdFromIri(operation[relation_iri][0]["@id"]);
+        }
+      });
         }
       });
     }
@@ -120,12 +123,12 @@ function convertTypeToConcept(
   const newConcept = rpaTree.types[typeKey];
   rpaTree.concepts[typeKey] = {
     type: newConcept.superType!,
-    name: newConcept.name,
+    id: newConcept.id,
   };
   delete rpaTree.types[typeKey];
 }
 
-function compressId(id: string): string {
+function getIdFromIri(id: string): string {
   return id.split("#")[1];
 }
 function extendId(id: string): string {

@@ -1,36 +1,40 @@
 <template>
-  <div v-if="element && element.businessObject">
-    <div class="text-center">
-      {{ element.businessObject.$type }}
-      - {{ element.businessObject.id }}
-    </div>
-    <hr />
-    <o-field label="Task Name">
-      <o-input v-model="currentLabel" placeholder="Label" />
-    </o-field>
-    <div v-if="element.businessObject.$type === 'bpmn:Task'">
-      <o-field label="RPA Operation">
-        <o-select placeholder="Select an operation" v-model="currentOperation">
-          <option v-for="operation in operations" :value="operation.name">
-            {{ operation.name }}
-          </option>
-        </o-select>
+  <div class="m-3">
+    <div v-if="element && element.businessObject">
+      <div class="text-center">
+        {{ element.businessObject.$type }}
+        - {{ element.businessObject.id }}
+      </div>
+      <hr />
+      <o-field label="Label">
+        <o-input v-model="currentLabel" placeholder="Label" />
       </o-field>
-    </div>
-    <hr />
-    <div v-if="currentOperation">
-      The operation
-      <span class="italic">{{ operations[currentOperation].name }}</span>
-      realizes the concept of
-      <span class="italic">{{ operations[currentOperation].concept }}</span
-      >. It automates the application
-      <span class="italic">{{ operations[currentOperation].automates }}</span>
-      and accesses
-      <span class="italic">{{ operations[currentOperation].accesses }}</span
-      >.
+      <div v-if="element.businessObject.$type === 'bpmn:Task'">
+        <o-field label="RPA Operation">
+          <o-select
+            placeholder="Select an operation"
+            v-model="currentOperation"
+          >
+            <option v-for="operation in operations" :value="operation.name">
+              {{ operation.name }}
+            </option>
+          </o-select>
+        </o-field>
+      </div>
+      <hr />
+      <div v-if="currentOperation">
+        The operation
+        <span class="italic">{{ operations[currentOperation].name }}</span>
+        realizes the concept of
+        <span class="italic">{{ operations[currentOperation].concept }}</span
+        >. It automates the application
+        <span class="italic">{{ operations[currentOperation].automates }}</span>
+        and accesses
+        <span class="italic">{{ operations[currentOperation].accesses }}</span
+        >.
+      </div>
     </div>
   </div>
-  <div v-else>Please select an element in the modeler.</div>
 </template>
 
 <script lang="ts">

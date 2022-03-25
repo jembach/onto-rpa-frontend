@@ -1,5 +1,5 @@
 interface RpaBaseElement {
-  name: string;
+  id: string;
 }
 
 export interface RpaBaseType extends RpaBaseElement {
