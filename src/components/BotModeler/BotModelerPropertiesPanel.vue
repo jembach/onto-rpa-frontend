@@ -24,20 +24,25 @@
       <hr />
       <div v-if="currentOperation">
         The operation
-        <span class="italic">{{ operations[currentOperation].id }}</span>
+        <RpaElementExplainer
+          :rpa-element="operations[currentOperation]"
+        ></RpaElementExplainer>
         realizes the concept of
-        <span class="italic">{{
-          operations[currentOperation].concept.label
-        }}</span
-        >. It automates the application
-        <span class="italic">{{
-          operations[currentOperation].automates?.id
-        }}</span>
-        and accesses
-        <span class="italic">{{
-          operations[currentOperation].accesses?.id
-        }}</span
-        >.
+        <RpaElementExplainer
+          :rpa-element="operations[currentOperation].concept"
+        ></RpaElementExplainer>
+        .<br />
+        <div v-if="operations[currentOperation].automates">
+          It automates the application
+          <RpaElementExplainer
+            :rpa-element="operations[currentOperation].automates"
+          ></RpaElementExplainer>
+          and accesses
+          <RpaElementExplainer
+            :rpa-element="operations[currentOperation].accesses"
+          ></RpaElementExplainer>
+          .
+        </div>
       </div>
     </div>
   </div>
@@ -46,11 +51,13 @@
 <script lang="ts">
 import { defineComponent, markRaw, PropType, toRaw } from "vue";
 import { ModelerElement } from "../../interfaces/ModelerEvents";
+import RpaElementExplainer from "../RpaElementExplainer.vue";
 import {
   rpaOperations,
   rpaSoftware,
   rpaData,
 } from "../../utils/ontologyParser";
+import RpaElementExplainer from "../RpaElementExplainer.vue";
 
 export default defineComponent({
   name: "bot-modeler-properties-panel",
@@ -95,7 +102,6 @@ export default defineComponent({
     },
     setRPAOperation(newOperation: string) {
       const modeling = this.modeler.get("modeling");
-
       modeling.updateProperties(toRaw(this.element), {
         "rpa:operation": newOperation,
       });
@@ -123,5 +129,6 @@ export default defineComponent({
       this.setLabel(newLabel);
     },
   },
+  components: { RpaElementExplainer },
 });
 </script>
