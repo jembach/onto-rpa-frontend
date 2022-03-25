@@ -4,14 +4,16 @@
   >
     <div class="flex flex-col justify-between">
       <div class="operation-tagline">
-        <span>{{ operation.concept }}</span>
+        <span>{{ operation.concept.label || operation.concept.id }}</span>
       </div>
       <div class="w-full text-center">
         {{ operation.id }}
       </div>
       <div class="operation-tagline">
-        <span>{{ operation.automates }}</span>
-        <span>{{ operation.accesses }}</span>
+        <span v-if="operationAutomatesLabel">{{
+          operationAutomatesLabel
+        }}</span>
+        <span v-if="operationAccessesLabel">{{ operationAccessesLabel }}</span>
       </div>
     </div>
   </div>
@@ -26,6 +28,20 @@ export default defineComponent({
     operation: {
       type: Object as PropType<RpaOperation>,
       required: true,
+    },
+  },
+  computed: {
+    operationAutomatesLabel(): string | undefined {
+      if (!this.operation.automates) {
+        return;
+      }
+      return this.operation.automates.label || this.operation.automates.id;
+    },
+    operationAccessesLabel(): string | undefined {
+      if (!this.operation.accesses) {
+        return;
+      }
+      return this.operation.accesses.label || this.operation.accesses.id;
     },
   },
 });

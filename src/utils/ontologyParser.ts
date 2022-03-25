@@ -1,4 +1,5 @@
 import {
+  RpaBaseElement,
   RpaBaseConcept,
   RpaBaseInstance,
   RpaBaseType,
@@ -19,32 +20,6 @@ interface rpaTaxonomy<A, B, C> {
   concepts: Record<string, B>;
   individuals: Record<string, C>;
 }
-
-const RPA_IRI =
-  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations";
-const RPA_OPERATION_ROOT_IRI = RPA_IRI + "#" + "rpa-operation";
-const RPA_DATA_ROOT_IRI = "http://cos.ontoware.org/cso#data";
-const RPA_SOFTWARE_ROOT_IRI = "http://cos.ontoware.org/cso#software";
-
-const INDIVIDUAL_IRI = "http://www.w3.org/2002/07/owl#NamedIndividual";
-const SUBCLASS_IRI = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
-const RELATION_IRIS = [
-  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates",
-  "http://cos.ontoware.org/cso#accesses",
-  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports",
-];
-const PROPERTY_IRIS = [
-  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept",
-  "http://www.w3.org/2000/01/rdf-schema#label",
-  "http://www.w3.org/2000/01/rdf-schema#comment",
-];
-
-// const individuals = rpaOperationsOntology.forEach((operation) => {
-//   if (operation["@type"].includes(INDIVIDUAL_IRI)) {
-//     // console.log(operation["@id"]);
-//     return operation["@id"];
-//   }
-// });
 
 export const rpaOperations: rpaTaxonomy<
   RpaOperationType,
@@ -72,68 +47,130 @@ export const rpaData: rpaTaxonomy<RpaDataType, RpaDataConcept, RpaData> = {
   individuals: {},
 };
 
+const RPA_IRI =
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations";
+const RPA_OPERATION_ROOT_IRI = RPA_IRI + "#" + "rpa-operation";
+const RPA_DATA_ROOT_IRI = "http://cos.ontoware.org/cso#data";
+const RPA_SOFTWARE_ROOT_IRI = "http://cos.ontoware.org/cso#software";
+
+const INDIVIDUAL_IRI = "http://www.w3.org/2002/07/owl#NamedIndividual";
+const SUBCLASS_IRI = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
+const RELATION_IRIS: [
+  string,
+  (
+    | rpaTaxonomy<RpaSoftwareType, RpaSoftwareConcept, RpaSoftware>
+    | rpaTaxonomy<RpaDataType, RpaDataConcept, RpaData>
+  )
+][] = [
+  [
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates",
+    rpaSoftware,
+  ],
+  ["http://cos.ontoware.org/cso#accesses", rpaData],
+  [
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#supports",
+    rpaData,
+  ],
+];
+const PROPERTY_IRIS = [
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept",
+  "http://www.w3.org/2000/01/rdf-schema#label",
+  "http://www.w3.org/2000/01/rdf-schema#comment",
+];
+
+const RPA_OPERATION_ROOT_ELEMENT: RpaBaseElement = {
+  id: getIdFromIri(RPA_OPERATION_ROOT_IRI),
+  iri: RPA_OPERATION_ROOT_IRI,
+};
+const RPA_DATA_ROOT_ELEMENT: RpaBaseElement = {
+  id: getIdFromIri(RPA_DATA_ROOT_IRI),
+  iri: RPA_DATA_ROOT_IRI,
+};
+const RPA_SOFTWARE_ROOT_ELEMENT: RpaBaseElement = {
+  id: getIdFromIri(RPA_SOFTWARE_ROOT_IRI),
+  iri: RPA_SOFTWARE_ROOT_IRI,
+};
+// const individuals = rpaOperationsOntology.forEach((operation) => {
+//   if (operation["@type"].includes(INDIVIDUAL_IRI)) {
+//     // console.log(operation["@id"]);
+//     return operation["@id"];
+//   }
+// });
+
 function exploreTree(
-  superClassIri: string,
-  rpaTree: rpaTaxonomy<RpaBaseType, RpaBaseConcept, RpaBaseInstance>
+  superElement: RpaBaseElement,
+  rpaTree:
+    | rpaTaxonomy<RpaOperationType, RpaOperationConcept, RpaOperation>
+    | rpaTaxonomy<RpaSoftwareType, RpaSoftwareConcept, RpaSoftware>
+    | rpaTaxonomy<RpaDataType, RpaDataConcept, RpaData>
 ): void {
   rpaOperationsOntology.forEach((operation) => {
-    const superClassId = getIdFromIri(superClassIri);
     const currentId = getIdFromIri(operation["@id"]);
 
-    if (operation[SUBCLASS_IRI]?.[0]["@id"] === superClassIri) {
+    if (operation[SUBCLASS_IRI]?.[0]["@id"] === superElement.iri) {
       // if the current element is a subclass of the currently examined class, add it as new type
-      rpaTree.types[currentId] = {
+      const newRpaType: RpaBaseType<
+        RpaOperationType | RpaSoftwareType | RpaDataType
+      > = {
         id: currentId,
-        type: superClassId,
+        iri: operation["@id"],
+        type: superElement,
       };
+      rpaTree.types[currentId] = newRpaType;
       PROPERTY_IRIS.forEach((property_iri) => {
         if (property_iri in operation) {
           rpaTree.types[currentId][getIdFromIri(property_iri)] =
             operation[property_iri][0]["@value"];
         }
       });
-      exploreTree(operation["@id"], rpaTree);
+      exploreTree(newRpaType, rpaTree);
     } else if (
       operation["@type"] &&
       operation["@type"].includes(INDIVIDUAL_IRI) &&
-      operation["@type"].includes(superClassIri)
+      operation["@type"].includes(superElement.iri)
     ) {
       // if an individual of the currently examined class is encountered, add it as concrete operation
-      if (superClassId in rpaTree.types) {
+      if (superElement.id in rpaTree.types) {
         // in case the concept of the current indiv. was already added to types, move it to concepts
-        convertTypeToConcept(superClassId, rpaTree);
+        convertTypeToConcept(superElement.id, rpaTree);
       }
-      rpaTree.individuals[currentId] = {
+      const newRpaIndividual: RpaOperation | RpaSoftware | RpaData = {
         id: currentId,
-        concept: superClassId,
+        iri: operation["@id"],
+        concept: rpaTree.concepts[superElement.id],
       };
-      console.log(operation);
       RELATION_IRIS.forEach((relation_iri) => {
-        if (relation_iri in operation) {
-          rpaTree.individuals[currentId][getIdFromIri(relation_iri)] =
-            getIdFromIri(operation[relation_iri][0]["@id"]);
+        if (relation_iri[0] in operation) {
+          newRpaIndividual[getIdFromIri(relation_iri[0])] =
+            relation_iri[1].individuals[
+              getIdFromIri(operation[relation_iri[0]][0]["@id"])
+            ];
         }
       });
       PROPERTY_IRIS.forEach((property_iri) => {
         if (property_iri in operation) {
-          rpaTree.individuals[currentId][getIdFromIri(property_iri)] =
+          newRpaIndividual[getIdFromIri(property_iri)] =
             operation[property_iri][0]["@value"];
         }
       });
+      rpaTree.individuals[currentId] = newRpaIndividual;
     }
   });
 }
 
 // Load Data taxonomy (has no relation to other taxonomies)
-exploreTree(RPA_DATA_ROOT_IRI, rpaData);
+exploreTree(RPA_DATA_ROOT_ELEMENT, rpaData);
 // Load Software taxonomy (has only relations to data)
-exploreTree(RPA_SOFTWARE_ROOT_IRI, rpaSoftware);
+exploreTree(RPA_SOFTWARE_ROOT_ELEMENT, rpaSoftware);
 // Load Operations taxonomy
-exploreTree(RPA_OPERATION_ROOT_IRI, rpaOperations);
+exploreTree(RPA_OPERATION_ROOT_ELEMENT, rpaOperations);
 
 function convertTypeToConcept(
   typeKey: string,
-  rpaTree: rpaTaxonomy<RpaBaseType, RpaBaseConcept, RpaBaseInstance>
+  rpaTree:
+    | rpaTaxonomy<RpaOperationType, RpaOperationConcept, RpaOperation>
+    | rpaTaxonomy<RpaSoftwareType, RpaSoftwareConcept, RpaSoftware>
+    | rpaTaxonomy<RpaDataType, RpaDataConcept, RpaData>
 ) {
   rpaTree.concepts[typeKey] = {};
   Object.assign(rpaTree.concepts[typeKey], rpaTree.types[typeKey]);

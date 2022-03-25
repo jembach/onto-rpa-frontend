@@ -15,8 +15,8 @@
             placeholder="Select an operation"
             v-model="currentOperation"
           >
-            <option v-for="operation in operations" :value="operation.name">
-              {{ operation.name }}
+            <option v-for="operation in operations" :value="operation.id">
+              {{ operation.id }}
             </option>
           </o-select>
         </o-field>
@@ -24,13 +24,19 @@
       <hr />
       <div v-if="currentOperation">
         The operation
-        <span class="italic">{{ operations[currentOperation].name }}</span>
+        <span class="italic">{{ operations[currentOperation].id }}</span>
         realizes the concept of
-        <span class="italic">{{ operations[currentOperation].concept }}</span
+        <span class="italic">{{
+          operations[currentOperation].concept.label
+        }}</span
         >. It automates the application
-        <span class="italic">{{ operations[currentOperation].automates }}</span>
+        <span class="italic">{{
+          operations[currentOperation].automates?.id
+        }}</span>
         and accesses
-        <span class="italic">{{ operations[currentOperation].accesses }}</span
+        <span class="italic">{{
+          operations[currentOperation].accesses?.id
+        }}</span
         >.
       </div>
     </div>
