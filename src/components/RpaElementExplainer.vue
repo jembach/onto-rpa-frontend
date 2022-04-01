@@ -1,12 +1,19 @@
 <template>
-  <o-tooltip position="top" multiline>
-    <span v-if="$slots.default" class="italic"><slot></slot></span>
-    <span v-else class="italic">{{ rpaElement.label || rpaElement.id }}</span>
+  <o-tooltip :position="position" multiline :delay="delay">
+    <span v-if="$slots.default" class="rpa-element-name"><slot></slot></span>
+    <span v-else class="rpa-element-name">{{
+      rpaElement.label || rpaElement.id
+    }}</span>
     <template v-slot:content>
-      Profile {{ rpaElement.label || rpaElement.id }} <br />
-      ID: {{ rpaElement.id }} <br />
-      Comment: {{ rpaElement.comment }} <br />
-      IRI: {{ rpaElement.iri }}
+      <div class="mb-1 text-base">{{ rpaElement.label || rpaElement.id }}</div>
+      <hr class="mb-1" />
+      <div class="element-id">ID: {{ rpaElement.id }}</div>
+      <div v-if="rpaElement.comment" class="element-comment">
+        {{ rpaElement.comment }}
+      </div>
+      <div class="mt-2 text-xs font-mono font-extralight text-slate-300">
+        {{ rpaElement.iri }}
+      </div>
     </template>
   </o-tooltip>
 </template>
@@ -20,6 +27,14 @@ export default defineComponent({
     rpaElement: {
       type: Object as PropType<RpaBaseElement>,
       required: true,
+    },
+    position: {
+      type: String,
+      default: "top",
+    },
+    delay: {
+      type: String,
+      default: "1000",
     },
   },
 });

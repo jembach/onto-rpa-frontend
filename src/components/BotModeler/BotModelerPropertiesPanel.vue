@@ -22,24 +22,28 @@
         </o-field>
       </div>
       <hr />
-      <div v-if="currentOperation">
+      <div v-if="currentOperation" class="operation-description">
         The operation
         <RpaElementExplainer
           :rpa-element="operations[currentOperation]"
+          :position="explanationPosition"
         ></RpaElementExplainer>
         realizes the concept of
         <RpaElementExplainer
           :rpa-element="operations[currentOperation].concept"
+          :position="explanationPosition"
         ></RpaElementExplainer>
         .<br />
         <div v-if="operations[currentOperation].automates">
           It automates the application
           <RpaElementExplainer
             :rpa-element="operations[currentOperation].automates"
+            :position="explanationPosition"
           ></RpaElementExplainer>
           and accesses
           <RpaElementExplainer
             :rpa-element="operations[currentOperation].accesses"
+            :position="explanationPosition"
           ></RpaElementExplainer>
           .
         </div>
@@ -76,6 +80,7 @@ export default defineComponent({
       operations: rpaOperations.individuals,
       currentOperation: "" as string | undefined,
       currentLabel: "" as string | undefined,
+      explanationPosition: "left",
     };
   },
   methods: {
@@ -132,3 +137,9 @@ export default defineComponent({
   components: { RpaElementExplainer },
 });
 </script>
+
+<style scoped>
+.operation-description:deep() .rpa-element-name {
+  @apply italic;
+}
+</style>

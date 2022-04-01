@@ -4,16 +4,28 @@
   >
     <div class="flex flex-col justify-between">
       <div class="operation-tagline">
-        <span>{{ operation.concept.label || operation.concept.id }}</span>
+        <RpaElementExplainer
+          :position="explanationPosition"
+          :rpa-element="operation.concept"
+        ></RpaElementExplainer>
       </div>
       <div class="w-full text-center">
-        {{ operation.id }}
+        <RpaElementExplainer
+          :rpa-element="operation"
+          :position="explanationPosition"
+        ></RpaElementExplainer>
       </div>
       <div class="operation-tagline">
-        <span v-if="operationAutomatesLabel">{{
-          operationAutomatesLabel
-        }}</span>
-        <span v-if="operationAccessesLabel">{{ operationAccessesLabel }}</span>
+        <RpaElementExplainer
+          v-if="operation.automates"
+          :rpa-element="operation.automates"
+          :position="explanationPosition"
+        ></RpaElementExplainer>
+        <RpaElementExplainer
+          v-if="operation.accesses"
+          :rpa-element="operation.accesses"
+          :position="explanationPosition"
+        ></RpaElementExplainer>
       </div>
     </div>
   </div>
@@ -22,28 +34,21 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { RpaOperation } from "../../../interfaces/RpaOperation";
+import RpaElementExplainer from "../../RpaElementExplainer.vue";
 export default defineComponent({
   name: "bot-operation-sidebar",
+  data() {
+    return {
+      explanationPosition: "bottom",
+    };
+  },
   props: {
     operation: {
       type: Object as PropType<RpaOperation>,
       required: true,
     },
   },
-  computed: {
-    operationAutomatesLabel(): string | undefined {
-      if (!this.operation.automates) {
-        return;
-      }
-      return this.operation.automates.label || this.operation.automates.id;
-    },
-    operationAccessesLabel(): string | undefined {
-      if (!this.operation.accesses) {
-        return;
-      }
-      return this.operation.accesses.label || this.operation.accesses.id;
-    },
-  },
+  components: { RpaElementExplainer },
 });
 </script>
 
