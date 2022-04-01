@@ -54,8 +54,9 @@ export default defineComponent({
         searchTerms.every(
           (term) =>
             operation.id.toLowerCase().includes(term) ||
-            operation.accesses?.toLowerCase().includes(term) ||
-            operation.automates?.toLowerCase().includes(term)
+            operation.accesses?.id.toLowerCase().includes(term) ||
+            operation.automates?.id.toLowerCase().includes(term) ||
+            operation.concept.id.toLowerCase().includes(term)
         )
       );
     },
