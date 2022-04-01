@@ -16,6 +16,7 @@
         v-for="operation in filteredOperations"
         :operation="operation"
         :data-operation="operation.id"
+        :data-bpmntype="getBpmnType(operation)"
         draggable="true"
         @dragstart="$emit('drag-operation', $event)"
         @click="$emit('click-operation', $event)"
@@ -29,6 +30,8 @@ import { defineComponent } from "vue";
 import { RpaOperation } from "../../interfaces/RpaOperation";
 import { rpaOperations } from "../../utils/ontologyParser";
 import BotOperationCard from "./BotOperationSidebar/BotOperationCard.vue";
+import { bpmnMapping } from "../../utils/bpmnMapping";
+
 export default defineComponent({
   name: "bot-operation-sidebar",
   emits: ["drag-operation", "click-operation"],
@@ -40,6 +43,9 @@ export default defineComponent({
   },
   methods: {
     filterOperations: function () {},
+    getBpmnType(operation: RpaOperation): string {
+      return bpmnMapping[operation.bpmoConcept];
+    },
   },
   computed: {
     filteredOperations(): RpaOperation[] {

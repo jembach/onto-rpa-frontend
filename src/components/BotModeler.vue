@@ -67,13 +67,20 @@ export default defineComponent({
     },
     newOperationShape(e) {
       const operation = e.target.dataset["operation"];
+      const bpmnType = e.target.dataset["bpmntype"];
 
+      const bpmnFactory = this.modeler.get("bpmnFactory");
       const elementFactory = this.modeler.get("elementFactory");
-      const elementRegistry = this.modeler.get("elementRegistry");
-      const modeling = this.modeler.get("modeling");
-      const shape = elementFactory.createShape({ type: "bpmn:Task" });
-      modeling.updateLabel(shape, operation);
-      modeling.updateProperties(shape, { "rpa:operation": operation });
+
+      const newBO = bpmnFactory.create(bpmnType, {
+        name: operation,
+        "rpa:operation": operation,
+      });
+
+      const shape = elementFactory.createShape({
+        type: bpmnType,
+        businessObject: newBO,
+      });
 
       return shape;
     },

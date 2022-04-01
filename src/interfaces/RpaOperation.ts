@@ -1,3 +1,5 @@
+import { BpmoConcept } from "./bpmoConcepts";
+
 export interface RpaBaseElement {
   id: string;
   iri: string;
@@ -21,17 +23,17 @@ export interface RpaBaseInstance<RpaConcept> extends RpaBaseElement {
 // RPA OPERATIONS
 
 export interface RpaOperationType extends RpaBaseType<RpaOperationType> {
-  bpmoConcept?: string;
+  bpmoConcept?: BpmoConcept;
 }
 
 // "Leaf"-Classes in Ontology as some subclasses of some Operation-class
 export interface RpaOperationConcept extends RpaBaseConcept<RpaOperationType> {
-  bpmoConcept?: string;
+  bpmoConcept?: BpmoConcept;
 }
 
 // Individuals in Ontology as children of some Operation-class
 export interface RpaOperation extends RpaBaseInstance<RpaOperationConcept> {
-  bpmoConcept: string;
+  bpmoConcept: BpmoConcept;
   automates?: RpaSoftware;
   accesses?: RpaData;
 }
