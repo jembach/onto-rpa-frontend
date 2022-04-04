@@ -5,4 +5,7 @@ export const bpmnMapping: Record<BpmoConcept, string> = {
   CompoundActivity: "bpmn:Subprocess",
   ExclusiveGateway: "bpmn:ExclusiveGateway",
   ParallelGateway: "bpmn:ParallelGateway",
+  MessageEvent: "bpmn:MessageEventDefinition",
+  TimerEvent: "bpmn:TimerEventDefinition",
+  SignalEvent: "bpmn:SignalEventDefinition",
 };

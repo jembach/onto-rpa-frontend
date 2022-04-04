@@ -3,4 +3,7 @@ export enum BpmoConcept {
   CompoundActivity = "CompoundActivity",
   ParallelGateway = "ParallelGateway",
   ExclusiveGateway = "ExclusiveGateway",
+  MessageEvent = "MessageEvent",
+  SignalEvent = "SignalEvent",
+  TimerEvent = "TimerEvent",
 }

@@ -33,8 +33,8 @@ export default defineComponent({
       default: "top",
     },
     delay: {
-      type: String,
-      default: "1000",
+      type: Number,
+      default: 1000,
     },
   },
 });

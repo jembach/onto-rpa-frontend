@@ -67,7 +67,13 @@ export default defineComponent({
     },
     newOperationShape(e) {
       const operation = e.target.dataset["operation"];
-      const bpmnType = e.target.dataset["bpmntype"];
+      let bpmnType = bpmnMapping[e.target.dataset["nodetype"] as BpmoConcept];
+      let bpmnEventDefinition = undefined;
+
+      if (bpmnType.includes("EventDefinition")) {
+        bpmnEventDefinition = bpmnType;
+        bpmnType = "bpmn:IntermediateCatchEvent";
+      }
 
       const bpmnFactory = this.modeler.get("bpmnFactory");
       const elementFactory = this.modeler.get("elementFactory");
@@ -76,11 +82,14 @@ export default defineComponent({
         name: operation,
         "rpa:operation": operation,
       });
-
-      const shape = elementFactory.createShape({
+      const shapeOptions = {
         type: bpmnType,
         businessObject: newBO,
-      });
+      };
+      if (bpmnEventDefinition) {
+        shapeOptions["eventDefinitionType"] = bpmnEventDefinition;
+      }
+      const shape = elementFactory.createShape(shapeOptions);
 
       return shape;
     },
@@ -116,4 +125,6 @@ import {
 } from "../interfaces/ModelerEvents";
 import defaultDiagram from "../resources/defaultDiagram";
 import BotOperationSidebar from "./BotModeler/BotOperationSidebar.vue";
+import { bpmnMapping } from "../utils/bpmnMapping";
+import { BpmoConcept } from "../interfaces/bpmoConcepts";
 </script>
