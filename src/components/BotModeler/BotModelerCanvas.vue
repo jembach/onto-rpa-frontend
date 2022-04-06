@@ -99,4 +99,4 @@ export default defineComponent({
 
 <style src="bpmn-js/dist/assets/diagram-js.css"></style>
 <style src="bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css"></style>
-<style src="bpmn-js-properties-panel/dist/assets/properties-panel.css"></style>
+<!-- <style src="bpmn-js-properties-panel/dist/assets/properties-panel.css"></style> -->
