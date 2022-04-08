@@ -21,6 +21,7 @@
       :element="element"
     ></BotModelerPropertiesPanel>
   </div>
+  <o-button @click="saveDiagram">Save to console</o-button>
 </template>
 
 <script lang="ts">
@@ -33,7 +34,7 @@ export default defineComponent({
       modeler: undefined,
       selectedElements: [] as ModelerElement[],
       element: {} as ModelerElement,
-      diagramXML: defaultDiagram as string,
+      diagramXML: defaultRpaDiagram as string,
     };
   },
   methods: {
@@ -64,6 +65,13 @@ export default defineComponent({
 
     saveDiagram: async function () {
       const diagramXML = await this.modeler.saveXML();
+      const moddle = new BpmnModdle();
+      const { rootElement: definitions } = await moddle.fromXML(
+        defaultRpaDiagram
+      );
+      // console.log(definitions.rootElements);
+      bpmnModdleToProcessTree(this.modeler._definitions);
+      // console.log(diagramXML);
     },
     newOperationShape(e) {
       const operation = e.target.dataset["operation"];
@@ -124,7 +132,11 @@ import {
   ModelerSelectionChange,
 } from "../interfaces/ModelerEvents";
 import defaultDiagram from "../resources/defaultDiagram";
+import defaultRpaDiagram from "../resources/defaultRPADiagram";
 import BotOperationSidebar from "./BotModeler/BotOperationSidebar.vue";
 import { bpmnMapping } from "../utils/bpmnMapping";
 import { BpmoConcept } from "../interfaces/bpmoConcepts";
+import BpmnModdle from "bpmn-moddle";
+import { def } from "@vue/shared";
+import { bpmnModdleToProcessTree } from "../utils/bpmnModdleToProcessTree";
 </script>

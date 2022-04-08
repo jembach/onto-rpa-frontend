@@ -9,10 +9,14 @@
 <script lang="ts">
 export default defineComponent({
   name: "modeler",
+  mounted() {
+    console.log(rpaOperations);
+  },
 });
 </script>
 
 <script setup lang="ts">
 import { defineComponent } from "vue";
 import BotModeler from "../components/BotModeler.vue";
+import { rpaOperations, rpaSoftware, rpaData } from "../utils/ontologyParser";
 </script>

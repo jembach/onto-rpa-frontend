@@ -9,6 +9,18 @@ import {
 
 import YAML from "yaml";
 
+enum ProcessTreeLiteral {
+  Process = "Process",
+  Flow = "Flow",
+}
+
+type ProcessLeaf = string;
+type ProcessTree = {
+  Process?: ProcessLeaf[] | ProcessTree;
+  Flow?: (ProcessLeaf | ProcessTree)[];
+  Split?: (ProcessLeaf | ProcessTree)[];
+};
+
 /**
  * Parses a bpmn-js model to a BPMN-independent process tree as a nested list.
  *
@@ -16,8 +28,11 @@ import YAML from "yaml";
  */
 export function bpmnModdleToProcessTree(bpmnModdle: Definitions) {
   const process: Process = bpmnModdle.rootElements[0] as Process;
-  console.log(parseProcess(process)[0]);
-  console.log(YAML.stringify(parseProcess(process)[0]));
+  const parsedProcess = parseProcess(process)[0];
+  console.log(parsedProcess);
+  console.log(JSON.stringify(parsedProcess));
+  console.log(YAML.stringify(parsedProcess));
+  return parsedProcess;
 }
 
 /**
@@ -29,10 +44,10 @@ export function bpmnModdleToProcessTree(bpmnModdle: Definitions) {
  */
 function parseProcess(
   process: Process | SubProcess
-): [any[], FlowNode | undefined] {
+): [ProcessTree, FlowNode | undefined] {
   const sequenceFlows: SequenceFlow[] = process.flowElements.filter(
     (flowElement) => flowElement.$type === "bpmn:SequenceFlow"
-  );
+  ) as SequenceFlow[];
 
   const startFlow = getStartFlow(sequenceFlows);
   if (!startFlow || !startFlow.targetRef) {
@@ -57,10 +72,10 @@ function parseProcess(
 function parseProcessFlowUntilElement(
   startElement: FlowNode,
   TerminationElementType: String
-): [any[], FlowNode | undefined] {
+): [ProcessTree | (ProcessLeaf | ProcessTree)[], FlowNode | undefined] {
   // console.log("Parsing flow starting in " + elementToString(startElement));
 
-  const parsedProcess = [];
+  const parsedProcess: (ProcessLeaf | ProcessTree)[] = [];
   let nextElementInFlow: FlowNode | undefined = startElement;
   while (
     nextElementInFlow &&
@@ -90,7 +105,7 @@ function parseProcessFlowUntilElement(
  */
 function parseProcessSegment(
   currentElement: FlowNode
-): [string | any, FlowNode | undefined] {
+): [ProcessLeaf | ProcessTree, FlowNode | undefined] {
   // console.log("Parsing " + elementToString(currentElement));
   switch (currentElement.$type) {
     case "bpmn:Task":
@@ -113,12 +128,12 @@ function parseProcessSegment(
  */
 function parseSplittedControlflow(
   gatewayElement: FlowNode
-): [any, FlowNode | undefined] {
+): [ProcessTree, FlowNode | undefined] {
   // console.log(
   //   "Start analyzing splitted control flow for gateway " +
   //     elementToString(gatewayElement)
   // );
-  const splittetControlflowBranches = [];
+  const splittetControlflowBranches: (ProcessLeaf | ProcessTree)[] = [];
   const lastElementsOfBranches: FlowElement[] = [];
 
   gatewayElement.outgoing.forEach((branch) => {
