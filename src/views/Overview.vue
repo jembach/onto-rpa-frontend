@@ -6,15 +6,28 @@
     <o-button tag="router-link" to="modeler" class="m-4">
       Open Modeler
     </o-button>
+    <div v-for="botModel in botModels">
+      {{ botModel.name }}
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 export default defineComponent({
   name: "overview",
+  data() {
+    return {
+      botModels: [] as BotModel[],
+    };
+  },
+  async mounted(): Promise<void> {
+    this.botModels = await botModelApi.getBotModels();
+  },
 });
 </script>
 
 <script setup lang="ts">
 import { defineComponent } from "vue";
+import botModelApi from "../api/botModelApi";
+import BotModel from "../interfaces/BotModel";
 </script>
