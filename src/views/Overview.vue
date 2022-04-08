@@ -6,8 +6,9 @@
     <o-button tag="router-link" to="modeler" class="m-4">
       Open Modeler
     </o-button>
-    <div v-for="botModel in botModels">
-      {{ botModel.name }}
+    <div class="flex">
+      <BotOverviewCard v-for="botModel in botModels" :botModel="botModel">
+      </BotOverviewCard>
     </div>
   </div>
 </template>
@@ -30,4 +31,5 @@ export default defineComponent({
 import { defineComponent } from "vue";
 import botModelApi from "../api/botModelApi";
 import BotModel from "../interfaces/BotModel";
+import BotOverviewCard from "../components/BotOverviewCard.vue";
 </script>
