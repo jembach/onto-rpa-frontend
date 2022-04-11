@@ -1,47 +1,32 @@
 import {
   RpaBaseElement,
-  RpaBaseConcept,
-  RpaBaseInstance,
   RpaBaseType,
   RpaData,
-  RpaDataConcept,
   RpaDataType,
   RpaOperation,
-  RpaOperationConcept,
   RpaOperationType,
   RpaSoftware,
-  RpaSoftwareConcept,
   RpaSoftwareType,
+  RpaOperationTaxonomy,
+  RpaSoftwareTaxonomy,
+  RpaDataTaxonomy,
+  RpaTaxonomy,
 } from "../interfaces/RpaOperation";
 import rpaOperationsOntology from "../resources/rpa-operations.json";
 
-interface rpaTaxonomy<A, B, C> {
-  types: Record<string, A>;
-  concepts: Record<string, B>;
-  individuals: Record<string, C>;
-}
-
-export const rpaOperations: rpaTaxonomy<
-  RpaOperationType,
-  RpaOperationConcept,
-  RpaOperation
-> = {
+export const rpaOperations: RpaOperationTaxonomy = {
   types: {},
   concepts: {},
   individuals: {},
 };
 
-export const rpaSoftware: rpaTaxonomy<
-  RpaSoftwareType,
-  RpaSoftwareConcept,
-  RpaSoftware
-> = {
+export const rpaSoftware: RpaSoftwareTaxonomy = {
   types: {},
   concepts: {},
   individuals: {},
 };
 
-export const rpaData: rpaTaxonomy<RpaDataType, RpaDataConcept, RpaData> = {
+export const rpaData: RpaDataTaxonomy = {
   types: {},
   concepts: {},
   individuals: {},
@@ -55,13 +40,7 @@ const RPA_SOFTWARE_ROOT_IRI = "http://cos.ontoware.org/cso#software";
 
 const INDIVIDUAL_IRI = "http://www.w3.org/2002/07/owl#NamedIndividual";
 const SUBCLASS_IRI = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
-const RELATION_IRIS: [
-  string,
-  (
-    | rpaTaxonomy<RpaSoftwareType, RpaSoftwareConcept, RpaSoftware>
-    | rpaTaxonomy<RpaDataType, RpaDataConcept, RpaData>
-  )
-][] = [
+const RELATION_IRIS: [string, RpaSoftwareTaxonomy | RpaDataTaxonomy][] = [
   [
     "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates",
     rpaSoftware,
@@ -97,13 +76,7 @@ const RPA_SOFTWARE_ROOT_ELEMENT: RpaBaseElement = {
 //   }
 // });
 
-function exploreTree(
-  superElement: RpaBaseElement,
-  rpaTree:
-    | rpaTaxonomy<RpaOperationType, RpaOperationConcept, RpaOperation>
-    | rpaTaxonomy<RpaSoftwareType, RpaSoftwareConcept, RpaSoftware>
-    | rpaTaxonomy<RpaDataType, RpaDataConcept, RpaData>
-): void {
+function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
   rpaOperationsOntology.forEach((operation) => {
     const currentId = getIdFromIri(operation["@id"]);
 
@@ -165,13 +138,7 @@ exploreTree(RPA_SOFTWARE_ROOT_ELEMENT, rpaSoftware);
 // Load Operations taxonomy
 exploreTree(RPA_OPERATION_ROOT_ELEMENT, rpaOperations);
 
-function convertTypeToConcept(
-  typeKey: string,
-  rpaTree:
-    | rpaTaxonomy<RpaOperationType, RpaOperationConcept, RpaOperation>
-    | rpaTaxonomy<RpaSoftwareType, RpaSoftwareConcept, RpaSoftware>
-    | rpaTaxonomy<RpaDataType, RpaDataConcept, RpaData>
-) {
+function convertTypeToConcept(typeKey: string, rpaTree: RpaTaxonomy) {
   rpaTree.concepts[typeKey] = {};
   Object.assign(rpaTree.concepts[typeKey], rpaTree.types[typeKey]);
   delete rpaTree.types[typeKey];

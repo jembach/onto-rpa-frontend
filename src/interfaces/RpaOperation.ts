@@ -57,3 +57,35 @@ export interface RpaDataType extends RpaBaseType<RpaDataType> {}
 export interface RpaDataConcept extends RpaBaseConcept<RpaDataType> {}
 
 export interface RpaData extends RpaBaseInstance<RpaDataConcept> {}
+
+// ============
+// RPA TAXONOMY
+
+interface GenericRpaTaxonomy<A, B, C> {
+  types: Record<string, A>;
+  concepts: Record<string, B>;
+  individuals: Record<string, C>;
+}
+
+export type RpaOperationTaxonomy = GenericRpaTaxonomy<
+  RpaOperationType,
+  RpaOperationConcept,
+  RpaOperation
+>;
+
+export type RpaSoftwareTaxonomy = GenericRpaTaxonomy<
+  RpaSoftwareType,
+  RpaSoftwareConcept,
+  RpaSoftware
+>;
+
+export type RpaDataTaxonomy = GenericRpaTaxonomy<
+  RpaDataType,
+  RpaDataConcept,
+  RpaData
+>;
+
+export type RpaTaxonomy =
+  | RpaOperationTaxonomy
+  | RpaSoftwareTaxonomy
+  | RpaDataTaxonomy;
