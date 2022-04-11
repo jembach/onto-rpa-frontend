@@ -2,6 +2,8 @@
   <BotOperationTreePart
     :rpa-tree="activeTree"
     :root-node="treeRootNode"
+    @drag-operation="$emit('drag-operation', $event)"
+    @click-operation="$emit('click-operation', $event)"
   ></BotOperationTreePart>
 </template>
 
@@ -17,6 +19,7 @@ import BotOperationTreePart from "./BotOperationTreePart.vue";
 
 export default defineComponent({
   name: "bot-operation-tree",
+  emits: ["drag-operation", "click-operation"],
   props: {
     treeCriteria: {
       type: String,

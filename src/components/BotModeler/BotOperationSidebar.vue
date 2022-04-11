@@ -2,7 +2,10 @@
   <div>
     <div class="p-3 h-20">
       <div class="text-center text-xl">Semantic Operation Selector</div>
-      <BotOperationTree></BotOperationTree>
+      <BotOperationTree
+        @drag-operation="$emit('drag-operation', $event)"
+        @click-operation="$emit('click-operation', $event)"
+      ></BotOperationTree>
       <o-field>
         <o-input
           v-model="searchTerm"

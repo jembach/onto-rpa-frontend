@@ -1,19 +1,26 @@
 <template>
   <div
-    v-if="rootNodeTypes.length > 0"
-    v-for="treeNode in rootNodeTypes"
+    v-if="childTypesOfRoot.length > 0"
+    v-for="treeNode in childTypesOfRoot"
     class="ml-2"
   >
-    {{ treeNode.label || treeNode.id }}
-    <BotOperationTreePart :rpa-tree="rpaTree" :rootNode="treeNode.id">
-    </BotOperationTreePart>
+    <div v-if="nodeVisibility[treeNode.id]">
+      {{ treeNode.label || treeNode.id }}
+      <BotOperationTreePart
+        :rpa-tree="rpaTree"
+        :rootNode="treeNode.id"
+        @drag-operation="$emit('drag-operation', $event)"
+        @click-operation="$emit('click-operation', $event)"
+        @no-operations="hideNode"
+      >
+      </BotOperationTreePart>
+    </div>
   </div>
   <div
-    v-for="treeNode in rootNodeConcepts"
-    v-if="rootNodeConcepts.length > 0"
+    v-for="treeNode in childConceptsOfRoot"
+    v-if="childConceptsOfRoot.length > 0"
     class="ml-2"
   >
-    {{ getOperationsOfConcept(treeNode.id).length }}
     <div v-if="getOperationsOfConcept(treeNode.id).length > 0">
       {{ treeNode.label || treeNode.id }}
       <BotOperationCard
@@ -46,6 +53,7 @@ import {
 
 export default defineComponent({
   name: "bot-operation-tree-part",
+  emits: ["drag-operation", "click-operation", "no-operations"],
   props: {
     rpaTree: {
       type: Object as PropType<RpaTaxonomy>,
@@ -59,7 +67,20 @@ export default defineComponent({
   data() {
     return {
       activeTree: rpaOperations,
+      nodeVisibility: {} as Record<string, boolean>,
+      childTypesOfRoot: [] as RpaBaseElement[],
+      childConceptsOfRoot: [] as RpaBaseElement[],
     };
+  },
+  mounted() {
+    this.childTypesOfRoot = this.getRootNodeTypes();
+    this.childConceptsOfRoot = this.getRootNodeConcepts();
+    if (
+      this.childTypesOfRoot.length === 0 &&
+      this.childConceptsOfRoot.length === 0
+    ) {
+      this.$emit("no-operations", this.rootNode);
+    }
   },
   methods: {
     getOperationsOfConcept(conceptId: string): RpaOperation[] {
@@ -72,19 +93,18 @@ export default defineComponent({
       }
       return operations;
     },
-  },
-  computed: {
-    rootNodeTypes(): RpaBaseElement[] {
+    getRootNodeTypes(): RpaBaseElement[] {
       const elements = [];
       for (const element in this.rpaTree.types) {
         const currentRpaElement = this.rpaTree.types[element];
         if (currentRpaElement.type?.id === this.rootNode) {
           elements.push(currentRpaElement);
+          this.nodeVisibility[currentRpaElement.id] = true;
         }
       }
       return elements;
     },
-    rootNodeConcepts(): RpaBaseElement[] {
+    getRootNodeConcepts(): RpaBaseElement[] {
       const elements = [];
       for (const element in this.rpaTree.concepts) {
         const currentRpaElement = this.rpaTree.concepts[element];
@@ -94,7 +114,20 @@ export default defineComponent({
       }
       return elements;
     },
+    hideNode(e) {
+      this.nodeVisibility[e] = false;
+      this.checkChildVisibility();
+    },
+    checkChildVisibility() {
+      for (const element in this.nodeVisibility) {
+        if (this.nodeVisibility[element]) {
+          return;
+        }
+      }
+      this.$emit("no-operations", this.rootNode);
+    },
   },
+
   components: { RpaElementExplainer, BotOperationCard },
 });
 </script>
