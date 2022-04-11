@@ -1,16 +1,22 @@
 <template>
   <div class="bg-sky-700 text-center text-slate-200 py-12">
-    <h1 class="text-4xl font-bold">Semantic RPA Bot Modeler</h1>
+    <o-input
+      class="text-center text-white bg-inherit text-4xl border-0 border-b-2 w-4/5 shadow-none"
+      placeholder="Name your new Bot"
+      v-model="botName"
+    ></o-input>
   </div>
   <hr />
-  <BotModeler></BotModeler>
+  <BotModeler :botModelName="botName"></BotModeler>
 </template>
 
 <script lang="ts">
 export default defineComponent({
   name: "modeler",
-  mounted() {
-    console.log(rpaOperations);
+  data() {
+    return {
+      botName: "",
+    };
   },
 });
 </script>
@@ -18,5 +24,4 @@ export default defineComponent({
 <script setup lang="ts">
 import { defineComponent } from "vue";
 import BotModeler from "../components/BotModeler.vue";
-import { rpaOperations, rpaSoftware, rpaData } from "../utils/ontologyParser";
 </script>

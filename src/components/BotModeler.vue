@@ -21,13 +21,16 @@
       :element="element"
     ></BotModelerPropertiesPanel>
   </div>
-  <o-button @click="saveDiagram">Save to console</o-button>
+  <o-button @click="saveDiagram" class="text-black">Save Bot</o-button>
 </template>
 
 <script lang="ts">
 export default defineComponent({
   name: "bot-modeler",
   emits: ["modeler-doubleclick"],
+  props: {
+    botModelName: String,
+  },
   data() {
     return {
       modelerShown: false,
@@ -64,13 +67,20 @@ export default defineComponent({
     },
 
     saveDiagram: async function () {
-      const diagramXML = await this.modeler.saveXML();
-      const moddle = new BpmnModdle();
-      const { rootElement: definitions } = await moddle.fromXML(
-        defaultRpaDiagram
-      );
-      // console.log(definitions.rootElements);
-      bpmnModdleToProcessTree(this.modeler._definitions);
+      // const diagramXML = await this.modeler.saveXML();
+      if (!this.botModelName) {
+        this.$oruga.notification.open({
+          message: "Please name your new bot before saving.",
+          variant: "warning",
+        });
+        return;
+      }
+      const processTree = bpmnModdleToProcessTree(this.modeler._definitions);
+      const botModel: BotModel = {
+        name: this.botModelName,
+        model: JSON.stringify(processTree),
+      };
+      await botModelApi.addBotModel(botModel);
       // console.log(diagramXML);
     },
     newOperationShape(e) {
@@ -139,4 +149,6 @@ import { BpmoConcept } from "../interfaces/bpmoConcepts";
 import BpmnModdle from "bpmn-moddle";
 import { def } from "@vue/shared";
 import { bpmnModdleToProcessTree } from "../utils/bpmnModdleToProcessTree";
+import BotModel from "../interfaces/BotModel";
+import botModelApi from "../api/botModelApi";
 </script>
