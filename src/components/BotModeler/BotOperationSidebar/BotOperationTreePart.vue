@@ -1,38 +1,44 @@
 <template>
   <div
-    v-if="childTypesOfRoot.length > 0"
-    v-for="treeNode in childTypesOfRoot"
+    v-if="subtypesOfRoot.length > 0"
+    v-for="treeNode in subtypesOfRoot"
     class="ml-2"
   >
-    <div v-if="nodeVisibility[treeNode.id]">
-      {{ treeNode.label || treeNode.id }}
-      <BotOperationTreePart
-        :rpa-tree="rpaTree"
-        :rootNode="treeNode.id"
-        @drag-operation="$emit('drag-operation', $event)"
-        @click-operation="$emit('click-operation', $event)"
-        @no-operations="hideNode"
-      >
-      </BotOperationTreePart>
-    </div>
+    <o-collapse v-if="nodeVisibility[treeNode.id]" :open="false">
+      <template #trigger="props">
+        <div>
+          {{ treeNode.label || treeNode.id }}
+        </div>
+      </template>
+      <div class="card-content">
+        <div class="content">
+          <div v-if="nodeVisibility[treeNode.id]">
+            <BotOperationTreePart
+              :rpa-tree="rpaTree"
+              :rootNode="treeNode.id"
+              @drag-operation="$emit('drag-operation', $event)"
+              @click-operation="$emit('click-operation', $event)"
+              @no-operations="hideNode"
+            >
+            </BotOperationTreePart>
+          </div>
+        </div>
+      </div>
+    </o-collapse>
   </div>
   <div
-    v-for="treeNode in childConceptsOfRoot"
-    v-if="childConceptsOfRoot.length > 0"
+    v-if="operationsOfRoot.length > 0"
+    v-for="operation in operationsOfRoot"
     class="ml-2"
   >
-    <div v-if="getOperationsOfConcept(treeNode.id).length > 0">
-      {{ treeNode.label || treeNode.id }}
-      <BotOperationCard
-        v-for="operation in getOperationsOfConcept(treeNode.id)"
-        :operation="operation"
-        :data-operation="operation.id"
-        :data-nodetype="operation.bpmoConcept"
-        draggable="true"
-        @dragstart="$emit('drag-operation', $event)"
-        @click="$emit('click-operation', $event)"
-      />
-    </div>
+    <BotOperationCard
+      :operation="operation"
+      :data-operation="operation.id"
+      :data-nodetype="operation.bpmoConcept"
+      draggable="true"
+      @dragstart="$emit('drag-operation', $event)"
+      @click="$emit('click-operation', $event)"
+    />
   </div>
 </template>
 
@@ -68,17 +74,23 @@ export default defineComponent({
     return {
       activeTree: rpaOperations,
       nodeVisibility: {} as Record<string, boolean>,
-      childTypesOfRoot: [] as RpaBaseElement[],
-      childConceptsOfRoot: [] as RpaBaseElement[],
+      subtypesOfRoot: [] as RpaBaseElement[],
+      operationsOfRoot: [] as RpaOperation[],
     };
   },
   mounted() {
-    this.childTypesOfRoot = this.getRootNodeTypes();
-    this.childConceptsOfRoot = this.getRootNodeConcepts();
+    this.subtypesOfRoot = this.getRootNodeTypes();
+    this.subtypesOfRoot = this.subtypesOfRoot.concat(
+      this.getRootNodeConcepts()
+    );
+    console.log(this.rootNode);
+    console.log(this.subtypesOfRoot);
+    this.operationsOfRoot = this.getOperationsOfConcept(this.rootNode);
     if (
-      this.childTypesOfRoot.length === 0 &&
-      this.childConceptsOfRoot.length === 0
+      this.subtypesOfRoot.length === 0 &&
+      this.operationsOfRoot.length === 0
     ) {
+      console.log("no elements for " + this.rootNode);
       this.$emit("no-operations", this.rootNode);
     }
   },
@@ -110,6 +122,7 @@ export default defineComponent({
         const currentRpaElement = this.rpaTree.concepts[element];
         if (currentRpaElement.type.id === this.rootNode) {
           elements.push(currentRpaElement);
+          this.nodeVisibility[currentRpaElement.id] = true;
         }
       }
       return elements;
