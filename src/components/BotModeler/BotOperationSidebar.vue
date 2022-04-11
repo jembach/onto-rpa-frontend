@@ -2,7 +2,7 @@
   <div>
     <div class="p-3 h-20">
       <div class="text-center text-xl">Semantic Operation Selector</div>
-
+      <BotOperationTree></BotOperationTree>
       <o-field>
         <o-input
           v-model="searchTerm"
@@ -11,7 +11,7 @@
         ></o-input>
       </o-field>
     </div>
-    <div class="overflow-y-auto max-h-128">
+    <div class="overflow-y-auto max-h-128 hidden">
       <BotOperationCard
         v-for="operation in filteredOperations"
         :operation="operation"
@@ -30,6 +30,7 @@ import { defineComponent } from "vue";
 import { RpaOperation } from "../../interfaces/RpaOperation";
 import { rpaOperations } from "../../utils/ontologyParser";
 import BotOperationCard from "./BotOperationSidebar/BotOperationCard.vue";
+import BotOperationTree from "./BotOperationSidebar/BotOperationTree.vue";
 
 export default defineComponent({
   name: "bot-operation-sidebar",
@@ -57,6 +58,6 @@ export default defineComponent({
       );
     },
   },
-  components: { BotOperationCard },
+  components: { BotOperationCard, BotOperationTree },
 });
 </script>
