@@ -1,8 +1,12 @@
 <template>
   <div
-    class="relative m-6 rounded-lg h-20 w-44 shadow-md border-solid border-2 border-sky-700 cursor-pointer"
+    class="relative m-6 rounded-lg h-20 w-44 shadow-md border-solid border-2 border-action cursor-pointer text-center flex flex-col justify-center"
+    :class="[botModel ? 'border-sky-700' : 'border-action']"
   >
-    {{ botModel.name }}
+    <div v-if="botModel">
+      {{ botModel.name }}
+    </div>
+    <div v-else><o-icon icon="plus"></o-icon></div>
   </div>
 </template>
 
@@ -12,10 +16,7 @@ import BotModel from "../interfaces/BotModel";
 export default defineComponent({
   name: "bot-operation-sidebar",
   props: {
-    botModel: {
-      type: Object as PropType<BotModel>,
-      required: true,
-    },
+    botModel: Object as PropType<BotModel>,
   },
 });
 </script>

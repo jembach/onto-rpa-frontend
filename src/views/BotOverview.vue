@@ -3,16 +3,15 @@
     <h1 class="text-4xl font-bold">Conceptual RPA Bot Modeler</h1>
   </div>
   <div>
-    <o-button tag="router-link" to="modeler" class="m-4">
-      Open Modeler
-    </o-button>
-    <div class="flex">
-      <div v-for="botModel in botModels">
-        <router-link
-          :to="{ name: 'Modeler', params: { modelId: botModel._id } }"
-          ><BotOverviewCard :botModel="botModel"> </BotOverviewCard
-        ></router-link>
-      </div>
+    <div class="flex justify-center">
+      <router-link :to="{ name: 'Modeler' }">
+        <BotOverviewCard></BotOverviewCard>
+      </router-link>
+      <router-link
+        v-for="botModel in botModels"
+        :to="{ name: 'Modeler', params: { modelId: botModel._id } }"
+        ><BotOverviewCard :botModel="botModel"> </BotOverviewCard
+      ></router-link>
     </div>
   </div>
 </template>
