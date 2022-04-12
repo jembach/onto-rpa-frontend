@@ -1,10 +1,10 @@
 <template>
   <div class="bg-sky-700 text-center text-slate-200 py-12">
-    <o-input
-      class="text-center text-white bg-inherit text-4xl border-0 border-b-2 w-4/5 shadow-none"
+    <input
+      class="text-center text-white bg-transparent text-4xl border-0 border-b-2 w-4/5 shadow-none"
       placeholder="Name your new Bot"
       v-model="botName"
-    ></o-input>
+    />
   </div>
   <hr />
   <BotModeler :botModelName="botName"></BotModeler>

@@ -21,7 +21,9 @@
       :element="element"
     ></BotModelerPropertiesPanel>
   </div>
-  <o-button @click="saveDiagram" class="text-black">Save Bot</o-button>
+  <o-button @click="saveDiagram" variant="primary" icon-left="save"
+    >Save Bot</o-button
+  >
 </template>
 
 <script lang="ts">

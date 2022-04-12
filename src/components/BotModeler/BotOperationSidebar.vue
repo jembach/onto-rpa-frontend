@@ -2,10 +2,6 @@
   <div>
     <div class="p-3 h-20">
       <div class="text-center text-xl">Semantic Operation Selector</div>
-      <BotOperationTree
-        @drag-operation="$emit('drag-operation', $event)"
-        @click-operation="$emit('click-operation', $event)"
-      ></BotOperationTree>
       <o-field>
         <o-input
           v-model="searchTerm"
@@ -13,17 +9,10 @@
           inputClass="text-center"
         ></o-input>
       </o-field>
-    </div>
-    <div class="overflow-y-auto max-h-128 hidden">
-      <BotOperationCard
-        v-for="operation in filteredOperations"
-        :operation="operation"
-        :data-operation="operation.id"
-        :data-nodetype="operation.bpmoConcept"
-        draggable="true"
-        @dragstart="$emit('drag-operation', $event)"
-        @click="$emit('click-operation', $event)"
-      />
+      <BotOperationTree
+        @drag-operation="$emit('drag-operation', $event)"
+        @click-operation="$emit('click-operation', $event)"
+      ></BotOperationTree>
     </div>
   </div>
 </template>

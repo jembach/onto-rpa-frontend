@@ -7,7 +7,9 @@
     <o-collapse v-if="nodeVisibility[treeNode.id]" :open="false">
       <template #trigger="props">
         <div>
-          {{ treeNode.label || treeNode.id }}
+          <o-icon v-if="props.open" icon="caret-down"> </o-icon>
+          <o-icon v-else icon="caret-right"> </o-icon>
+          <span class="ml-1">{{ treeNode.label || treeNode.id }}</span>
         </div>
       </template>
       <div class="card-content">
