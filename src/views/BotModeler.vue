@@ -1,5 +1,13 @@
 <template>
   <div class="bg-sky-700 text-center text-slate-200 py-12">
+    <router-link
+      :to="{ name: 'Overview' }"
+      class="absolute left-4"
+      title="Back to Overview"
+    >
+      <o-icon icon="circle-arrow-left" size="large"></o-icon>
+    </router-link>
+
     <input
       class="text-center text-white bg-transparent text-4xl border-0 border-b-2 w-4/5 shadow-none"
       placeholder="Name your new Bot"

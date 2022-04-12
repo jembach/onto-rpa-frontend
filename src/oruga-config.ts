@@ -3,7 +3,7 @@ const faDefaulSettings = {
     default: null,
     small: "fa-xs",
     medium: "fa-lg",
-    large: "fa-2x",
+    large: "fa-xl",
   },
   iconPrefix: "fa-",
   internalIcons: {
