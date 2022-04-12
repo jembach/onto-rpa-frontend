@@ -11,7 +11,7 @@
     <input
       class="text-center text-white bg-transparent text-4xl border-0 border-b-2 w-4/5 shadow-none"
       placeholder="Name your new Bot"
-      v-model="botName"
+      v-model="botModel.name"
     />
   </div>
   <hr />
@@ -23,8 +23,8 @@
     >
     </BotOperationSidebar>
     <BotModelerCanvas
-      v-if="diagramXML"
-      :diagram="diagramXML"
+      v-if="botModel.model"
+      :diagram="botModel.model"
       @modeler-shown="modelerLoaded"
       @modeler-selection-changed="selectionChanged"
       @modeler-element-changed="elementChanged"
@@ -53,17 +53,15 @@ export default defineComponent({
       modeler: undefined,
       selectedElements: [] as ModelerElement[],
       element: {} as ModelerElement,
-      diagramXML: "",
-      botName: "",
-      botId: this.$route.params.modelId as string,
+      botModel: {} as BotModel,
     };
   },
   async mounted() {
-    if (this.botId) {
+    if (this.$route.params.modelId as string) {
       try {
-        const botModel = await botModelApi.getBotModel(this.botId);
-        this.botName = botModel.name;
-        this.diagramXML = JSON.parse(botModel.model);
+        this.botModel = await botModelApi.getBotModel(
+          this.$route.params.modelId as string
+        );
       } catch (e) {
         this.$oruga.notification.open({
           message: "Could not load the requested bot model.",
@@ -71,7 +69,7 @@ export default defineComponent({
         });
       }
     } else {
-      this.diagramXML = defaultRpaDiagram;
+      this.botModel = createDefaultBotModel();
     }
   },
   methods: {
@@ -101,7 +99,7 @@ export default defineComponent({
     },
 
     saveDiagram: async function () {
-      if (!this.botName) {
+      if (!this.botModel.name) {
         this.$oruga.notification.open({
           message: "Please name your new bot before saving.",
           variant: "warning",
@@ -109,17 +107,15 @@ export default defineComponent({
         return;
       }
       const diagramXML = await this.modeler.saveXML();
-      // const processTree = bpmnModdleToProcessTree(this.modeler._definitions);
-      const botModel: BotModel = {
-        name: this.botName,
-        model: JSON.stringify(diagramXML["xml"]),
-      };
+      this.botModel.model = diagramXML.xml;
+      this.botModel.processTree = JSON.stringify(
+        bpmnModdleToProcessTree(this.modeler._definitions)
+      );
       try {
-        if (this.botId) {
-          botModel._id = this.botId;
-          await botModelApi.updateBotModel(botModel);
+        if (this.botModel._id) {
+          await botModelApi.updateBotModel(this.botModel);
         } else {
-          await botModelApi.addBotModel(botModel);
+          await botModelApi.addBotModel(this.botModel);
         }
       } catch (e) {
         this.$oruga.notification.open({
@@ -186,14 +182,10 @@ import {
   ModelerEvent,
   ModelerSelectionChange,
 } from "../interfaces/ModelerEvents";
-import defaultDiagram from "../resources/defaultDiagram";
-import defaultRpaDiagram from "../resources/defaultRPADiagram";
 import BotOperationSidebar from "../components/BotModeler/BotOperationSidebar.vue";
 import { bpmnMapping } from "../utils/bpmnMapping";
 import { BpmoConcept } from "../interfaces/bpmoConcepts";
-import BpmnModdle from "bpmn-moddle";
-import { def } from "@vue/shared";
 import { bpmnModdleToProcessTree } from "../utils/bpmnModdleToProcessTree";
-import BotModel from "../interfaces/BotModel";
+import BotModel, { createDefaultBotModel } from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 </script>

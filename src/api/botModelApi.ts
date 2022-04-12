@@ -1,5 +1,8 @@
 import axios from "axios";
-import BotModel from "../interfaces/BotModel";
+import BotModel, {
+  parseBotModel,
+  stringifyBotModel,
+} from "../interfaces/BotModel";
 
 export default {
   async getBotModels(): Promise<BotModel[]> {
@@ -7,31 +10,35 @@ export default {
 
     return res.data;
   },
-  async getBotModel(BotModelId: string): Promise<BotModel> {
+  async getBotModel(botModelId: string): Promise<BotModel> {
     const res = await axios.get(
-      `http://localhost:3001/api/BotModels/${BotModelId}`
+      `http://localhost:3001/api/BotModels/${botModelId}`
     );
 
-    return res.data;
+    return parseBotModel(res.data as BotModel);
   },
-  async addBotModel(BotModel: BotModel): Promise<BotModel> {
+  async addBotModel(botModel: BotModel): Promise<BotModel> {
+    botModel = stringifyBotModel(botModel);
+
     const res = await axios.post(
       "http://localhost:3001/api/BotModels",
-      BotModel
+      botModel
     );
 
     return res.data;
   },
-  async updateBotModel(BotModel: BotModel): Promise<BotModel> {
+  async updateBotModel(botModel: BotModel): Promise<BotModel> {
+    botModel = stringifyBotModel(botModel);
+
     const res = await axios.patch(
-      `http://localhost:3001/api/BotModels/${BotModel._id}`,
-      BotModel
+      `http://localhost:3001/api/BotModels/${botModel._id}`,
+      botModel
     );
 
     return res.data;
   },
-  async deleteBotModel(BotModelId: string): Promise<void> {
-    await axios.delete(`http://localhost:3001/api/BotModels/${BotModelId}`);
+  async deleteBotModel(botModelId: string): Promise<void> {
+    await axios.delete(`http://localhost:3001/api/BotModels/${botModelId}`);
 
     return;
   },
