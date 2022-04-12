@@ -7,8 +7,12 @@
       Open Modeler
     </o-button>
     <div class="flex">
-      <BotOverviewCard v-for="botModel in botModels" :botModel="botModel">
-      </BotOverviewCard>
+      <div v-for="botModel in botModels">
+        <router-link
+          :to="{ name: 'Modeler', params: { modelId: botModel._id } }"
+          ><BotOverviewCard :botModel="botModel"> </BotOverviewCard
+        ></router-link>
+      </div>
     </div>
   </div>
 </template>

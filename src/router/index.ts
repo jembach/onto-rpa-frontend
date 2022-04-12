@@ -13,7 +13,7 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: "/modeler",
+    path: "/modeler/:modelId",
     name: "Modeler",
     component: Modeler,
     meta: {

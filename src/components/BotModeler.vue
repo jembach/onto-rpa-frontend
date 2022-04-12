@@ -34,6 +34,7 @@ export default defineComponent({
   emits: ["modeler-doubleclick"],
   props: {
     botModelName: String,
+    botModelId: String,
   },
   data() {
     return {
@@ -43,6 +44,12 @@ export default defineComponent({
       element: {} as ModelerElement,
       diagramXML: defaultRpaDiagram as string,
     };
+  },
+  async mounted() {
+    if (this.botModelId) {
+      const botModel = await botModelApi.getBotModel(this.botModelId);
+      console.log(JSON.parse(botModel.model));
+    }
   },
   methods: {
     selectionChanged(e: ModelerSelectionChange) {

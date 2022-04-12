@@ -7,7 +7,7 @@
     />
   </div>
   <hr />
-  <BotModeler :botModelName="botName"></BotModeler>
+  <BotModeler :botModelName="botName" :botModelId="modelId"></BotModeler>
 </template>
 
 <script lang="ts">
@@ -16,6 +16,7 @@ export default defineComponent({
   data() {
     return {
       botName: "",
+      modelId: this.$route.params.modelId as string,
     };
   },
 });
