@@ -2,6 +2,7 @@
   <BotOperationTreePart
     :rpa-tree="activeTree"
     :root-node="treeRootNode"
+    :search-term="searchTerm"
     @drag-operation="$emit('drag-operation', $event)"
     @click-operation="$emit('click-operation', $event)"
   ></BotOperationTreePart>
@@ -25,6 +26,7 @@ export default defineComponent({
       type: String,
       default: "operations",
     },
+    searchTerm: String,
   },
   data() {
     return {

@@ -1,10 +1,9 @@
 <template>
-  <div
-    v-if="subtypesOfRoot.length > 0"
-    v-for="treeNode in subtypesOfRoot"
-    class="ml-2"
-  >
-    <o-collapse v-if="nodeVisibility[treeNode.id]" :open="false">
+  <div v-for="treeNode in subtypesOfRoot" class="ml-2">
+    <o-collapse
+      v-bind:class="{ hidden: !nodeVisibility[treeNode.id] }"
+      :open="true"
+    >
       <template #trigger="props">
         <div>
           <o-icon v-if="props.open" icon="caret-down"> </o-icon>
@@ -14,13 +13,14 @@
       </template>
       <div class="card-content">
         <div class="content">
-          <div v-if="nodeVisibility[treeNode.id]">
+          <div v-bind:class="{ hidden: !nodeVisibility[treeNode.id] }">
             <BotOperationTreePart
               :rpa-tree="rpaTree"
               :rootNode="treeNode.id"
+              :search-term="searchTerm"
               @drag-operation="$emit('drag-operation', $event)"
               @click-operation="$emit('click-operation', $event)"
-              @no-operations="hideNode"
+              @node-visibility="setNodeVisibility"
             >
             </BotOperationTreePart>
           </div>
@@ -30,7 +30,7 @@
   </div>
   <div
     v-if="operationsOfRoot.length > 0"
-    v-for="operation in operationsOfRoot"
+    v-for="operation in filteredOperations"
     class="ml-2"
   >
     <BotOperationCard
@@ -53,15 +53,10 @@ import {
   RpaTaxonomy,
 } from "../../../interfaces/RpaOperation";
 import BotOperationCard from "./BotOperationCard.vue";
-import {
-  rpaOperations,
-  rpaSoftware,
-  rpaData,
-} from "../../../utils/ontologyParser";
 
 export default defineComponent({
   name: "bot-operation-tree-part",
-  emits: ["drag-operation", "click-operation", "no-operations"],
+  emits: ["drag-operation", "click-operation", "node-visibility"],
   props: {
     rpaTree: {
       type: Object as PropType<RpaTaxonomy>,
@@ -71,10 +66,11 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    searchTerm: String,
   },
   data() {
     return {
-      activeTree: rpaOperations,
+      activeTree: this.rpaTree,
       nodeVisibility: {} as Record<string, boolean>,
       subtypesOfRoot: [] as RpaBaseElement[],
       operationsOfRoot: [] as RpaOperation[],
@@ -85,15 +81,12 @@ export default defineComponent({
     this.subtypesOfRoot = this.subtypesOfRoot.concat(
       this.getRootNodeConcepts()
     );
-    console.log(this.rootNode);
-    console.log(this.subtypesOfRoot);
     this.operationsOfRoot = this.getOperationsOfConcept(this.rootNode);
     if (
       this.subtypesOfRoot.length === 0 &&
       this.operationsOfRoot.length === 0
     ) {
-      console.log("no elements for " + this.rootNode);
-      this.$emit("no-operations", this.rootNode);
+      this.emitNodeVisibility(false);
     }
   },
   methods: {
@@ -129,20 +122,46 @@ export default defineComponent({
       }
       return elements;
     },
-    hideNode(e) {
-      this.nodeVisibility[e] = false;
-      this.checkChildVisibility();
+    setNodeVisibility(e) {
+      const [node, visibility] = e;
+      this.nodeVisibility[node] = visibility;
     },
-    checkChildVisibility() {
-      for (const element in this.nodeVisibility) {
-        if (this.nodeVisibility[element]) {
-          return;
-        }
-      }
-      this.$emit("no-operations", this.rootNode);
+    emitNodeVisibility(visible: boolean) {
+      this.$emit("node-visibility", [this.rootNode, visible]);
     },
   },
+  computed: {
+    filteredOperations(): RpaOperation[] {
+      if (!this.searchTerm) {
+        return this.operationsOfRoot;
+      }
 
+      const searchTerms = this.searchTerm.toLowerCase().split(" ");
+      const filteredOperations = Object.values(this.operationsOfRoot).filter(
+        (operation) =>
+          searchTerms.every(
+            (term) =>
+              operation.id.toLowerCase().includes(term) ||
+              operation.accesses?.id.toLowerCase().includes(term) ||
+              operation.automates?.id.toLowerCase().includes(term) ||
+              operation.concept.id.toLowerCase().includes(term)
+          )
+      );
+      this.emitNodeVisibility(filteredOperations.length > 0);
+      return filteredOperations;
+    },
+  },
+  watch: {
+    nodeVisibility: {
+      handler(newVisibility, oldVisibility) {
+        const currentVisibilities = Object.values(newVisibility);
+        this.emitNodeVisibility(
+          currentVisibilities.some((visibility) => visibility)
+        );
+      },
+      deep: true,
+    },
+  },
   components: { RpaElementExplainer, BotOperationCard },
 });
 </script>
