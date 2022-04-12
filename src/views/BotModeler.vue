@@ -115,7 +115,12 @@ export default defineComponent({
         model: JSON.stringify(diagramXML["xml"]),
       };
       try {
-        await botModelApi.addBotModel(botModel);
+        if (this.botId) {
+          botModel._id = this.botId;
+          await botModelApi.updateBotModel(botModel);
+        } else {
+          await botModelApi.addBotModel(botModel);
+        }
       } catch (e) {
         this.$oruga.notification.open({
           message: "Bot could not be saved. " + e,
