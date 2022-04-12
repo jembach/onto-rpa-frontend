@@ -15,6 +15,7 @@
     >
     </BotOperationSidebar>
     <BotModelerCanvas
+      v-if="diagramXML"
       :diagram="diagramXML"
       @modeler-shown="modelerLoaded"
       @modeler-selection-changed="selectionChanged"
@@ -44,16 +45,25 @@ export default defineComponent({
       modeler: undefined,
       selectedElements: [] as ModelerElement[],
       element: {} as ModelerElement,
-      diagramXML: defaultRpaDiagram as string,
+      diagramXML: "",
       botName: "",
       botId: this.$route.params.modelId as string,
     };
   },
   async mounted() {
     if (this.botId) {
-      const botModel = await botModelApi.getBotModel(this.botId);
-      this.botName = botModel.name;
-      console.log(JSON.parse(botModel.model));
+      try {
+        const botModel = await botModelApi.getBotModel(this.botId);
+        this.botName = botModel.name;
+        this.diagramXML = JSON.parse(botModel.model);
+      } catch (e) {
+        this.$oruga.notification.open({
+          message: "Could not load the requested bot model.",
+          variant: "error",
+        });
+      }
+    } else {
+      this.diagramXML = defaultRpaDiagram;
     }
   },
   methods: {
@@ -83,7 +93,6 @@ export default defineComponent({
     },
 
     saveDiagram: async function () {
-      // const diagramXML = await this.modeler.saveXML();
       if (!this.botName) {
         this.$oruga.notification.open({
           message: "Please name your new bot before saving.",
@@ -91,10 +100,11 @@ export default defineComponent({
         });
         return;
       }
-      const processTree = bpmnModdleToProcessTree(this.modeler._definitions);
+      const diagramXML = await this.modeler.saveXML();
+      // const processTree = bpmnModdleToProcessTree(this.modeler._definitions);
       const botModel: BotModel = {
         name: this.botName,
-        model: JSON.stringify(processTree),
+        model: JSON.stringify(diagramXML["xml"]),
       };
       try {
         await botModelApi.addBotModel(botModel);
@@ -104,7 +114,6 @@ export default defineComponent({
           variant: "danger",
         });
       }
-      // console.log(diagramXML);
     },
     newOperationShape(e) {
       const operation = e.target.dataset["operation"];
