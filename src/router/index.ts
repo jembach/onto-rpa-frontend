@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import Modeler from "../views/Modeler.vue";
-import Overview from "../views/Overview.vue";
+import Modeler from "../views/BotModeler.vue";
+import Overview from "../views/BotOverview.vue";
 import NotFound from "../views/404.vue";
 
 const routes: Array<RouteRecordRaw> = [

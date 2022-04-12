@@ -1,4 +1,12 @@
 <template>
+  <div class="bg-sky-700 text-center text-slate-200 py-12">
+    <input
+      class="text-center text-white bg-transparent text-4xl border-0 border-b-2 w-4/5 shadow-none"
+      placeholder="Name your new Bot"
+      v-model="botName"
+    />
+  </div>
+  <hr />
   <div class="grid grid-cols-6 h-132">
     <BotOperationSidebar
       @drag-operation="dragOperation"
@@ -11,7 +19,6 @@
       @modeler-shown="modelerLoaded"
       @modeler-selection-changed="selectionChanged"
       @modeler-element-changed="elementChanged"
-      @modeler-doubleclick="$emit('modeler-doubleclick', $event)"
       class="col-span-4 h-132"
     ></BotModelerCanvas>
     <BotModelerPropertiesPanel
@@ -31,11 +38,6 @@
 <script lang="ts">
 export default defineComponent({
   name: "bot-modeler",
-  emits: ["modeler-doubleclick"],
-  props: {
-    botModelName: String,
-    botModelId: String,
-  },
   data() {
     return {
       modelerShown: false,
@@ -43,11 +45,14 @@ export default defineComponent({
       selectedElements: [] as ModelerElement[],
       element: {} as ModelerElement,
       diagramXML: defaultRpaDiagram as string,
+      botName: "",
+      botId: this.$route.params.modelId as string,
     };
   },
   async mounted() {
-    if (this.botModelId) {
-      const botModel = await botModelApi.getBotModel(this.botModelId);
+    if (this.botId) {
+      const botModel = await botModelApi.getBotModel(this.botId);
+      this.botName = botModel.name;
       console.log(JSON.parse(botModel.model));
     }
   },
@@ -79,7 +84,7 @@ export default defineComponent({
 
     saveDiagram: async function () {
       // const diagramXML = await this.modeler.saveXML();
-      if (!this.botModelName) {
+      if (!this.botName) {
         this.$oruga.notification.open({
           message: "Please name your new bot before saving.",
           variant: "warning",
@@ -88,7 +93,7 @@ export default defineComponent({
       }
       const processTree = bpmnModdleToProcessTree(this.modeler._definitions);
       const botModel: BotModel = {
-        name: this.botModelName,
+        name: this.botName,
         model: JSON.stringify(processTree),
       };
       try {
@@ -152,8 +157,8 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { defineComponent } from "vue";
-import BotModelerCanvas from "./BotModeler/BotModelerCanvas.vue";
-import BotModelerPropertiesPanel from "./BotModeler/BotModelerPropertiesPanel.vue";
+import BotModelerCanvas from "../components/BotModeler/BotModelerCanvas.vue";
+import BotModelerPropertiesPanel from "../components/BotModeler/BotModelerPropertiesPanel.vue";
 import {
   ModelerElement,
   ModelerEvent,
@@ -161,7 +166,7 @@ import {
 } from "../interfaces/ModelerEvents";
 import defaultDiagram from "../resources/defaultDiagram";
 import defaultRpaDiagram from "../resources/defaultRPADiagram";
-import BotOperationSidebar from "./BotModeler/BotOperationSidebar.vue";
+import BotOperationSidebar from "../components/BotModeler/BotOperationSidebar.vue";
 import { bpmnMapping } from "../utils/bpmnMapping";
 import { BpmoConcept } from "../interfaces/bpmoConcepts";
 import BpmnModdle from "bpmn-moddle";
