@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative mx-auto my-6 rounded-lg h-20 w-44 shadow-md border-solid border-2 border-blue-500 cursor-pointer"
+    class="ml-2 my-2 rounded-lg h-20 w-44 shadow-md border-solid border-2 border-blue-500 cursor-pointer"
   >
     <div class="flex flex-col justify-between">
       <div class="operation-tagline">

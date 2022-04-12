@@ -1,9 +1,9 @@
 <template>
-  <div class="grid grid-cols-6">
+  <div class="grid grid-cols-6 h-132">
     <BotOperationSidebar
       @drag-operation="dragOperation"
       @click-operation="clickOperation"
-      class="col-span-1"
+      class="col-span-1 h-132"
     >
     </BotOperationSidebar>
     <BotModelerCanvas
@@ -21,9 +21,11 @@
       :element="element"
     ></BotModelerPropertiesPanel>
   </div>
-  <o-button @click="saveDiagram" variant="primary" icon-left="save"
-    >Save Bot</o-button
-  >
+  <div class="m-4">
+    <o-button @click="saveDiagram" variant="primary" icon-left="save"
+      >Save Bot</o-button
+    >
+  </div>
 </template>
 
 <script lang="ts">
@@ -82,7 +84,14 @@ export default defineComponent({
         name: this.botModelName,
         model: JSON.stringify(processTree),
       };
-      await botModelApi.addBotModel(botModel);
+      try {
+        await botModelApi.addBotModel(botModel);
+      } catch (e) {
+        this.$oruga.notification.open({
+          message: "Bot could not be saved. " + e,
+          variant: "danger",
+        });
+      }
       // console.log(diagramXML);
     },
     newOperationShape(e) {

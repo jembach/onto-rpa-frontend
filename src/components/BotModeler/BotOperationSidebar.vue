@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="p-3 h-20">
+    <div class="p-3 h-28">
       <div class="text-center text-xl">Semantic Operation Selector</div>
       <o-field>
         <o-input
@@ -9,6 +9,8 @@
           inputClass="text-center"
         ></o-input>
       </o-field>
+    </div>
+    <div class="overflow-auto max-h-104">
       <BotOperationTree
         @drag-operation="$emit('drag-operation', $event)"
         @click-operation="$emit('click-operation', $event)"
