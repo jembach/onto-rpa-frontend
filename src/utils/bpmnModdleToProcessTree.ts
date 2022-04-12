@@ -6,27 +6,15 @@ import {
   SequenceFlow,
   SubProcess,
 } from "bpmn-moddle";
-
+import { ProcessLeaf, ProcessTree } from "../interfaces/BotModel";
 import YAML from "yaml";
-
-enum ProcessTreeLiteral {
-  Process = "Process",
-  Flow = "Flow",
-}
-
-type ProcessLeaf = string;
-type ProcessTree = {
-  Process?: ProcessLeaf[] | ProcessTree;
-  Flow?: (ProcessLeaf | ProcessTree)[];
-  Split?: (ProcessLeaf | ProcessTree)[];
-};
 
 /**
  * Parses a bpmn-js model to a BPMN-independent process tree as a nested list.
  *
  * @param bpmnModdle - Definitions object of a bpmn-js modeler
  */
-export function bpmnModdleToProcessTree(bpmnModdle: Definitions) {
+export function bpmnModdleToProcessTree(bpmnModdle: Definitions): ProcessTree {
   const process: Process = bpmnModdle.rootElements[0] as Process;
   const parsedProcess = parseProcess(process)[0];
   console.log(parsedProcess);

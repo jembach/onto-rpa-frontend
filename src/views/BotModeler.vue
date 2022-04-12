@@ -42,6 +42,9 @@
       >Save Bot</o-button
     >
   </div>
+  <div class="m-4">
+    {{ botModel.processTree }}
+  </div>
 </template>
 
 <script lang="ts">
@@ -108,8 +111,8 @@ export default defineComponent({
       }
       const diagramXML = await this.modeler.saveXML();
       this.botModel.model = diagramXML.xml;
-      this.botModel.processTree = JSON.stringify(
-        bpmnModdleToProcessTree(this.modeler._definitions)
+      this.botModel.processTree = bpmnModdleToProcessTree(
+        this.modeler._definitions
       );
       try {
         if (this.botModel._id) {
