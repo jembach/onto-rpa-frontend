@@ -111,10 +111,14 @@ export default defineComponent({
       }
       const diagramXML = await this.modeler.saveXML();
       this.botModel.model = diagramXML.xml;
-      this.botModel.processTree = bpmnModdleToProcessTree(
-        this.modeler._definitions
-      );
+
+      const bpmnModdleParser = new BpmnModdleParser();
+
       try {
+        this.botModel.processTree = bpmnModdleParser.parseBpmnModdle(
+          this.modeler._definitions
+        );
+
         if (this.botModel._id) {
           await botModelApi.updateBotModel(this.botModel);
         } else {
@@ -188,7 +192,7 @@ import {
 import BotOperationSidebar from "../components/BotModeler/BotOperationSidebar.vue";
 import { bpmnMapping } from "../utils/bpmnMapping";
 import { BpmoConcept } from "../interfaces/bpmoConcepts";
-import { bpmnModdleToProcessTree } from "../utils/bpmnModdleToProcessTree";
+import BpmnModdleParser from "../utils/BpmnModdleParser";
 import BotModel, { createDefaultBotModel } from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 </script>

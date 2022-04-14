@@ -7,14 +7,22 @@ interface BotModel {
   description?: string;
   model: string;
   processTree: ProcessTree;
+  processTreeNodes: ProcessTreeNodeInfo;
 }
 
-export type ProcessLeaf = string;
-export type ProcessTree = {
-  Process?: ProcessLeaf[] | ProcessTree;
-  Flow?: (ProcessLeaf | ProcessTree)[];
-  Split?: (ProcessLeaf | ProcessTree)[];
-};
+export interface ProcessTree {
+  tree: ProcessTreeStructure;
+  nodeInfo: Record<string, ProcessTreeNodeInfo>;
+}
+
+export interface ProcessTreeNodeInfo {
+  label: string;
+  concept: string;
+}
+export type ProcessTreeStructure = Record<
+  string,
+  (string | ProcessTreeStructure)[]
+>;
 
 export function createDefaultBotModel(): BotModel {
   return {
