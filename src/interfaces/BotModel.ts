@@ -7,7 +7,6 @@ interface BotModel {
   description?: string;
   model: string;
   processTree: ProcessTree;
-  processTreeNodes: ProcessTreeNodeInfo;
 }
 
 export interface ProcessTree {

@@ -8,7 +8,10 @@ export default {
   async getBotModels(): Promise<BotModel[]> {
     const res = await axios.get("http://localhost:3001/api/BotModels");
 
-    return res.data;
+    const botModels: BotModel[] = (res.data as BotModel[]).map((botModel) =>
+      parseBotModel(botModel)
+    );
+    return botModels;
   },
   async getBotModel(botModelId: string): Promise<BotModel> {
     const res = await axios.get(

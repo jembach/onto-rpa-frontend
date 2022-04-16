@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import BotModel from "../interfaces/BotModel";
+import BotModel from "../../interfaces/BotModel";
 export default defineComponent({
   name: "bot-operation-sidebar",
   props: {
