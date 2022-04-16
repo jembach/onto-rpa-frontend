@@ -28,4 +28,9 @@ const router = createRouter({
   routes,
 });
 
+router.beforeEach((to, from, next) => {
+  document.title = to.name?.toString() + " - Conceptual RPA Bot Modeler";
+  next();
+});
+
 export default router;
