@@ -1,18 +1,34 @@
 <template>
-  <div class="bg-sky-700 text-center text-slate-200 py-12">
-    <router-link
-      :to="{ name: 'Overview' }"
-      class="absolute left-4"
-      title="Back to Overview"
-    >
-      <o-icon icon="circle-arrow-left" size="large"></o-icon>
-    </router-link>
+  <div class="bg-sky-700 text-center text-slate-200 py-12 flex justify-around">
+    <div class="flex-1">
+      <router-link :to="{ name: 'Overview' }" title="Back to Overview">
+        <o-icon
+          class="cursor-pointer"
+          icon="circle-arrow-left"
+          size="large"
+        ></o-icon>
+      </router-link>
+      <o-icon
+        class="ml-8 cursor-pointer"
+        icon="save"
+        size="large"
+        @click="saveBot"
+      ></o-icon>
+    </div>
 
     <input
       class="text-center text-white bg-transparent text-4xl border-0 border-b-2 w-4/5 shadow-none"
       placeholder="Name your new Bot"
       v-model="botModel.name"
     />
+    <div class="flex-1">
+      <o-icon
+        class="ml-4 cursor-pointer"
+        icon="trash"
+        size="large"
+        @click="deleteBot"
+      ></o-icon>
+    </div>
   </div>
   <hr />
   <div class="grid grid-cols-6 h-132">
@@ -36,11 +52,6 @@
       :modeler="modeler"
       :element="element"
     ></BotModelerPropertiesPanel>
-  </div>
-  <div class="m-4">
-    <o-button @click="saveDiagram" variant="primary" icon-left="save"
-      >Save Bot</o-button
-    >
   </div>
   <div class="m-4">
     {{ botModel.processTree }}
@@ -101,7 +112,7 @@ export default defineComponent({
       this.modelerShown = true;
     },
 
-    saveDiagram: async function () {
+    saveBot: async function () {
       if (!this.botModel.name) {
         this.$oruga.notification.open({
           message: "Please name your new bot before saving.",
@@ -130,6 +141,26 @@ export default defineComponent({
           variant: "danger",
         });
       }
+    },
+    deleteBot: async function () {
+      if (!this.botModel._id) {
+        this.botModel = createDefaultBotModel();
+      } else {
+        try {
+          await botModelApi.deleteBotModel(this.botModel._id);
+        } catch (e) {
+          this.$oruga.notification.open({
+            message: "Bot could not be deleted. " + e,
+            variant: "danger",
+          });
+          return;
+        }
+      }
+      this.$oruga.notification.open({
+        message: "Bot deleted",
+        variant: "success",
+      });
+      this.$router.push({ name: "Overview" });
     },
     newOperationShape(e) {
       const operation = e.target.dataset["operation"];
