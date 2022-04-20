@@ -46,15 +46,17 @@
       @modeler-element-changed="elementChanged"
       class="col-span-4 h-132"
     ></BotModelerCanvas>
-    <BotModelerPropertiesPanel
-      class="col-span-1"
-      v-if="modelerShown"
-      :modeler="modeler"
-      :element="element"
-    ></BotModelerPropertiesPanel>
-  </div>
-  <div class="m-4">
-    {{ botModel.processTree }}
+    <div class="col-span-1">
+      <BotModelerPropertiesPanel
+        v-if="modelerShown"
+        :modeler="modeler"
+        :element="element"
+      ></BotModelerPropertiesPanel>
+      <hr class="my-4" />
+      <div class="m-4 text-left">
+        <pre>{{ stringifiedProcessTree }}</pre>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -208,6 +210,14 @@ export default defineComponent({
       create.start(e, shape);
     },
   },
+  computed: {
+    stringifiedProcessTree() {
+      if (!this.botModel.processTree || !this.botModel.processTree.tree) {
+        return "";
+      }
+      return YAML.stringify(this.botModel.processTree.tree);
+    },
+  },
 });
 </script>
 
@@ -226,4 +236,5 @@ import { BpmoConcept } from "../interfaces/bpmoConcepts";
 import BpmnModdleParser from "../utils/BpmnModdleParser";
 import BotModel, { createDefaultBotModel } from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
+import YAML from "yaml";
 </script>
