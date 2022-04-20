@@ -7,6 +7,9 @@
           v-model="searchTerm"
           placeholder="omni search"
           inputClass="text-center"
+          icon-right="xmark"
+          icon-right-clickable
+          @icon-right-click="clearSearchTerm"
         ></o-input>
       </o-field>
     </div>
@@ -31,6 +34,11 @@ export default defineComponent({
     return {
       searchTerm: "",
     };
+  },
+  methods: {
+    clearSearchTerm() {
+      this.searchTerm = "";
+    },
   },
   components: { BotOperationTree },
 });

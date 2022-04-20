@@ -17,6 +17,9 @@
               v-model="searchTerm"
               placeholder="Bot Analyzer Search"
               inputClass="text-center"
+              icon-right="xmark"
+              icon-right-clickable
+              @icon-right-click="clearSearchTerm"
             ></o-input>
           </o-field>
         </div>
@@ -33,6 +36,9 @@
       :to="{ name: 'Modeler', params: { modelId: botModel._id } }"
       ><BotOverviewCard :botModel="botModel"> </BotOverviewCard
     ></router-link>
+    <div v-if="searchTerm && filteredOperations.length === 0" class="m-4">
+      No Bots found.
+    </div>
   </div>
 </template>
 
@@ -47,6 +53,11 @@ export default defineComponent({
   },
   async mounted(): Promise<void> {
     this.botModels = await botModelApi.getBotModels();
+  },
+  methods: {
+    clearSearchTerm() {
+      this.searchTerm = "";
+    },
   },
   computed: {
     filteredOperations() {
