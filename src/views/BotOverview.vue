@@ -2,11 +2,11 @@
   <div class="bg-sky-700 text-center text-slate-200 py-12">
     <h1 class="text-4xl font-bold">Conceptual RPA Bot Modeler</h1>
   </div>
-  <o-collapse :open="true" animation="slide">
+  <o-collapse :open="false" animation="slide">
     <template #trigger="props">
       <div class="bg-sky-600 text-center text-slate-100 p-1">
         <o-icon v-if="props.open" icon="caret-up"> </o-icon>
-        <o-icon v-else icon="caret-down"> </o-icon>
+        <o-icon v-else icon="magnifying-glass"> </o-icon>
       </div>
     </template>
     <div class="bg-sky-600">

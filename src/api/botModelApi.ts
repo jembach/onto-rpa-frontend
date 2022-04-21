@@ -28,7 +28,7 @@ export default {
       botModel
     );
 
-    return res.data;
+    return parseBotModel(res.data as BotModel);
   },
   async updateBotModel(botModel: BotModel): Promise<BotModel> {
     botModel = stringifyBotModel(botModel);

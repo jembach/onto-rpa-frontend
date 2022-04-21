@@ -135,7 +135,12 @@ export default defineComponent({
         if (this.botModel._id) {
           await botModelApi.updateBotModel(this.botModel);
         } else {
-          await botModelApi.addBotModel(this.botModel);
+          const newBotModel = await botModelApi.addBotModel(this.botModel);
+          this.botModel = newBotModel;
+          this.$router.replace({
+            name: "Modeler",
+            params: { modelId: newBotModel._id },
+          });
         }
       } catch (e) {
         this.$oruga.notification.open({
