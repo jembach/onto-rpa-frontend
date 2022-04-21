@@ -31,11 +31,11 @@
     <router-link :to="{ name: 'Modeler' }" v-if="!searchTerm">
       <BotOverviewCard></BotOverviewCard>
     </router-link>
-    <router-link
+    <BotOverviewCard
       v-for="botModel in filteredOperations"
-      :to="{ name: 'Modeler', params: { modelId: botModel._id } }"
-      ><BotOverviewCard :botModel="botModel"> </BotOverviewCard
-    ></router-link>
+      :botModel="botModel"
+    >
+    </BotOverviewCard>
     <div v-if="searchTerm && filteredOperations.length === 0" class="m-4">
       No Bots found.
     </div>
