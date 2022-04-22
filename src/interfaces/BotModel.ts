@@ -26,7 +26,7 @@ export type ProcessTreeStructure = Record<
 export function createDefaultBotModel(): BotModel {
   return {
     name: "",
-    model: defaultRpaDiagram,
+    model: defaultDiagram,
     processTree: {},
   };
 }
