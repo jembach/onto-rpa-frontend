@@ -34,9 +34,6 @@ export default defineComponent({
       treeRootNode: "rpa-operation",
     };
   },
-  mounted() {
-    console.log(this.activeTree);
-  },
   components: { BotOperationTreePart },
 });
 </script>

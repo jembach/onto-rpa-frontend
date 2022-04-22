@@ -5,25 +5,18 @@
     <div class="flex flex-col justify-between">
       <div class="operation-tagline">
         <RpaElementExplainer
+          v-for="step in container.setupSteps"
+          :rpa-element="step"
           :position="explanationPosition"
-          :rpa-element="operation.concept"
         ></RpaElementExplainer>
       </div>
       <div class="w-full text-center">
-        <RpaElementExplainer
-          :rpa-element="operation"
-          :position="explanationPosition"
-        ></RpaElementExplainer>
+        {{ container.label || container.id }}
       </div>
       <div class="operation-tagline">
         <RpaElementExplainer
-          v-if="operation.automates"
-          :rpa-element="operation.automates"
-          :position="explanationPosition"
-        ></RpaElementExplainer>
-        <RpaElementExplainer
-          v-if="operation.accesses"
-          :rpa-element="operation.accesses"
+          v-for="step in container.cleanupSteps"
+          :rpa-element="step"
           :position="explanationPosition"
         ></RpaElementExplainer>
       </div>
@@ -33,20 +26,20 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { RpaOperation } from "../../../interfaces/RpaOperation";
+import { RpaContextContainer } from "../../../interfaces/RpaOperation";
 import RpaElementExplainer from "../../RpaElementExplainer.vue";
 export default defineComponent({
-  name: "bot-operation-card",
+  name: "bot-context-container-card",
+  props: {
+    container: {
+      type: Object as PropType<RpaContextContainer>,
+      required: true,
+    },
+  },
   data() {
     return {
       explanationPosition: "bottom",
     };
-  },
-  props: {
-    operation: {
-      type: Object as PropType<RpaOperation>,
-      required: true,
-    },
   },
   components: { RpaElementExplainer },
 });
