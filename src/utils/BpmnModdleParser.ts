@@ -50,6 +50,7 @@ class BpmnModdleParser {
     process: Process | SubProcess
   ): [ProcessTreeStructure, FlowNode | undefined] {
     const startFlow = BpmnModdleParser.getStartFlowOfProcess(process);
+    const processTree: ProcessTreeStructure = {};
 
     if (!startFlow || !startFlow.targetRef) {
       throw new Error("Startevent is not connected to flow!");
@@ -60,7 +61,15 @@ class BpmnModdleParser {
       "bpmn:EndEvent"
     );
 
-    return [{ Process: treePart }, lastElement];
+    if (process.$attrs && "rpa:operation" in process.$attrs) {
+      processTree[process.id] = treePart;
+      this.addProcessNodeInfo(process);
+    } else {
+      processTree["Process"] = treePart;
+    }
+    // last node can not be the end-event! Otherwise, sub-processes would terminate
+    // the parsing as their end events have no outgoing flow to the subsequent parts, but the sub-process itself.
+    return [processTree, process];
   }
 
   /**
@@ -112,7 +121,7 @@ class BpmnModdleParser {
   private parseProcessSegment(
     currentElement: FlowNode
   ): [string | ProcessTreeStructure, FlowNode | undefined] {
-    console.log(currentElement);
+    // console.log(currentElement);
     // console.log("Parsing " + elementToString(currentElement));
     switch (currentElement.$type) {
       case "bpmn:Task":
