@@ -11,6 +11,7 @@ import {
   RpaSoftwareTaxonomy,
   RpaDataTaxonomy,
   RpaTaxonomy,
+  RpaContextContainer,
 } from "../interfaces/RpaOperation";
 import rpaOperationsOntology from "../resources/rpa-operations.json";
 
@@ -37,6 +38,19 @@ const RPA_IRI =
 const RPA_OPERATION_ROOT_IRI = RPA_IRI + "#" + "rpa-operation";
 const RPA_DATA_ROOT_IRI = "http://cos.ontoware.org/cso#data";
 const RPA_SOFTWARE_ROOT_IRI = "http://cos.ontoware.org/cso#software";
+const RPA_CONTEXT_CONTAINER_ROOT_IRI = RPA_IRI + "#" + "rpa-context-container";
+const RPA_CONTEXT_CONTAINER_SETUP_RELATION_IRI =
+  RPA_IRI + "#" + "setup-sequence";
+const RPA_CONTEXT_CONTAINER_CLEANUP_RELATION_IRI =
+  RPA_IRI + "#" + "cleanup-sequence";
+const RPA_CONTEXT_CONTAINER_SETUP_STEP =
+  RPA_IRI + "#" + "rpa-context-setup-step";
+const RPA_CONTEXT_CONTAINER_CLEANUP_STEP =
+  RPA_IRI + "#" + "rpa-context-cleanup-step";
+const RPA_CONTEXT_CONTAINER_STEP_OPERATION =
+  "http://www.loa-cnr.it/ontologies/ExtendedDnS.owl#references";
+const RPA_CONTEXT_CONTAINER_STEP_NEXT =
+  "http://www.loa-cnr.it/ontologies/ExtendedDnS.owl#direct-successor";
 
 const INDIVIDUAL_IRI = "http://www.w3.org/2002/07/owl#NamedIndividual";
 const SUBCLASS_IRI = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
@@ -131,12 +145,70 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
   });
 }
 
+function parseContextContainers(): Record<string, RpaContextContainer> {
+  const contextContainers: Record<string, RpaContextContainer> = {};
+  rpaOperationsOntology.forEach((operation) => {
+    const currentId = getIdFromIri(operation["@id"]);
+
+    if (
+      operation["@type"] &&
+      operation["@type"].includes(RPA_CONTEXT_CONTAINER_ROOT_IRI)
+    ) {
+      const contextContainer: RpaContextContainer = {
+        id: currentId,
+        iri: operation["@id"],
+        setupSteps: [],
+        cleanupSteps: [],
+      };
+      if (RPA_CONTEXT_CONTAINER_SETUP_RELATION_IRI in operation) {
+        // get setup sequence for container
+        const firstSetupStepIri: string =
+          operation[RPA_CONTEXT_CONTAINER_SETUP_RELATION_IRI][0]["@id"];
+        contextContainer.setupSteps =
+          getContextContainerSequence(firstSetupStepIri);
+      }
+      if (RPA_CONTEXT_CONTAINER_CLEANUP_RELATION_IRI in operation) {
+        // get cleanup sequence for container
+        const firstCleanupStepIri: string =
+          operation[RPA_CONTEXT_CONTAINER_CLEANUP_RELATION_IRI][0]["@id"];
+        contextContainer.cleanupSteps =
+          getContextContainerSequence(firstCleanupStepIri);
+      }
+      contextContainers[currentId] = contextContainer;
+    }
+  });
+  return contextContainers;
+}
+
+function getContextContainerSequence(firstStepIri: string): RpaOperation[] {
+  let currentStepIri = firstStepIri;
+  let steps: RpaOperation[] = [];
+  while (currentStepIri) {
+    const currentStep = rpaOperationsOntology.find(
+      (entry) => entry["@id"] === currentStepIri
+    );
+    const referencedOperationId = getIdFromIri(
+      currentStep[RPA_CONTEXT_CONTAINER_STEP_OPERATION][0]["@id"]
+    );
+    steps.push(rpaOperations.individuals[referencedOperationId]);
+    if (RPA_CONTEXT_CONTAINER_STEP_NEXT in currentStep) {
+      currentStepIri = currentStep[RPA_CONTEXT_CONTAINER_STEP_NEXT][0]["@id"];
+    } else {
+      currentStepIri = "";
+    }
+  }
+  return steps;
+}
+
 // Load Data taxonomy (has no relation to other taxonomies)
 exploreTree(RPA_DATA_ROOT_ELEMENT, rpaData);
 // Load Software taxonomy (has only relations to data)
 exploreTree(RPA_SOFTWARE_ROOT_ELEMENT, rpaSoftware);
 // Load Operations taxonomy
 exploreTree(RPA_OPERATION_ROOT_ELEMENT, rpaOperations);
+
+export const rpaContextContainers: Record<string, RpaContextContainer> =
+  parseContextContainers();
 
 function convertTypeToConcept(typeKey: string, rpaTree: RpaTaxonomy) {
   rpaTree.concepts[typeKey] = {};

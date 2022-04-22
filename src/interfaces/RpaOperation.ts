@@ -58,6 +58,14 @@ export interface RpaDataConcept extends RpaBaseConcept<RpaDataType> {}
 
 export interface RpaData extends RpaBaseInstance<RpaDataConcept> {}
 
+// ======================
+// RPA CONTEXT CONTAINERS
+
+export interface RpaContextContainer extends RpaBaseElement {
+  setupSteps: RpaOperation[];
+  cleanupSteps: RpaOperation[];
+}
+
 // ============
 // RPA TAXONOMY
 
