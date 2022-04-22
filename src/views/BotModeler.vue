@@ -170,30 +170,40 @@ export default defineComponent({
       this.$router.push({ name: "Overview" });
     },
     newOperationShape(e) {
-      const operation = e.target.dataset["operation"];
-      let bpmnType = bpmnMapping[e.target.dataset["nodetype"] as BpmoConcept];
-      let bpmnEventDefinition = undefined;
-
-      if (bpmnType.includes("EventDefinition")) {
-        bpmnEventDefinition = bpmnType;
-        bpmnType = "bpmn:IntermediateCatchEvent";
-      }
-
       const bpmnFactory = this.modeler.get("bpmnFactory");
       const elementFactory = this.modeler.get("elementFactory");
+      const operation = e.target.dataset["operation"];
+      let bpmnType = bpmnMapping[e.target.dataset["nodetype"] as BpmoConcept];
 
-      const newBO = bpmnFactory.create(bpmnType, {
+      const shapeOptions: any = {
+        type: bpmnType,
+      };
+
+      if (bpmnType.includes("EventDefinition")) {
+        shapeOptions["eventDefinitionType"] = bpmnType;
+        shapeOptions["type"] = "bpmn:IntermediateCatchEvent";
+        bpmnType = "bpmn:IntermediateCatchEvent";
+      }
+      if (bpmnType.includes("SubProcess")) {
+        shapeOptions["isExpanded"] = true;
+      }
+
+      shapeOptions["businessObject"] = bpmnFactory.create(bpmnType, {
         name: operation,
         "rpa:operation": operation,
       });
-      const shapeOptions = {
-        type: bpmnType,
-        businessObject: newBO,
-      };
-      if (bpmnEventDefinition) {
-        shapeOptions["eventDefinitionType"] = bpmnEventDefinition;
-      }
+
       const shape = elementFactory.createShape(shapeOptions);
+
+      if (bpmnType.includes("SubProcess")) {
+        const startEvent = elementFactory.createShape({
+          type: "bpmn:StartEvent",
+          x: 40,
+          y: 82,
+          parent: shape,
+        });
+        return [shape, startEvent];
+      }
 
       return shape;
     },
