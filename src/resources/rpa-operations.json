@@ -143,18 +143,27 @@
   "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-close-operation" ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Browser"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "AtomicActivity"
   } ]
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#BrowserOpen",
   "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-start-operation" ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Browser"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "AtomicActivity"
   } ]
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#BrowserOpenURL",
   "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#open-file" ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Browser"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "AtomicActivity"
   } ]
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#CaseDecision",
@@ -182,12 +191,18 @@
   "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-close-operation" ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftExcel"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "AtomicActivity"
   } ]
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelOpen",
   "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-start-operation" ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftExcel"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "AtomicActivity"
   } ]
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelOpenWorkbook",
@@ -197,6 +212,9 @@
   } ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftExcel"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "AtomicActivity"
   } ]
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#ExcelReadCellValue",
@@ -412,8 +430,44 @@
     "@value" : "TimerEvent"
   } ]
 }, {
+  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WithBrowser",
+  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-context-container" ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "CompoundActivity"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#cleanup-sequence" : [ {
+    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WithBrowser-close"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#setup-sequence" : [ {
+    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WithBrowser-start"
+  } ]
+}, {
+  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WithBrowser-close",
+  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-context-cleanup-step" ],
+  "http://www.loa-cnr.it/ontologies/ExtendedDnS.owl#references" : [ {
+    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#BrowserClose"
+  } ]
+}, {
+  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WithBrowser-openUrl",
+  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-context-setup-step" ],
+  "http://www.loa-cnr.it/ontologies/ExtendedDnS.owl#references" : [ {
+    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#BrowserOpenURL"
+  } ]
+}, {
+  "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WithBrowser-start",
+  "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-context-setup-step" ],
+  "http://www.loa-cnr.it/ontologies/ExtendedDnS.owl#direct-successor" : [ {
+    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WithBrowser-openUrl"
+  } ],
+  "http://www.loa-cnr.it/ontologies/ExtendedDnS.owl#references" : [ {
+    "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#BrowserOpen"
+  } ]
+}, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WithMicrosoftExcel",
   "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rpa-context-container" ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "CompoundActivity"
+  } ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#cleanup-sequence" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WithMicrosoftExcel-saveFile"
   } ],
@@ -455,6 +509,9 @@
   "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-close-operation" ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftWord"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "AtomicActivity"
   } ]
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WordDocument",
@@ -464,6 +521,9 @@
   "@type" : [ "http://www.w3.org/2002/07/owl#NamedIndividual", "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-start-operation" ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftWord"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "AtomicActivity"
   } ]
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WordOpenDocument",
@@ -473,6 +533,9 @@
   } ],
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#MicrosoftWord"
+  } ],
+  "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept" : [ {
+    "@value" : "AtomicActivity"
   } ]
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#WordSaveDocument",
@@ -540,6 +603,12 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#browser",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "An application to open and navigate web pages."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "Browser"
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
   } ]
@@ -591,6 +660,9 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#concurrency-split",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Splits the control flow in concurrently executable branches."
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#label" : [ {
     "@value" : "Concurrency Split"
   } ],
@@ -684,6 +756,9 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#decision-split",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Splits the control flow in alternative branches."
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#label" : [ {
     "@value" : "Decision Split"
   } ],
@@ -714,6 +789,12 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#email-client",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "A software to send and receive emails."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "Email Client"
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
   } ]
@@ -834,6 +915,9 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#open-file",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Opens a given file."
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#label" : [ {
     "@value" : "Open File"
   } ],
@@ -876,6 +960,9 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rich-text-document",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Text that is formatted."
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#label" : [ {
     "@value" : "Rich Text Document"
   } ],
@@ -1013,6 +1100,9 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-close-operation",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Terminates the current instance of the software."
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#label" : [ {
     "@value" : "Software Close Operation"
   } ],
@@ -1034,6 +1124,9 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#software-start-operation",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Starts a new instance of the software."
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#label" : [ {
     "@value" : "Software Start Operation"
   } ],
@@ -1043,6 +1136,9 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "Data stored in tabular form."
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#label" : [ {
     "@value" : "Spreadsheet"
   } ],
@@ -1052,6 +1148,12 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet-application",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "A software for organizing data in tabular form."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "Spreadsheet Application"
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
   } ]
@@ -1078,6 +1180,12 @@
 }, {
   "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#word-processing-application",
   "@type" : [ "http://www.w3.org/2002/07/owl#Class" ],
+  "http://www.w3.org/2000/01/rdf-schema#comment" : [ {
+    "@value" : "A software to create formatted text documents."
+  } ],
+  "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+    "@value" : "Word Processing Application"
+  } ],
   "http://www.w3.org/2000/01/rdf-schema#subClassOf" : [ {
     "@id" : "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#application"
   } ]

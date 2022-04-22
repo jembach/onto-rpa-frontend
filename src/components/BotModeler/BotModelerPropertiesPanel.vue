@@ -46,11 +46,13 @@
             :rpa-element="operations[currentOperation].automates"
             :position="explanationPosition"
           ></RpaElementExplainer>
-          and accesses
-          <RpaElementExplainer
-            :rpa-element="operations[currentOperation].accesses"
-            :position="explanationPosition"
-          ></RpaElementExplainer>
+          <div v-if="operations[currentOperation].accesses">
+            and accesses
+            <RpaElementExplainer
+              :rpa-element="operations[currentOperation].accesses"
+              :position="explanationPosition"
+            ></RpaElementExplainer>
+          </div>
           .
         </div>
       </div>
@@ -137,7 +139,6 @@ export default defineComponent({
         return;
       }
       this.setRPAOperation(newOperation);
-      console.log(this.currentLabel);
       if (this.currentLabel === oldOperation || !this.currentLabel) {
         this.currentLabel = newOperation;
       }
