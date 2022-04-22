@@ -9,20 +9,26 @@
       <o-field label="Label">
         <o-input v-model="currentLabel" placeholder="Label" />
       </o-field>
-      <div v-if="element.businessObject.$type === 'bpmn:Task'">
+      <div>
         <o-field label="RPA Operation">
           <o-select
             placeholder="Select an operation"
             v-model="currentOperation"
           >
-            <option v-for="operation in operations" :value="operation.id">
+            <option
+              v-for="operation in operationsAvailableForShape"
+              :value="operation.id"
+            >
               {{ operation.id }}
             </option>
           </o-select>
         </o-field>
       </div>
       <hr />
-      <div v-if="currentOperation" class="operation-description">
+      <div
+        v-if="currentOperation && currentOperation in operations"
+        class="operation-description"
+      >
         The operation
         <RpaElementExplainer
           :rpa-element="operations[currentOperation]"
@@ -60,8 +66,14 @@ import {
   rpaOperations,
   rpaSoftware,
   rpaData,
+  rpaContextContainers,
 } from "../../utils/ontologyParser";
-import RpaElementExplainer from "../RpaElementExplainer.vue";
+import { bpmnMapping } from "../../utils/bpmnMapping";
+import {
+  RpaContextContainer,
+  RpaOperation,
+} from "../../interfaces/RpaOperation";
+import { BpmoConcept } from "../../interfaces/bpmoConcepts";
 
 export default defineComponent({
   name: "bot-modeler-properties-panel",
@@ -96,12 +108,8 @@ export default defineComponent({
       modeling.updateLabel(toRaw(this.element), newLabel);
     },
     getRPAOperation(): string | undefined {
-      if (!this.element || !this.element.id) {
-        return;
-      }
-      const elementRegistry = this.modeler.get("elementRegistry");
-      const elementBO = elementRegistry.get(this.element.id).businessObject;
-      if ("rpa:operation" in elementBO.$attrs) {
+      const elementBO = this.getCurrentBusinessObject();
+      if (elementBO && "rpa:operation" in elementBO.$attrs) {
         return elementBO.$attrs["rpa:operation"];
       }
     },
@@ -110,6 +118,13 @@ export default defineComponent({
       modeling.updateProperties(toRaw(this.element), {
         "rpa:operation": newOperation,
       });
+    },
+    getCurrentBusinessObject() {
+      if (!this.element || !this.element.id) {
+        return;
+      }
+      const elementRegistry = this.modeler.get("elementRegistry");
+      return elementRegistry.get(this.element.id).businessObject;
     },
   },
   watch: {
@@ -132,6 +147,26 @@ export default defineComponent({
         return;
       }
       this.setLabel(newLabel);
+    },
+  },
+  computed: {
+    operationsAvailableForShape(): RpaOperation[] | RpaContextContainer[] {
+      let bpmoConceptForCurrentShape: BpmoConcept | undefined = undefined;
+      const currentBO = this.getCurrentBusinessObject();
+      for (const bpmoConcept in bpmnMapping) {
+        if (bpmnMapping[bpmoConcept as BpmoConcept] === currentBO["$type"]) {
+          bpmoConceptForCurrentShape = bpmoConcept as BpmoConcept;
+        }
+      }
+      if (!bpmoConceptForCurrentShape) {
+        return [];
+      } else if (bpmoConceptForCurrentShape === BpmoConcept.CompoundActivity) {
+        return Object.values(rpaContextContainers);
+      } else {
+        return Object.values(this.operations).filter(
+          (operation) => operation.bpmoConcept === bpmoConceptForCurrentShape
+        );
+      }
     },
   },
   components: { RpaElementExplainer },
