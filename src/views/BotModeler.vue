@@ -1,13 +1,13 @@
 <template>
   <div class="h-screen max-h-screen flex flex-col">
     <div
-      class="bg-sky-700 text-center text-slate-200 py-12 flex-initial flex justify-around"
+      class="bg-sky-700 text-center text-slate-100 py-12 flex-initial flex justify-around"
     >
       <div class="flex-1">
         <router-link :to="{ name: 'Overview' }" title="Back to Overview">
           <o-icon
             class="cursor-pointer"
-            icon="circle-arrow-left"
+            icon="chevron-left"
             size="large"
           ></o-icon>
         </router-link>

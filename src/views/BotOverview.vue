@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-sky-700 text-center text-slate-200 py-12">
+  <div class="bg-sky-700 text-center text-slate-100 py-12">
     <h1 class="text-4xl font-bold">Conceptual RPA Bot Modeler</h1>
   </div>
   <o-collapse
