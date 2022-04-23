@@ -1,8 +1,8 @@
 <template>
   <div
-    class="ml-2 my-2 rounded-lg h-20 w-44 shadow-md border-solid border-2 border-blue-500 cursor-pointer"
+    class="mx-auto mt-4 rounded-lg h-24 w-56 hover:shadow-lg bg-white hover:bg-slate-50 border-solid border-2 border-primary cursor-pointer"
   >
-    <div class="flex flex-col justify-between">
+    <div class="flex flex-col justify-between h-full">
       <div class="operation-tagline">
         <RpaElementExplainer
           v-for="step in container.setupSteps"
@@ -44,12 +44,3 @@ export default defineComponent({
   components: { RpaElementExplainer },
 });
 </script>
-
-<style>
-.operation-tagline {
-  @apply flex justify-between text-xs m-1;
-}
-.operation-tagline > span {
-  @apply rounded-full bg-slate-500 text-white px-1;
-}
-</style>

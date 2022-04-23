@@ -1,7 +1,11 @@
 <template>
   <div
-    class="relative m-6 rounded-lg h-20 w-44 shadow-md border-solid border-2 border-action text-center flex flex-col justify-center"
-    :class="[botModel ? 'border-sky-700' : 'border-action']"
+    class="relative m-6 rounded-lg h-20 w-44 shadow-md text-center flex flex-col justify-center"
+    :class="[
+      botModel
+        ? 'border-sky-700 bg-primary text-white text-lg hover:bg-sky-700/70'
+        : 'border-solid border-2 border-action hover:bg-action hover:text-white',
+    ]"
     @mouseover="cardHovered = true"
     @mouseleave="cardHovered = false"
   >
@@ -23,20 +27,12 @@
         >
           <template v-slot:content>
             <div class="flex flex-col gap-2 my-1">
-              <a
-                :href="
-                  'http://localhost:3001/api/BotModels/' +
-                  botModel._id +
-                  '?target=robotframework'
-                "
-                download="test.test"
-              >
-                test</a
-              >
-              <o-button @click="downloadBot('robotframework')"
+              <o-button variant="primary" @click="downloadBot('robotframework')"
                 >RobotFramework</o-button
               >
-              <o-button @click="downloadBot('taskt')">taskt</o-button>
+              <o-button variant="primary" @click="downloadBot('taskt')"
+                >taskt</o-button
+              >
             </div>
           </template>
           <o-icon icon="download" :clickable="true"></o-icon>

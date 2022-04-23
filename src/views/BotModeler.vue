@@ -1,60 +1,63 @@
 <template>
-  <div class="bg-sky-700 text-center text-slate-200 py-12 flex justify-around">
-    <div class="flex-1">
-      <router-link :to="{ name: 'Overview' }" title="Back to Overview">
-        <o-icon
-          class="cursor-pointer"
-          icon="circle-arrow-left"
-          size="large"
-        ></o-icon>
-      </router-link>
-      <o-icon
-        class="ml-8 cursor-pointer"
-        icon="save"
-        size="large"
-        @click="saveBot"
-      ></o-icon>
-    </div>
-
-    <input
-      class="text-center text-white bg-transparent text-4xl border-0 border-b-2 w-4/5 shadow-none"
-      placeholder="Name your new Bot"
-      v-model="botModel.name"
-    />
-    <div class="flex-1">
-      <o-icon
-        class="ml-4 cursor-pointer"
-        icon="trash"
-        size="large"
-        @click="deleteBot"
-      ></o-icon>
-    </div>
-  </div>
-  <hr />
-  <div class="grid grid-cols-6 h-132">
-    <BotOperationSidebar
-      @drag-operation="dragOperation"
-      @click-operation="clickOperation"
-      class="col-span-1 h-132"
+  <div class="h-screen max-h-screen flex flex-col">
+    <div
+      class="bg-sky-700 text-center text-slate-200 py-12 flex-initial flex justify-around"
     >
-    </BotOperationSidebar>
-    <BotModelerCanvas
-      v-if="botModel.model"
-      :diagram="botModel.model"
-      @modeler-shown="modelerLoaded"
-      @modeler-selection-changed="selectionChanged"
-      @modeler-element-changed="elementChanged"
-      class="col-span-4 h-132"
-    ></BotModelerCanvas>
-    <div class="col-span-1">
-      <BotModelerPropertiesPanel
-        v-if="modelerShown"
-        :modeler="modeler"
-        :element="element"
-      ></BotModelerPropertiesPanel>
-      <hr class="my-4" />
-      <div class="m-4 text-left">
-        <pre>{{ stringifiedProcessTree }}</pre>
+      <div class="flex-1">
+        <router-link :to="{ name: 'Overview' }" title="Back to Overview">
+          <o-icon
+            class="cursor-pointer"
+            icon="circle-arrow-left"
+            size="large"
+          ></o-icon>
+        </router-link>
+        <o-icon
+          class="ml-8 cursor-pointer"
+          icon="save"
+          size="large"
+          @click="saveBot"
+        ></o-icon>
+      </div>
+
+      <input
+        class="text-center text-white bg-transparent text-4xl border-0 border-b-2 w-4/5 shadow-none"
+        placeholder="Name your new Bot"
+        v-model="botModel.name"
+      />
+      <div class="flex-1">
+        <o-icon
+          class="ml-4 cursor-pointer"
+          icon="trash"
+          size="large"
+          @click="deleteBot"
+        ></o-icon>
+      </div>
+    </div>
+    <div class="flex-auto grid grid-cols-6">
+      <BotOperationSidebar
+        @drag-operation="dragOperation"
+        @click-operation="clickOperation"
+        class="col-span-1 drop-shadow-lg bg-white"
+      >
+      </BotOperationSidebar>
+      <BotModelerCanvas
+        v-if="botModel.model"
+        :diagram="botModel.model"
+        @modeler-shown="modelerLoaded"
+        @modeler-selection-changed="selectionChanged"
+        @modeler-element-changed="elementChanged"
+        class="col-span-4"
+      ></BotModelerCanvas>
+      <div class="col-span-1 drop-shadow-lg bg-white">
+        <BotModelerPropertiesPanel
+          v-if="modelerShown"
+          :modeler="modeler"
+          :element="element"
+          class="h-128"
+        ></BotModelerPropertiesPanel>
+        <div class="m-4 text-left">
+          <pre>{{ stringifiedProcessTree }}</pre>
+        </div>
       </div>
     </div>
   </div>
@@ -208,6 +211,7 @@ export default defineComponent({
       return shape;
     },
     clickOperation(e) {
+      return;
       console.log(e);
       const elementRegistry = this.modeler.get("elementRegistry");
       const modeling = this.modeler.get("modeling");

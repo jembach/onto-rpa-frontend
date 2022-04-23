@@ -1,12 +1,12 @@
 :root {
-  --color-primary: #273e47;
+  --color-primary: rgb(3 105 161);
   --color-secondary: #fcfcfc;
   --color-action: #f2af29;
   --color-info: #227c9d;
   --color-danger: #ad343e;
 
-  --oruga-variant-primary: var(--color-action);
-  --oruga-variant-invert-primary: black;
+  --oruga-variant-primary: var(--color-primary);
+  --oruga-variant-invert-primary: rgb(226 232 240);
   --oruga-variant-danger: var(--color-danger);
   --oruga-variant-info: var(--color-info);
   --oruga-variant-success: #5b8c5a;
