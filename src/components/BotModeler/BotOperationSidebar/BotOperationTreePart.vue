@@ -8,7 +8,11 @@
         <div>
           <o-icon v-if="props.open" icon="caret-down"> </o-icon>
           <o-icon v-else icon="caret-right"> </o-icon>
-          <span class="ml-1">{{ treeNode.label || treeNode.id }}</span>
+          <RpaElementExplainer
+            :rpa-element="treeNode"
+            position="bottom"
+            class="ml-1"
+          ></RpaElementExplainer>
         </div>
       </template>
       <div class="card-content">
@@ -21,6 +25,7 @@
               @drag-operation="$emit('drag-operation', $event)"
               @click-operation="$emit('click-operation', $event)"
               @node-visibility="setNodeVisibility"
+              @tag-clicked="$emit('tag-clicked', $event)"
             >
             </BotOperationTreePart>
           </div>
@@ -40,6 +45,7 @@
       draggable="true"
       @dragstart="$emit('drag-operation', $event)"
       @click="$emit('click-operation', $event)"
+      @tag-clicked="$emit('tag-clicked', $event)"
     />
   </div>
 </template>
@@ -56,7 +62,12 @@ import BotOperationCard from "./BotOperationCard.vue";
 
 export default defineComponent({
   name: "bot-operation-tree-part",
-  emits: ["drag-operation", "click-operation", "node-visibility"],
+  emits: [
+    "drag-operation",
+    "click-operation",
+    "node-visibility",
+    "tag-clicked",
+  ],
   props: {
     rpaTree: {
       type: Object as PropType<RpaTaxonomy>,

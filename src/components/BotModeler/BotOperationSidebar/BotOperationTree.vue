@@ -5,22 +5,19 @@
     :search-term="searchTerm"
     @drag-operation="$emit('drag-operation', $event)"
     @click-operation="$emit('click-operation', $event)"
+    @tag-clicked="$emit('tag-clicked', $event)"
   ></BotOperationTreePart>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { RpaOperation, RpaTaxonomy } from "../../../interfaces/RpaOperation";
-import {
-  rpaOperations,
-  rpaSoftware,
-  rpaData,
-} from "../../../utils/ontologyParser";
+import { RpaTaxonomy } from "../../../interfaces/RpaOperation";
+import { rpaOperations } from "../../../utils/ontologyParser";
 import BotOperationTreePart from "./BotOperationTreePart.vue";
 
 export default defineComponent({
   name: "bot-operation-tree",
-  emits: ["drag-operation", "click-operation"],
+  emits: ["drag-operation", "click-operation", "tag-clicked"],
   props: {
     treeCriteria: {
       type: String,
