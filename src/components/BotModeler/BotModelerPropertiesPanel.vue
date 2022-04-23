@@ -1,59 +1,67 @@
 <template>
   <div class="m-3">
     <div v-if="element && element.businessObject">
-      <div class="text-center">
-        {{ element.businessObject.$type }}
-        - {{ element.businessObject.id }}
-      </div>
-      <hr />
-      <o-field label="Label">
-        <o-input v-model="currentLabel" placeholder="Label" />
-      </o-field>
-      <div>
-        <o-field label="RPA Operation">
-          <o-select
-            placeholder="Select an operation"
-            v-model="currentOperation"
-          >
-            <option
-              v-for="operation in operationsAvailableForShape"
-              :value="operation.id"
-            >
-              {{ operation.id }}
-            </option>
-          </o-select>
+      <div class="mb-6">
+        <div class="text-center">
+          {{ element.businessObject.$type }}
+          - {{ element.businessObject.id }}
+        </div>
+        <hr />
+        <o-field label="Label">
+          <o-input v-model="currentLabel" placeholder="Label" />
         </o-field>
+        <div>
+          <o-field label="RPA Operation">
+            <o-select
+              placeholder="Select an operation"
+              v-model="currentOperation"
+              rootClass="w-full"
+            >
+              <option
+                v-for="operation in operationsAvailableForShape"
+                :value="operation.id"
+              >
+                {{ operation.id }}
+              </option>
+            </o-select>
+          </o-field>
+        </div>
       </div>
-      <hr />
       <div
         v-if="currentOperation && currentOperation in operations"
-        class="operation-description"
+        class="operation-description drop-shadow-md bg-slate-100 flex items-start p-2"
       >
-        The operation
-        <RpaElementExplainer
-          :rpa-element="operations[currentOperation]"
-          :position="explanationPosition"
-        ></RpaElementExplainer>
-        realizes the concept of
-        <RpaElementExplainer
-          :rpa-element="operations[currentOperation].concept"
-          :position="explanationPosition"
-        ></RpaElementExplainer>
-        .<br />
-        <div v-if="operations[currentOperation].automates">
-          It automates the application
+        <o-icon
+          icon="info"
+          size="medium"
+          rootClass="flex-initial mt-1 mr-2 ml-1"
+        ></o-icon>
+        <div class="flex-auto">
           <RpaElementExplainer
-            :rpa-element="operations[currentOperation].automates"
+            :rpa-element="operations[currentOperation]"
             :position="explanationPosition"
           ></RpaElementExplainer>
-          <div v-if="operations[currentOperation].accesses">
-            and accesses
+          realizes the concept of
+          <RpaElementExplainer
+            :rpa-element="operations[currentOperation].concept"
+            :position="explanationPosition"
+          ></RpaElementExplainer>
+          .<br />
+          <span v-if="operations[currentOperation].automates">
+            It automates the application
             <RpaElementExplainer
-              :rpa-element="operations[currentOperation].accesses"
+              :rpa-element="operations[currentOperation].automates"
               :position="explanationPosition"
             ></RpaElementExplainer>
-          </div>
-          .
+            <span v-if="operations[currentOperation].accesses">
+              and accesses
+              <RpaElementExplainer
+                :rpa-element="operations[currentOperation].accesses"
+                :position="explanationPosition"
+              ></RpaElementExplainer>
+            </span>
+            .
+          </span>
         </div>
       </div>
     </div>
@@ -177,5 +185,8 @@ export default defineComponent({
 <style scoped>
 .operation-description:deep() .rpa-element-name {
   @apply italic;
+}
+hr {
+  @apply my-2;
 }
 </style>
