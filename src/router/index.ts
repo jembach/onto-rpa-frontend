@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import Modeler from "../views/BotModeler.vue";
 import Overview from "../views/BotOverview.vue";
+import ModelAbstractor from "../views/BotModelAbstractor.vue";
 import NotFound from "../views/404.vue";
 
 const routes: Array<RouteRecordRaw> = [
@@ -18,6 +19,14 @@ const routes: Array<RouteRecordRaw> = [
     component: Modeler,
     meta: {
       title: "Modeler",
+    },
+  },
+  {
+    path: "/abstractor/:modelId",
+    name: "ModelAbstractor",
+    component: ModelAbstractor,
+    meta: {
+      title: "Model Abstractor",
     },
   },
   { path: "/:pathMatch(.*)", component: NotFound },

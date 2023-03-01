@@ -16,7 +16,10 @@
           >{{ botModel.name }}</router-link
         >
       </div>
-      <div v-if="cardHovered || hoverLock" class="absolute bottom-0 w-full">
+      <div
+        v-if="cardHovered || hoverLock"
+        class="absolute bottom-0 w-full flex justify-center gap-2"
+      >
         <o-tooltip
           variant="primary"
           position="bottom"
@@ -35,7 +38,18 @@
               >
             </div>
           </template>
-          <o-icon icon="download" :clickable="true"></o-icon>
+          <o-icon icon="download" :clickable="true" @click=""></o-icon>
+        </o-tooltip>
+        <o-tooltip
+          variant="primary"
+          label="Explore abstraction"
+          position="bottom"
+        >
+          <router-link
+            :to="{ name: 'ModelAbstractor', params: { modelId: botModel._id } }"
+          >
+            <o-icon icon="binoculars" :clickable="true"></o-icon>
+          </router-link>
         </o-tooltip>
       </div>
     </div>
