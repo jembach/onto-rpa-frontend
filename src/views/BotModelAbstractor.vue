@@ -18,9 +18,21 @@
       >
         {{ botModel.name }}
       </div>
+      <div class="flex-1">
+        <o-icon
+          class="ml-4 cursor-pointer"
+          icon="camera"
+          size="large"
+          @click="takeScreenshot"
+        ></o-icon>
+      </div>
     </div>
     <div class="flex-auto grid grid-cols-6">
-      <AbstractionSettingsSidebar></AbstractionSettingsSidebar>
+      <AbstractionSettingsSidebar
+        class="col-span-1 drop-shadow-lg bg-white"
+        @elimination-change="eliminationThresholdChanged"
+        @abstraction-change="abstractionThresholdChanged"
+      ></AbstractionSettingsSidebar>
       <BotModelerCanvas
         v-if="botModel.model"
         :diagram="botModel.model"
@@ -54,6 +66,8 @@ export default defineComponent({
       selectedElements: [] as ModelerElement[],
       element: {} as ModelerElement,
       botModel: {} as BotModel,
+      currentEliminationThreshold: 0,
+      currentAbstractionThreshold: 0,
     };
   },
   async mounted() {
@@ -98,105 +112,24 @@ export default defineComponent({
       this.modeler = modeler;
       this.modelerShown = true;
     },
-    saveBot: async function () {
-      if (!this.botModel.name) {
-        this.$oruga.notification.open({
-          message: "Please name your new bot before saving.",
-          variant: "warning",
-        });
-        return;
-      }
-      const diagramXML = await this.modeler.saveXML();
-      this.botModel.model = diagramXML.xml;
-      const bpmnModdleParser = new BpmnModdleParser();
-      try {
-        this.botModel.processTree = bpmnModdleParser.parseBpmnModdle(
-          this.modeler._definitions
-        );
-        if (this.botModel._id) {
-          await botModelApi.updateBotModel(this.botModel);
-        } else {
-          const newBotModel = await botModelApi.addBotModel(this.botModel);
-          this.botModel = newBotModel;
-          this.$router.replace({
-            name: "Modeler",
-            params: { modelId: newBotModel._id },
-          });
-        }
-      } catch (e) {
-        this.$oruga.notification.open({
-          message: "Bot could not be saved. " + e,
-          variant: "danger",
-        });
-      }
-    },
-    deleteBot: async function () {
-      if (!this.botModel._id) {
-        this.botModel = createDefaultBotModel();
-      } else {
-        try {
-          await botModelApi.deleteBotModel(this.botModel._id);
-        } catch (e) {
-          this.$oruga.notification.open({
-            message: "Bot could not be deleted. " + e,
-            variant: "danger",
-          });
-          return;
-        }
-      }
+
+    takeScreenshot: async function () {
       this.$oruga.notification.open({
-        message: "Bot deleted",
-        variant: "success",
+        message: "Not supported.",
+        variant: "warning",
       });
-      this.$router.push({ name: "Overview" });
     },
-    newOperationShape(e) {
-      const bpmnFactory = this.modeler.get("bpmnFactory");
-      const elementFactory = this.modeler.get("elementFactory");
-      const operation = e.target.dataset["operation"];
-      let bpmnType = bpmnMapping[e.target.dataset["nodetype"] as BpmoConcept];
-      const shapeOptions: any = {
-        type: bpmnType,
-      };
-      if (bpmnType.includes("EventDefinition")) {
-        shapeOptions["eventDefinitionType"] = bpmnType;
-        shapeOptions["type"] = "bpmn:IntermediateCatchEvent";
-        bpmnType = "bpmn:IntermediateCatchEvent";
-      }
-      if (bpmnType.includes("SubProcess")) {
-        shapeOptions["isExpanded"] = true;
-      }
-      shapeOptions["businessObject"] = bpmnFactory.create(bpmnType, {
-        name: operation,
-        "rpa:operation": operation,
-      });
-      const shape = elementFactory.createShape(shapeOptions);
-      if (bpmnType.includes("SubProcess")) {
-        const startEvent = elementFactory.createShape({
-          type: "bpmn:StartEvent",
-          x: 40,
-          y: 82,
-          parent: shape,
-        });
-        return [shape, startEvent];
-      }
-      return shape;
+
+    eliminationThresholdChanged(e) {
+      this.currentEliminationThreshold = e;
+      this.updateAbstractedModel();
     },
-    clickOperation(e) {
-      return;
-      console.log(e);
-      const elementRegistry = this.modeler.get("elementRegistry");
-      const modeling = this.modeler.get("modeling");
-      const process = elementRegistry.get("Process_1");
-      const shape = this.newOperationShape(e);
-      modeling.createShape(shape, { x: 400, y: 100 }, process);
+    abstractionThresholdChanged(e) {
+      this.currentAbstractionThreshold = e;
+      this.updateAbstractedModel();
     },
-    dragOperation(e) {
-      e.dataTransfer.effectAllowed = "move";
-      e.preventDefault();
-      const create = this.modeler.get("create");
-      const shape = this.newOperationShape(e);
-      create.start(e, shape);
+    updateAbstractedModel() {
+      // TODO
     },
   },
   computed: {
