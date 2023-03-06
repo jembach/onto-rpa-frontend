@@ -68,6 +68,7 @@ export default defineComponent({
       botModel: {} as BotModel,
       currentEliminationThreshold: 0,
       currentAbstractionThreshold: 0,
+      modelOperations: {} as AbstractionModelOperations,
     };
   },
   async mounted() {
@@ -129,7 +130,25 @@ export default defineComponent({
       this.updateAbstractedModel();
     },
     updateAbstractedModel() {
-      // TODO
+      const abstractionPlan = getAbstractionPlanForBotModel(
+        this.botModel.processTree,
+        this.currentEliminationThreshold,
+        this.currentAbstractionThreshold
+      );
+
+      const modelInstructions =
+        abstractionPlanToModelOperations(abstractionPlan);
+
+      console.log(modelInstructions);
+
+      const elementRegistry = this.modeler.get("elementRegistry");
+      const modeling = this.modeler.get("modeling");
+      const process = elementRegistry.get("Process_1");
+
+      modelInstructions.elementsToDelete.forEach((elementToDelete: string) => {
+        const element = elementRegistry.get(elementToDelete);
+        modeling.removeElements([element]);
+      });
     },
   },
   computed: {
@@ -160,4 +179,7 @@ import BpmnModdleParser from "../utils/BpmnModdleParser";
 import BotModel, { createDefaultBotModel } from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
+import getAbstractionPlanForBotModel from "../utils/abstractBotModel";
+import abstractionPlanToModelOperations from "../utils/abstractionPlanToModelOperations";
+import { AbstractionModelOperations } from "../interfaces/BotModelAbstraction";
 </script>
