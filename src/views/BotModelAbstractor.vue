@@ -30,12 +30,14 @@
     <div class="flex-auto grid grid-cols-6">
       <AbstractionSettingsSidebar
         class="col-span-1 drop-shadow-lg bg-white"
+        :maxAggregationValue="maxAggregationValue"
         @elimination-change="eliminationThresholdChanged"
         @abstraction-change="abstractionThresholdChanged"
       ></AbstractionSettingsSidebar>
       <BotModelerCanvas
         v-if="botModel.model"
         :diagram="botModel.model"
+        :key="modelerKey"
         @modeler-shown="modelerLoaded"
         @modeler-selection-changed="selectionChanged"
         @modeler-element-changed="elementChanged"
@@ -68,7 +70,9 @@ export default defineComponent({
       botModel: {} as BotModel,
       currentEliminationThreshold: 0,
       currentAbstractionThreshold: 0,
+      maxAggregationValue: 0 as Number,
       modelOperations: {} as AbstractionModelOperations,
+      modelerKey: 0,
     };
   },
   async mounted() {
@@ -90,6 +94,9 @@ export default defineComponent({
       });
       this.$router.push({ name: "Overview" });
     }
+    this.maxAggregationValue = getMaxAggregationValue(
+      this.botModel.processTree
+    );
   },
   methods: {
     selectionChanged(e: ModelerSelectionChange) {
@@ -112,6 +119,7 @@ export default defineComponent({
     modelerLoaded(modeler): void {
       this.modeler = modeler;
       this.modelerShown = true;
+      this.updateAbstractedModel();
     },
 
     takeScreenshot: async function () {
@@ -123,11 +131,15 @@ export default defineComponent({
 
     eliminationThresholdChanged(e) {
       this.currentEliminationThreshold = e;
-      this.updateAbstractedModel();
+      this.modelerKey += 1;
+
+      // this.updateAbstractedModel();
     },
     abstractionThresholdChanged(e) {
       this.currentAbstractionThreshold = e;
-      this.updateAbstractedModel();
+      this.modelerKey += 1;
+
+      // this.updateAbstractedModel();
     },
     updateAbstractedModel() {
       const abstractionPlan = getAbstractionPlanForBotModel(
@@ -185,7 +197,9 @@ import BpmnModdleParser from "../utils/BpmnModdleParser";
 import BotModel, { createDefaultBotModel } from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
-import getAbstractionPlanForBotModel from "../utils/abstractBotModel";
+import getAbstractionPlanForBotModel, {
+  getMaxAggregationValue,
+} from "../utils/abstractBotModel";
 import abstractionPlanToModelOperations from "../utils/abstractionPlanToModelOperations";
 import { AbstractionModelOperations } from "../interfaces/BotModelAbstraction";
 </script>

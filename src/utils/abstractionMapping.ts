@@ -1,4 +1,4 @@
-import { rpaOperations } from "./ontologyParser";
+import { getOperationBranch } from "./ontologyParser";
 
 export enum AbsMethod {
   Elimination = "ELIMINATION",
@@ -16,30 +16,20 @@ export const abstractionMapping = new Map<string, AbstractionConfig>([
   ["software-control-operation", { method: AbsMethod.Elimination, weight: 30 }],
   ["BrowserGetText", { method: AbsMethod.Aggregation }],
   ["data-extraction-operation", { method: AbsMethod.Aggregation }],
+  ["data-input-operation", { method: AbsMethod.Aggregation }],
 ]);
 
 export function getInheritedAbstractionConfigForConcept(
   concept: string
 ): AbstractionConfig | undefined {
-  var currentConcept: string | undefined = concept;
+  const branchOfOperation = getOperationBranch(concept);
 
-  while (currentConcept && !abstractionMapping.has(currentConcept)) {
-    if (rpaOperations.individuals[currentConcept]) {
-      currentConcept = rpaOperations.individuals[currentConcept].concept.id;
-      continue;
+  for (let i = 0; i < branchOfOperation.length; i++) {
+    const currentConcept = branchOfOperation[i];
+    if (abstractionMapping.has(currentConcept)) {
+      return abstractionMapping.get(currentConcept);
     }
-    if (rpaOperations.concepts[currentConcept]) {
-      currentConcept = rpaOperations.concepts[currentConcept].type.id;
-      continue;
-    }
-    if (rpaOperations.types[currentConcept]) {
-      currentConcept = rpaOperations.types[currentConcept].type.id;
-      continue;
-    }
-    currentConcept = undefined;
   }
-  if (!currentConcept) {
-    return undefined;
-  }
-  return abstractionMapping.get(currentConcept);
+
+  return undefined;
 }

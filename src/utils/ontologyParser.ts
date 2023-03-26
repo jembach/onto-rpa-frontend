@@ -222,3 +222,24 @@ function getIdFromIri(id: string): string {
 function extendId(id: string): string {
   return RPA_IRI + "#" + id;
 }
+
+export function getOperationBranch(operation: string): string[] {
+  var currentConcept: string | undefined = operation;
+  // Add operation itself (leaf) to branch list
+  const branch = [operation];
+  // Add concept of operation to branch list
+  const conceptOfOperation = rpaOperations.individuals[operation].concept.id;
+  branch.push(conceptOfOperation);
+
+  // Get (first) type of concept of operation
+  let nextElement: RpaOperationType | undefined =
+    rpaOperations.concepts[conceptOfOperation].type;
+
+  // Iterate type relationship until we reach the root (where nextElement is not defined anymore)
+  while (nextElement) {
+    branch.push(nextElement.id);
+    nextElement = nextElement.type;
+  }
+
+  return branch;
+}

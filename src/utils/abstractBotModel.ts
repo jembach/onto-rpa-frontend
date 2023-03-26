@@ -13,19 +13,20 @@ import {
   OperationContext,
 } from "../interfaces/BotModelAbstraction";
 import analyzeContexts from "./abstractionContextAnalysis";
+import { getOperationBranch, rpaOperations } from "./ontologyParser";
 
 function getAbstractionPlanForBotModel(
   processTree: ProcessTree,
   eliminationThreshold: number,
   aggregationThreshold: number
 ): AbstractionPlan {
-  // console.log(rpaOperations);
-  console.log(processTree);
+  console.log(rpaOperations);
+  // console.log(processTree);
 
   const botContext: Record<string, OperationContext> =
     analyzeContexts(processTree);
 
-  console.log(botContext);
+  // console.log(botContext);
 
   const abstractionPlan: AbstractionPlan = {
     elimination: [],
@@ -42,10 +43,12 @@ function getAbstractionPlanForBotModel(
     abstractionPlan.elimination
   );
 
+  const maxAggrValue = getMaxAggregationValue(processTree);
+
   abstractionPlan.aggregation = computeAggregations(
     processTree,
     botContext,
-    aggregationThreshold
+    maxAggrValue - aggregationThreshold
   );
 
   console.log(abstractionPlan.aggregation);
@@ -84,14 +87,22 @@ function computeAggregations(
   // 1. iterate over process tree from left to right
   // 2. As long as context same, add to candidate
   const listOfCandidates: AggregationCandidate[] = [];
-  getAggregationCandidatesFromTreeStructure(
+
+  const operationBranches = getBranchesForProcess(processTree);
+
+  const lastCandidate = getAggregationCandidatesFromTreeStructure(
     processTree.tree,
     processTree.nodeInfo,
+    operationBranches,
     botContext,
     threshold,
     listOfCandidates,
     { operations: [], label: "" }
   );
+
+  if (lastCandidate.operations.length > 0) {
+    listOfCandidates.push(lastCandidate);
+  }
 
   return listOfCandidates;
 }
@@ -99,6 +110,7 @@ function computeAggregations(
 function getAggregationCandidatesFromTreeStructure(
   tree: ProcessTreeStructure | string,
   nodeInfo: Record<string, ProcessTreeNodeInfo>,
+  operationBranches: Map<string, string[]>,
   botContext: Record<string, OperationContext>,
   threshold: number,
   candidates: AggregationCandidate[],
@@ -124,13 +136,36 @@ function getAggregationCandidatesFromTreeStructure(
     if (currentCandidate.operations.length === 0) {
       // If operation starts a new aggregation group
       currentCandidate.operations.push(tree);
+      currentCandidate.label =
+        nodeInfo[tree].concept +
+        " in " +
+        botContext[tree].software +
+        " at " +
+        botContext[tree].data;
       return currentCandidate;
     } else {
       // If we encounter already started aggregation group
       const firstInCandidate = currentCandidate.operations[0];
+
+      // Determine concept at current set level
+      const operationOfFirstInCandidate = nodeInfo[firstInCandidate].concept;
+      const operationOfCurrent = nodeInfo[tree].concept;
+      const branchFirstInCandidate = operationBranches.get(
+        operationOfFirstInCandidate
+      )!;
+      const branchCurrent = operationBranches.get(operationOfCurrent)!;
+
+      const indexFirstInCandidate = Math.max(
+        0,
+        branchFirstInCandidate!.length - 1 - threshold
+      );
+      const indexCurrent = Math.max(0, branchCurrent!.length - 1 - threshold);
+
       if (
         botContext[firstInCandidate].software === botContext[tree].software &&
-        botContext[firstInCandidate].data === botContext[tree].data
+        botContext[firstInCandidate].data === botContext[tree].data &&
+        branchFirstInCandidate[indexFirstInCandidate] ===
+          branchCurrent[indexCurrent]
       ) {
         // If it's also the same context
         currentCandidate.operations.push(tree);
@@ -150,6 +185,7 @@ function getAggregationCandidatesFromTreeStructure(
       currCandidate = getAggregationCandidatesFromTreeStructure(
         subtree,
         nodeInfo,
+        operationBranches,
         botContext,
         threshold,
         candidates,
@@ -190,6 +226,34 @@ function pruneProcessTreeStructure(
     tree[rootNode] = prunedTree;
   }
   return tree;
+}
+
+export function getMaxAggregationValue(processTree: ProcessTree): number {
+  const branches = getBranchesForProcess(processTree);
+
+  let lengthLongestBranch = 0;
+  branches.forEach((branch) => {
+    lengthLongestBranch = Math.max(lengthLongestBranch, branch.length);
+  });
+
+  return lengthLongestBranch;
+}
+
+function getBranchesForProcess(
+  processTree: ProcessTree
+): Map<string, string[]> {
+  const uniqueConcepts = new Set<string>();
+  const branches = new Map<string, string[]>();
+
+  for (const nodeId in processTree.nodeInfo) {
+    uniqueConcepts.add(processTree.nodeInfo[nodeId].concept);
+  }
+
+  uniqueConcepts.forEach((concept) => {
+    branches.set(concept, getOperationBranch(concept));
+  });
+
+  return branches;
 }
 
 export default getAbstractionPlanForBotModel;
