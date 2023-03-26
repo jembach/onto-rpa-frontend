@@ -11,6 +11,15 @@ function abstractionPlanToModelOperations(
     elementsToRename: [],
   };
 
+  abstractionPlan.aggregation.forEach((aggrGroup) => {
+    const listOfOperations = aggrGroup.operations;
+    const firstOperation = listOfOperations.shift();
+    listOfOperations.forEach((operation) => {
+      modelOperations.elementsToDelete.push(operation);
+    });
+    modelOperations.elementsToRename.push([firstOperation!, aggrGroup.label]);
+  });
+
   return modelOperations;
 }
 

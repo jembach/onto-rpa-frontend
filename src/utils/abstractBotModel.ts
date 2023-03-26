@@ -1,8 +1,15 @@
-import { ProcessTree, ProcessTreeStructure } from "../interfaces/BotModel";
-import { rpaOperations } from "./ontologyParser";
-import { eliminiationThresholds } from "./abstractionMapping";
+import {
+  ProcessTree,
+  ProcessTreeNodeInfo,
+  ProcessTreeStructure,
+} from "../interfaces/BotModel";
+import {
+  AbsMethod,
+  getInheritedAbstractionConfigForConcept,
+} from "./abstractionMapping";
 import {
   AbstractionPlan,
+  AggregationCandidate,
   OperationContext,
 } from "../interfaces/BotModelAbstraction";
 import analyzeContexts from "./abstractionContextAnalysis";
@@ -29,9 +36,19 @@ function getAbstractionPlanForBotModel(
     processTree,
     eliminationThreshold
   );
-  console.log(
-    pruneProcessTreeStructure(processTree.tree, abstractionPlan.elimination)
+
+  processTree.tree = pruneProcessTreeStructure(
+    processTree.tree,
+    abstractionPlan.elimination
   );
+
+  abstractionPlan.aggregation = computeAggregations(
+    processTree,
+    botContext,
+    aggregationThreshold
+  );
+
+  console.log(abstractionPlan.aggregation);
 
   return abstractionPlan;
 }
@@ -44,15 +61,103 @@ function computeEliminations(
 
   for (const nodeId in processTree.nodeInfo) {
     const currentConcept = processTree.nodeInfo[nodeId].concept;
-    const conceptElimThreshold =
-      getEliminationThresholdForConcept(currentConcept);
+    const conceptAbsConfig =
+      getInheritedAbstractionConfigForConcept(currentConcept);
 
-    if (conceptElimThreshold && conceptElimThreshold <= threshold) {
+    if (
+      conceptAbsConfig &&
+      conceptAbsConfig.method === AbsMethod.Elimination &&
+      conceptAbsConfig.weight! <= threshold
+    ) {
       elimCandidates.push(nodeId);
     }
   }
 
   return elimCandidates;
+}
+
+function computeAggregations(
+  processTree: ProcessTree,
+  botContext: Record<string, OperationContext>,
+  threshold: number
+): AggregationCandidate[] {
+  // 1. iterate over process tree from left to right
+  // 2. As long as context same, add to candidate
+  const listOfCandidates: AggregationCandidate[] = [];
+  getAggregationCandidatesFromTreeStructure(
+    processTree.tree,
+    processTree.nodeInfo,
+    botContext,
+    threshold,
+    listOfCandidates,
+    { operations: [], label: "" }
+  );
+
+  return listOfCandidates;
+}
+
+function getAggregationCandidatesFromTreeStructure(
+  tree: ProcessTreeStructure | string,
+  nodeInfo: Record<string, ProcessTreeNodeInfo>,
+  botContext: Record<string, OperationContext>,
+  threshold: number,
+  candidates: AggregationCandidate[],
+  currentCandidate: AggregationCandidate
+): AggregationCandidate {
+  if (typeof tree === "string") {
+    // If we encounter a node/operation
+    // const concept = rpaOperations.individuals[nodeInfo[tree].concept];
+    // 1. Check if intended for aggregation
+    // 2. Check if context same
+    // 3. Get concept at current level
+    const currentConcept = nodeInfo[tree].concept;
+    const conceptAbsConfig =
+      getInheritedAbstractionConfigForConcept(currentConcept);
+
+    if (!conceptAbsConfig) {
+      // If not intended for abstraction/aggregation
+      if (currentCandidate.operations.length > 0) {
+        candidates.push(currentCandidate);
+      }
+      return { operations: [], label: "" };
+    }
+    if (currentCandidate.operations.length === 0) {
+      // If operation starts a new aggregation group
+      currentCandidate.operations.push(tree);
+      return currentCandidate;
+    } else {
+      // If we encounter already started aggregation group
+      const firstInCandidate = currentCandidate.operations[0];
+      if (
+        botContext[firstInCandidate].software === botContext[tree].software &&
+        botContext[firstInCandidate].data === botContext[tree].data
+      ) {
+        // If it's also the same context
+        currentCandidate.operations.push(tree);
+        return currentCandidate;
+      } else {
+        candidates.push(currentCandidate);
+        return { operations: [tree], label: "" };
+      }
+    }
+  }
+
+  // Otherwise call function recusively for each subtree
+  let currCandidate = currentCandidate;
+  for (const node in tree) {
+    for (let i = 0; i < tree[node].length; i++) {
+      const subtree = tree[node][i];
+      currCandidate = getAggregationCandidatesFromTreeStructure(
+        subtree,
+        nodeInfo,
+        botContext,
+        threshold,
+        candidates,
+        currCandidate
+      );
+    }
+  }
+  return currCandidate;
 }
 
 function pruneProcessTreeStructure(
@@ -75,41 +180,16 @@ function pruneProcessTreeStructure(
         );
       }
     }
-    indicesToDelete.sort((a: number, b: number) => {
-      return b - a;
-    });
-    console.log(indicesToDelete);
-    indicesToDelete.forEach((index: number) => {
-      tree[rootNode].splice(index, 1);
-    });
+    const prunedTree = [];
+    for (let i = 0; i < tree[rootNode].length; i++) {
+      if (i in indicesToDelete) {
+        continue;
+      }
+      prunedTree.push(tree[rootNode][i]);
+    }
+    tree[rootNode] = prunedTree;
   }
   return tree;
-}
-
-function getEliminationThresholdForConcept(
-  concept: string
-): number | undefined {
-  var currentConcept: string | undefined = concept;
-
-  while (currentConcept && !eliminiationThresholds.has(currentConcept)) {
-    if (rpaOperations.individuals[currentConcept]) {
-      currentConcept = rpaOperations.individuals[currentConcept].concept.id;
-      continue;
-    }
-    if (rpaOperations.concepts[currentConcept]) {
-      currentConcept = rpaOperations.concepts[currentConcept].type.id;
-      continue;
-    }
-    if (rpaOperations.types[currentConcept]) {
-      currentConcept = rpaOperations.types[currentConcept].type.id;
-      continue;
-    }
-    currentConcept = undefined;
-  }
-  if (!currentConcept) {
-    return undefined;
-  }
-  return eliminiationThresholds.get(currentConcept);
 }
 
 export default getAbstractionPlanForBotModel;

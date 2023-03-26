@@ -149,6 +149,12 @@ export default defineComponent({
         const element = elementRegistry.get(elementToDelete);
         modeling.removeElements([element]);
       });
+      modelInstructions.elementsToRename.forEach(
+        (elementToRename: [string, string]) => {
+          const element = elementRegistry.get(elementToRename[0]);
+          modeling.updateProperties(element, { name: elementToRename[1] });
+        }
+      );
     },
   },
   computed: {
