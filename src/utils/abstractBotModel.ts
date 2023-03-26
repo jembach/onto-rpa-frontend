@@ -1,24 +1,37 @@
-import { ProcessTree } from "../interfaces/BotModel";
+import { ProcessTree, ProcessTreeStructure } from "../interfaces/BotModel";
 import { rpaOperations } from "./ontologyParser";
 import { eliminiationThresholds } from "./abstractionMapping";
-import { AbstractionPlan } from "../interfaces/BotModelAbstraction";
+import {
+  AbstractionPlan,
+  OperationContext,
+} from "../interfaces/BotModelAbstraction";
+import analyzeContexts from "./abstractionContextAnalysis";
 
 function getAbstractionPlanForBotModel(
   processTree: ProcessTree,
   eliminationThreshold: number,
   aggregationThreshold: number
 ): AbstractionPlan {
-  console.log(rpaOperations);
-  // console.log(processTree);
-  const elimCandidates: string[] = computeEliminations(
+  // console.log(rpaOperations);
+  console.log(processTree);
+
+  const botContext: Record<string, OperationContext> =
+    analyzeContexts(processTree);
+
+  console.log(botContext);
+
+  const abstractionPlan: AbstractionPlan = {
+    elimination: [],
+    aggregation: [],
+  };
+
+  abstractionPlan.elimination = computeEliminations(
     processTree,
     eliminationThreshold
   );
-
-  const abstractionPlan: AbstractionPlan = {
-    elimination: computeEliminations(processTree, eliminationThreshold),
-    aggregation: [],
-  };
+  console.log(
+    pruneProcessTreeStructure(processTree.tree, abstractionPlan.elimination)
+  );
 
   return abstractionPlan;
 }
@@ -40,6 +53,37 @@ function computeEliminations(
   }
 
   return elimCandidates;
+}
+
+function pruneProcessTreeStructure(
+  tree: ProcessTreeStructure,
+  elementsToDelete: string[]
+): ProcessTreeStructure {
+  for (const rootNode in tree) {
+    const indicesToDelete: number[] = [];
+
+    for (let i = 0; i < tree[rootNode].length; i++) {
+      const element = tree[rootNode][i];
+      if (typeof element === "string") {
+        if (elementsToDelete.includes(element)) {
+          indicesToDelete.push(i);
+        }
+      } else {
+        tree[rootNode][i] = pruneProcessTreeStructure(
+          tree[rootNode][i] as ProcessTreeStructure,
+          elementsToDelete
+        );
+      }
+    }
+    indicesToDelete.sort((a: number, b: number) => {
+      return b - a;
+    });
+    console.log(indicesToDelete);
+    indicesToDelete.forEach((index: number) => {
+      tree[rootNode].splice(index, 1);
+    });
+  }
+  return tree;
 }
 
 function getEliminationThresholdForConcept(

@@ -12,3 +12,8 @@ export interface AbstractionModelOperations {
   elementsToDelete: string[];
   elementsToRename: [string, string][];
 }
+
+export interface OperationContext {
+  software: string;
+  data: string;
+}
