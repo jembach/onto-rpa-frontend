@@ -96,7 +96,7 @@ export default defineComponent({
       this.$router.push({ name: "Overview" });
     }
     this.modelAbstractor = new BotModelAbstractor(this.botModel.processTree);
-    this.maxAggregationValue = this.modelAbstractor.maxAggregationValue;
+    this.maxAggregationValue = this.modelAbstractor.maxAggregationValue + 1;
   },
   methods: {
     selectionChanged(e: ModelerSelectionChange) {

@@ -18,7 +18,7 @@ class BotModelAbstractor {
   maxAggregationValue: number;
 
   constructor(processTree: ProcessTree) {
-    console.log(rpaOperations);
+    // console.log(rpaOperations);
     // console.log(processTree);
     // console.log(botContext);
 
@@ -42,19 +42,19 @@ class BotModelAbstractor {
         this.computeEliminations(eliminationThreshold);
     }
 
-    const prunedTree = BotModelAbstractor.pruneProcessTreeStructure(
-      this.processTree.tree,
-      abstractionPlan.elimination
-    );
+    // const prunedTree = BotModelAbstractor.pruneProcessTreeStructure(
+    //   { ...this.processTree.tree },
+    //   abstractionPlan.elimination
+    // );
 
     if (aggregationThreshold > 0) {
       abstractionPlan.aggregation = this.computeAggregations(
-        prunedTree,
+        abstractionPlan.elimination,
         this.maxAggregationValue - aggregationThreshold
       );
     }
 
-    console.log(abstractionPlan.aggregation);
+    // console.log(abstractionPlan.aggregation);
 
     return abstractionPlan;
   }
@@ -80,16 +80,25 @@ class BotModelAbstractor {
   }
 
   computeAggregations(
-    prunedTree: ProcessTreeStructure,
+    eliminationCandidates: string[],
     threshold: number
   ): AggregationCandidate[] {
     // 1. iterate over process tree from left to right
     // 2. As long as context same, add to candidate
     const listOfCandidates: AggregationCandidate[] = [];
 
+    let ignoreDataContext = false;
+
+    if (threshold === -1) {
+      threshold = 0;
+      ignoreDataContext = true;
+    }
+
     const lastCandidate = this.getAggregationCandidatesFromTreeStructure(
-      prunedTree,
+      this.processTree.tree,
+      eliminationCandidates,
       threshold,
+      ignoreDataContext,
       listOfCandidates,
       { operations: [], label: "" }
     );
@@ -110,7 +119,9 @@ class BotModelAbstractor {
 
   getAggregationCandidatesFromTreeStructure(
     tree: ProcessTreeStructure | string,
+    eliminationCandidates: string[],
     threshold: number,
+    ignoreDataContext: boolean,
     candidates: AggregationCandidate[],
     currentCandidate: AggregationCandidate
   ): AggregationCandidate {
@@ -120,6 +131,9 @@ class BotModelAbstractor {
       // 1. Check if intended for aggregation
       // 2. Check if context same
       // 3. Get concept at current level
+      if (eliminationCandidates.includes(tree)) {
+        return currentCandidate;
+      }
       const currentConcept = this.processTree.nodeInfo[tree].concept;
       const conceptAbsConfig =
         getInheritedAbstractionConfigForConcept(currentConcept);
@@ -160,8 +174,9 @@ class BotModelAbstractor {
         if (
           this.botContext[firstInCandidate].software ===
             this.botContext[tree].software &&
-          this.botContext[firstInCandidate].data ===
-            this.botContext[tree].data &&
+          (ignoreDataContext ||
+            this.botContext[firstInCandidate].data ===
+              this.botContext[tree].data) &&
           branchFirstInCandidate[indexFirstInCandidate] ===
             branchCurrent[indexCurrent]
         ) {
@@ -182,7 +197,9 @@ class BotModelAbstractor {
         const subtree = tree[node][i];
         currCandidate = this.getAggregationCandidatesFromTreeStructure(
           subtree,
+          eliminationCandidates,
           threshold,
+          ignoreDataContext,
           candidates,
           currCandidate
         );
@@ -237,7 +254,7 @@ class BotModelAbstractor {
             indicesToDelete.push(i);
           }
         } else {
-          tree[rootNode][i] = this.pruneProcessTreeStructure(
+          tree[rootNode][i] = BotModelAbstractor.pruneProcessTreeStructure(
             tree[rootNode][i] as ProcessTreeStructure,
             elementsToDelete
           );
