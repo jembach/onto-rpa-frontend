@@ -104,6 +104,16 @@ function computeAggregations(
     listOfCandidates.push(lastCandidate);
   }
 
+  listOfCandidates.forEach((candidate) => {
+    candidate.label = getLabelForAggregationCandidate(
+      candidate,
+      processTree.nodeInfo,
+      operationBranches,
+      threshold,
+      botContext
+    );
+  });
+
   return listOfCandidates;
 }
 
@@ -136,12 +146,6 @@ function getAggregationCandidatesFromTreeStructure(
     if (currentCandidate.operations.length === 0) {
       // If operation starts a new aggregation group
       currentCandidate.operations.push(tree);
-      currentCandidate.label =
-        nodeInfo[tree].concept +
-        " in " +
-        botContext[tree].software +
-        " at " +
-        botContext[tree].data;
       return currentCandidate;
     } else {
       // If we encounter already started aggregation group
@@ -194,6 +198,41 @@ function getAggregationCandidatesFromTreeStructure(
     }
   }
   return currCandidate;
+}
+
+function getLabelForAggregationCandidate(
+  aggregationCandidate: AggregationCandidate,
+  nodeInfo: Record<string, ProcessTreeNodeInfo>,
+  operationBranches: Map<string, string[]>,
+  threshold: number,
+  botContext: Record<string, OperationContext>
+): string {
+  const firstInCandidate = aggregationCandidate.operations[0];
+
+  let conceptsAtCurrentLevel = new Set<string>();
+
+  for (let currThresh = threshold; currThresh < 10; currThresh++) {
+    const newConceptsAtThresh = new Set<string>();
+    aggregationCandidate.operations.forEach((operation) => {
+      const concept = nodeInfo[operation].concept;
+      const branch = operationBranches.get(concept)!;
+      const index = Math.max(0, branch.length - 1 - currThresh);
+      newConceptsAtThresh.add(branch[index]);
+    });
+    if (newConceptsAtThresh.size === 1) {
+      conceptsAtCurrentLevel = newConceptsAtThresh;
+    } else {
+      break;
+    }
+  }
+
+  return (
+    conceptsAtCurrentLevel.values().next().value +
+    " in " +
+    botContext[firstInCandidate].software +
+    " at " +
+    botContext[firstInCandidate].data
+  );
 }
 
 function pruneProcessTreeStructure(
