@@ -33,10 +33,12 @@ function getAbstractionPlanForBotModel(
     aggregation: [],
   };
 
-  abstractionPlan.elimination = computeEliminations(
-    processTree,
-    eliminationThreshold
-  );
+  if (eliminationThreshold > 0) {
+    abstractionPlan.elimination = computeEliminations(
+      processTree,
+      eliminationThreshold
+    );
+  }
 
   processTree.tree = pruneProcessTreeStructure(
     processTree.tree,
@@ -45,11 +47,13 @@ function getAbstractionPlanForBotModel(
 
   const maxAggrValue = getMaxAggregationValue(processTree);
 
-  abstractionPlan.aggregation = computeAggregations(
-    processTree,
-    botContext,
-    maxAggrValue - aggregationThreshold
-  );
+  if (aggregationThreshold > 0) {
+    abstractionPlan.aggregation = computeAggregations(
+      processTree,
+      botContext,
+      maxAggrValue - aggregationThreshold
+    );
+  }
 
   console.log(abstractionPlan.aggregation);
 
@@ -164,9 +168,9 @@ function getAggregationCandidatesFromTreeStructure(
 
       const indexFirstInCandidate = Math.max(
         0,
-        branchFirstInCandidate!.length - 1 - threshold
+        branchFirstInCandidate!.length - threshold
       );
-      const indexCurrent = Math.max(0, branchCurrent!.length - 1 - threshold);
+      const indexCurrent = Math.max(0, branchCurrent!.length - threshold);
 
       if (
         botContext[firstInCandidate].software === botContext[tree].software &&
@@ -219,7 +223,7 @@ function getLabelForAggregationCandidate(
     aggregationCandidate.operations.forEach((operation) => {
       const concept = nodeInfo[operation].concept;
       const branch = operationBranches.get(concept)!;
-      const index = Math.max(0, branch.length - 1 - currThresh);
+      const index = Math.max(0, branch.length - currThresh);
       newConceptsAtThresh.add(branch[index]);
     });
     if (newConceptsAtThresh.size === 1) {

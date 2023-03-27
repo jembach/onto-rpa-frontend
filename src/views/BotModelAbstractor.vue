@@ -94,9 +94,8 @@ export default defineComponent({
       });
       this.$router.push({ name: "Overview" });
     }
-    this.maxAggregationValue = getMaxAggregationValue(
-      this.botModel.processTree
-    );
+    this.maxAggregationValue =
+      getMaxAggregationValue(this.botModel.processTree) + 2;
   },
   methods: {
     selectionChanged(e: ModelerSelectionChange) {
