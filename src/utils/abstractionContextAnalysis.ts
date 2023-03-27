@@ -4,6 +4,7 @@ import {
   ProcessTreeStructure,
 } from "../interfaces/BotModel";
 import { OperationContext } from "../interfaces/BotModelAbstraction";
+import { dataContextSwitchOperations } from "./abstractionMapping";
 import { rpaOperations } from "./ontologyParser";
 
 export default function analyzeContexts(
@@ -30,16 +31,26 @@ function analyzeContextsOfTreeStructure(
   if (typeof tree === "string") {
     // If we encounter a node/operation
     const concept = rpaOperations.individuals[nodeInfo[tree].concept];
+    const context: OperationContext = { software: "", data: "" };
+
     if (concept.automates) {
       // If element automates a specific software, use for context
-      operationContexts[tree] = {
-        software: concept.automates.id,
-        data: "",
-      };
+      context.software = concept.automates.id;
     } else {
       // Otherwise copy context from previous operation
-      operationContexts[tree] = operationContexts[latestOperation];
+      context.software = operationContexts[latestOperation].software;
+      // operationContexts[tree] = operationContexts[latestOperation];
     }
+    if (
+      dataContextSwitchOperations.includes(concept.id) ||
+      !operationContexts[latestOperation] ||
+      context.software !== operationContexts[latestOperation].software
+    ) {
+      context.data = Math.round(Math.random() * 100).toString();
+    } else {
+      context.data = operationContexts[latestOperation].data;
+    }
+    operationContexts[tree] = context;
     return tree;
   }
 

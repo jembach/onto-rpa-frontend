@@ -32,3 +32,5 @@ export function getInheritedAbstractionConfigForConcept(
 
   return undefined;
 }
+
+export const dataContextSwitchOperations = ["BrowserOpenURL"];
