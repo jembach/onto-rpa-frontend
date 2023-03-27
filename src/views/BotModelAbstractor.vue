@@ -203,3 +203,9 @@ import getAbstractionPlanForBotModel, {
 import abstractionPlanToModelOperations from "../utils/abstractionPlanToModelOperations";
 import { AbstractionModelOperations } from "../interfaces/BotModelAbstraction";
 </script>
+
+<style>
+.djs-palette {
+  display: none;
+}
+</style>
