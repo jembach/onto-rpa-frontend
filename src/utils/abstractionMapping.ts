@@ -14,7 +14,6 @@ export const abstractionMapping = new Map<string, AbstractionConfig>([
   ["control-flow-trigger", { method: AbsMethod.Elimination, weight: 10 }],
   ["control-flow-split", { method: AbsMethod.Elimination, weight: 20 }],
   ["software-control-operation", { method: AbsMethod.Elimination, weight: 30 }],
-  ["BrowserGetText", { method: AbsMethod.Aggregation }],
   ["data-extraction-operation", { method: AbsMethod.Aggregation }],
   ["data-input-operation", { method: AbsMethod.Aggregation }],
 ]);

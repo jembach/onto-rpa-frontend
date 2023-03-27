@@ -136,7 +136,10 @@ function getAggregationCandidatesFromTreeStructure(
     const conceptAbsConfig =
       getInheritedAbstractionConfigForConcept(currentConcept);
 
-    if (!conceptAbsConfig) {
+    if (
+      !conceptAbsConfig ||
+      conceptAbsConfig.method === AbsMethod.Elimination
+    ) {
       // If not intended for abstraction/aggregation
       if (currentCandidate.operations.length > 0) {
         candidates.push(currentCandidate);
