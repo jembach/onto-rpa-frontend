@@ -73,6 +73,7 @@ export default defineComponent({
       maxAggregationValue: 0 as Number,
       modelOperations: {} as AbstractionModelOperations,
       modelerKey: 0,
+      modelAbstractor: {} as BotModelAbstractor,
     };
   },
   async mounted() {
@@ -94,8 +95,8 @@ export default defineComponent({
       });
       this.$router.push({ name: "Overview" });
     }
-    this.maxAggregationValue =
-      getMaxAggregationValue(this.botModel.processTree) + 2;
+    this.modelAbstractor = new BotModelAbstractor(this.botModel.processTree);
+    this.maxAggregationValue = this.modelAbstractor.maxAggregationValue;
   },
   methods: {
     selectionChanged(e: ModelerSelectionChange) {
@@ -141,11 +142,11 @@ export default defineComponent({
       // this.updateAbstractedModel();
     },
     updateAbstractedModel() {
-      const abstractionPlan = getAbstractionPlanForBotModel(
-        this.botModel.processTree,
-        this.currentEliminationThreshold,
-        this.currentAbstractionThreshold
-      );
+      const abstractionPlan =
+        this.modelAbstractor.getAbstractionPlanForBotModel(
+          this.currentEliminationThreshold,
+          this.currentAbstractionThreshold
+        );
 
       const modelInstructions =
         abstractionPlanToModelOperations(abstractionPlan);
@@ -190,17 +191,12 @@ import {
   ModelerSelectionChange,
 } from "../interfaces/ModelerEvents";
 import AbstractionSettingsSidebar from "../components/BotModelAbstractor/AbstractionSettingsSidebar.vue";
-import { bpmnMapping } from "../utils/bpmnMapping";
-import { BpmoConcept } from "../interfaces/bpmoConcepts";
-import BpmnModdleParser from "../utils/BpmnModdleParser";
-import BotModel, { createDefaultBotModel } from "../interfaces/BotModel";
+import BotModel from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
-import getAbstractionPlanForBotModel, {
-  getMaxAggregationValue,
-} from "../utils/abstractBotModel";
 import abstractionPlanToModelOperations from "../utils/abstractionPlanToModelOperations";
 import { AbstractionModelOperations } from "../interfaces/BotModelAbstraction";
+import BotModelAbstractor from "../utils/BotModelAbstractor";
 </script>
 
 <style>
