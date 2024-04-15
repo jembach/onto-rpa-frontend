@@ -5,18 +5,18 @@
     >
       <div class="flex-1">
         <router-link :to="{ name: 'Overview' }" title="Back to Overview">
-          <o-icon
+          <FontAwesomeIcon
             class="cursor-pointer"
-            icon="chevron-left"
-            size="large"
-          ></o-icon>
+            :icon="faChevronLeft"
+            size="2xl"
+          />
         </router-link>
-        <o-icon
+        <FontAwesomeIcon
           class="ml-8 cursor-pointer"
-          icon="save"
-          size="large"
+          :icon="faSave"
+          size="2xl"
           @click="saveBot"
-        ></o-icon>
+        />
       </div>
 
       <input
@@ -25,12 +25,12 @@
         v-model="botModel.name"
       />
       <div class="flex-1">
-        <o-icon
+        <FontAwesomeIcon
           class="ml-4 cursor-pointer"
-          icon="trash"
-          size="large"
+          :icon="faTrash"
+          size="2xl"
           @click="deleteBot"
-        ></o-icon>
+        />
       </div>
     </div>
     <div class="flex-auto grid grid-cols-6">
@@ -256,4 +256,8 @@ import BpmnModdleParser from "../utils/BpmnModdleParser";
 import BotModel, { createDefaultBotModel } from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faSave } from "@fortawesome/free-solid-svg-icons";
 </script>

@@ -5,11 +5,11 @@
     >
       <div class="flex-1">
         <router-link :to="{ name: 'Overview' }" title="Back to Overview">
-          <o-icon
+          <FontAwesomeIcon
             class="cursor-pointer"
-            icon="chevron-left"
-            size="large"
-          ></o-icon>
+            :icon="faChevronLeft"
+            size="2xl"
+          />
         </router-link>
       </div>
 
@@ -19,12 +19,12 @@
         {{ botModel.name }}
       </div>
       <div class="flex-1">
-        <o-icon
+        <FontAwesomeIcon
           class="ml-4 cursor-pointer"
-          icon="camera"
-          size="large"
+          :icon="faCamera"
+          size="2xl"
           @click="takeScreenshot"
-        ></o-icon>
+        />
       </div>
     </div>
     <div class="flex-auto grid grid-cols-6">
@@ -197,6 +197,9 @@ import YAML from "yaml";
 import abstractionPlanToModelOperations from "../utils/abstractionPlanToModelOperations";
 import { AbstractionModelOperations } from "../interfaces/BotModelAbstraction";
 import BotModelAbstractor from "../utils/BotModelAbstractor";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { faCamera } from "@fortawesome/free-solid-svg-icons";
 </script>
 
 <style>
