@@ -9,23 +9,24 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.2.1",
-    "@oruga-ui/oruga-next": "^0.5.10",
-    "axios": "^1.2.3",
-    "bpmn-js": "^11.1.1",
+    "@fortawesome/fontawesome-free": "^6.5.2",
+    "@oruga-ui/oruga-next": "^0.8.7",
+    "@oruga-ui/theme-oruga": "^0.2.2",
+    "axios": "^1.6.8",
+    "bpmn-js": "^11.5.0",
     "vue": "^3.2.25",
-    "vue-router": "^4.1.6",
-    "yaml": "^2.2.1"
+    "vue-router": "^4.3.0",
+    "yaml": "^2.4.1"
   },
   "devDependencies": {
-    "@types/bpmn-moddle": "^5.1.6",
-    "@vitejs/plugin-vue": "^4.0.0",
-    "autoprefixer": "^10.4.13",
-    "postcss": "^8.4.21",
-    "tailwindcss": "^3.2.4",
-    "typedoc": "^0.23.24",
-    "typescript": "^4.9.4",
-    "vite": "^4.0.4",
-    "vue-tsc": "^1.0.24"
+    "@types/bpmn-moddle": "^5.1.11",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "typedoc": "^0.25.13",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.8",
+    "vue-tsc": "^2.0.13"
   }
 }

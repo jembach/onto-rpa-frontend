@@ -83,7 +83,7 @@ import {
   RpaContextContainer,
   RpaOperation,
 } from "../../interfaces/RpaOperation";
-import { BpmoConcept } from "../../interfaces/bpmoConcepts";
+import { BpmoConcept } from "../../interfaces/BpmoConcepts";
 
 export default defineComponent({
   name: "bot-modeler-properties-panel",
