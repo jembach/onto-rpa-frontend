@@ -18,42 +18,49 @@
       </div>
       <div
         v-if="cardHovered || hoverLock"
-        class="absolute bottom-0 w-full flex justify-center gap-2"
+        class="absolute bottom-0 w-full h-8 flex justify-center gap-2"
       >
-        <o-tooltip
-          variant="primary"
-          position="bottom"
-          :triggers="['click']"
-          :auto-close="['outside', 'escape']"
-          @open="hoverLock = true"
-          @close="hoverLock = false"
-        >
-          <template v-slot:content>
-            <div class="flex flex-col gap-2 my-1">
-              <o-button variant="primary" @click="downloadBot('robotframework')"
-                >RobotFramework</o-button
-              >
-              <o-button variant="primary" @click="downloadBot('taskt')"
-                >taskt</o-button
-              >
-            </div>
-          </template>
-          <o-icon icon="download" :clickable="true" @click=""></o-icon>
-        </o-tooltip>
-        <o-tooltip
-          variant="primary"
-          label="Explore abstraction"
-          position="bottom"
-        >
+        <div class="tooltip tooltip-bottom" data-tip="Explore abstraction">
           <router-link
-            :to="{ name: 'ModelAbstractor', params: { modelId: botModel._id } }"
+            :to="{
+              name: 'ModelAbstractor',
+              params: { modelId: botModel._id },
+            }"
           >
-            <o-icon icon="binoculars" :clickable="true"></o-icon>
+            <div class="m-1">
+              <FontAwesomeIcon :icon="faBinoculars" />
+            </div>
           </router-link>
-        </o-tooltip>
+        </div>
+
+        <div class="tooltip tooltip-bottom" data-tip="Export script">
+          <div class="dropdown">
+            <div tabindex="0" role="button" class="m-1">
+              <FontAwesomeIcon :icon="faDownload" />
+            </div>
+            <div
+              tabindex="0"
+              class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+            >
+              <div class="join join-vertical">
+                <button
+                  class="btn join-item"
+                  @click="downloadBot('robotframework')"
+                >
+                  RobotFramework
+                </button>
+                <button class="btn join-item" @click="downloadBot('taskt')">
+                  taskt
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div v-else><o-icon icon="plus"></o-icon></div>
+    <div v-else>
+      <FontAwesomeIcon :icon="faPlus" />
+    </div>
   </div>
 </template>
 
@@ -62,6 +69,7 @@ import { defineComponent, PropType } from "vue";
 import botModelApi from "../../api/botModelApi";
 import BotModel from "../../interfaces/BotModel";
 import { getFilenameForBot } from "../../utils/utils";
+
 export default defineComponent({
   name: "bot-overview-card",
   props: {
@@ -100,4 +108,11 @@ export default defineComponent({
     },
   },
 });
+</script>
+
+<script setup lang="ts">
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faBinoculars } from "@fortawesome/free-solid-svg-icons";
+import { faDownload } from "@fortawesome/free-solid-svg-icons";
 </script>

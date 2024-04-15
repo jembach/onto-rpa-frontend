@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.5.2",
+    "@fortawesome/fontawesome-svg-core": "^6.5.2",
+    "@fortawesome/free-solid-svg-icons": "^6.5.2",
+    "@fortawesome/vue-fontawesome": "^3.0.6",
     "@oruga-ui/oruga-next": "^0.8.7",
     "@oruga-ui/theme-oruga": "^0.2.2",
     "axios": "^1.6.8",
@@ -22,6 +24,7 @@
     "@types/bpmn-moddle": "^5.1.11",
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
+    "daisyui": "^4.10.1",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
     "typedoc": "^0.25.13",
