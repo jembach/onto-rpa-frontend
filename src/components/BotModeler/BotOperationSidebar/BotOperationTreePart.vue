@@ -1,37 +1,36 @@
 <template>
-  <div v-for="treeNode in subtypesOfRoot" class="ml-2">
-    <o-collapse
+  <div v-for="treeNode in subtypesOfRoot">
+    <div
+      class="collapse"
       v-bind:class="{ hidden: !nodeVisibility[treeNode.id] }"
-      :open="true"
     >
-      <template #trigger="props">
-        <div>
-          <o-icon v-if="props.open" icon="caret-down"> </o-icon>
-          <o-icon v-else icon="caret-right"> </o-icon>
-          <RpaElementExplainer
-            :rpa-element="treeNode"
-            position="bottom"
-            class="ml-1"
-          ></RpaElementExplainer>
-        </div>
-      </template>
-      <div class="card-content">
-        <div class="content">
-          <div v-bind:class="{ hidden: !nodeVisibility[treeNode.id] }">
-            <BotOperationTreePart
-              :rpa-tree="rpaTree"
-              :rootNode="treeNode.id"
-              :search-term="searchTerm"
-              @drag-operation="$emit('drag-operation', $event)"
-              @click-operation="$emit('click-operation', $event)"
-              @node-visibility="setNodeVisibility"
-              @tag-clicked="$emit('tag-clicked', $event)"
-            >
-            </BotOperationTreePart>
+      <input type="checkbox" class="min-h-0" checked />
+      <div class="collapse-title text-md p-0 pt-1 min-h-0">
+        <RpaElementExplainer
+          :rpa-element="treeNode"
+          position="bottom"
+          class="ml-1"
+        ></RpaElementExplainer>
+      </div>
+      <div class="collapse-content pb-0">
+        <div class="card-content">
+          <div class="content">
+            <div v-bind:class="{ hidden: !nodeVisibility[treeNode.id] }">
+              <BotOperationTreePart
+                :rpa-tree="rpaTree"
+                :rootNode="treeNode.id"
+                :search-term="searchTerm"
+                @drag-operation="$emit('drag-operation', $event)"
+                @click-operation="$emit('click-operation', $event)"
+                @node-visibility="setNodeVisibility"
+                @tag-clicked="$emit('tag-clicked', $event)"
+              >
+              </BotOperationTreePart>
+            </div>
           </div>
         </div>
       </div>
-    </o-collapse>
+    </div>
   </div>
   <div
     v-if="operationsOfRoot.length > 0"
@@ -175,4 +174,9 @@ export default defineComponent({
   },
   components: { RpaElementExplainer, BotOperationCard },
 });
+</script>
+<script setup lang="ts">
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faCaretDown } from "@fortawesome/free-solid-svg-icons";
+import { faCaretUp } from "@fortawesome/free-solid-svg-icons";
 </script>
