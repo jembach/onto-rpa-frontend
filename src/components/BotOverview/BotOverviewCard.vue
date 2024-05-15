@@ -64,55 +64,47 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script setup lang="ts">
+import { ref } from "vue";
 import botModelApi from "../../api/botModelApi";
 import BotModel from "../../interfaces/BotModel";
 import { getFilenameForBot } from "../../utils/utils";
-
-export default defineComponent({
-  name: "bot-overview-card",
-  props: {
-    botModel: Object as PropType<BotModel>,
-  },
-  data() {
-    return {
-      cardHovered: false,
-      hoverLock: false,
-    };
-  },
-  methods: {
-    async downloadBot(targetRpaTool: string) {
-      if (!this.botModel || !this.botModel._id) {
-        return;
-      }
-      try {
-        const botFileBlob = await botModelApi.getLinkedBotModel(
-          this.botModel?._id,
-          targetRpaTool
-        );
-        const url = window.URL.createObjectURL(botFileBlob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = getFilenameForBot(this.botModel, targetRpaTool);
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } catch (e) {
-        this.$oruga.notification.open({
-          message: "Bot could not be linked to " + targetRpaTool + ". " + e,
-          variant: "danger",
-        });
-      }
-    },
-  },
-});
-</script>
-
-<script setup lang="ts">
+import { useToast } from "vue-toastification";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faBinoculars } from "@fortawesome/free-solid-svg-icons";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
+
+// interface BotOverviewCardProps {
+//   botModel: Object as PropType<BotModel>;
+// }
+
+const props = defineProps<{ botModel: BotModel }>();
+
+const cardHovered = ref(false);
+const hoverLock = ref(false);
+
+const toast = useToast();
+
+async function downloadBot(targetRpaTool: string) {
+  if (!props.botModel || !props.botModel._id) {
+    return;
+  }
+  try {
+    const botFileBlob = await botModelApi.getLinkedBotModel(
+      props.botModel?._id,
+      targetRpaTool
+    );
+    const url = window.URL.createObjectURL(botFileBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = getFilenameForBot(props.botModel, targetRpaTool);
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (e) {
+    toast.error("Bot could not be linked to " + targetRpaTool + ".\n" + e);
+  }
+}
 </script>
