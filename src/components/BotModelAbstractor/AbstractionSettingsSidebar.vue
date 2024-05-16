@@ -5,21 +5,32 @@
     </div>
 
     <div class="w-full mt-2 px-4">
-      <o-field label="Reduce Coverage">
-        <o-slider
-          rounded
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">Reduce Coverage</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value="0"
+          class="range range-sm"
           v-model="eliminationLevel"
-          @change="$emit('elimination-change', $event)"
-        ></o-slider>
-      </o-field>
-      <o-field label="Reduce Granularity">
-        <o-slider
-          rounded
-          v-model="aggregationLevel"
+        />
+      </label>
+      <label class="form-control">
+        <div class="label">
+          <span class="label-text">Reduce Granularity</span>
+        </div>
+        <input
+          type="range"
+          min="0"
           :max="maxAggregationValue"
-          @change="$emit('abstraction-change', $event)"
-        ></o-slider>
-      </o-field>
+          value="0"
+          class="range range-sm"
+          v-model="aggregationLevel"
+        />
+      </label>
     </div>
   </div>
 </template>
@@ -46,6 +57,14 @@ export default defineComponent({
     resetAbstraction() {
       this.eliminationLevel = 0;
       this.aggregationLevel = 0;
+    },
+  },
+  watch: {
+    eliminationLevel: function (newLevel) {
+      this.$emit("elimination-change", newLevel);
+    },
+    aggregationLevel: function (newLevel) {
+      this.$emit("abstraction-change", newLevel);
     },
   },
 });

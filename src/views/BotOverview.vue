@@ -2,34 +2,20 @@
   <div class="bg-sky-700 text-center text-slate-100 py-12">
     <h1 class="text-4xl font-bold">Conceptual RPA Bot Modeler</h1>
   </div>
-  <o-collapse
-    :open="false"
-    animation="slide"
-    rootClass="bg-sky-700/70 hover:bg-sky-700/60 text-center text-slate-100"
-  >
-    <template #trigger="props">
-      <div class="p-1">
-        <o-icon v-if="props.open" icon="caret-up"> </o-icon>
-        <o-icon v-else icon="magnifying-glass"> </o-icon>
-      </div>
-    </template>
-    <div>
-      <div class="content">
-        <div class="p-4 text-center">
-          <o-field>
-            <o-input
-              v-model="searchTerm"
-              placeholder="Bot Analyzer Search"
-              inputClass="text-center"
-              icon-right="xmark"
-              icon-right-clickable
-              @icon-right-click="clearSearchTerm"
-            ></o-input>
-          </o-field>
-        </div>
-      </div>
-    </div>
-  </o-collapse>
+
+  <div class="bg-sky-700/70 hover:bg-sky-700/60 text-center p-4">
+    <label
+      class="input input-bordered flex items-center gap-2 w-full max-w-xs text-center mx-auto"
+    >
+      <input
+        type="text"
+        placeholder="Search"
+        class="grow"
+        v-model="searchTerm"
+      />
+      <FontAwesomeIcon :icon="faMagnifyingGlass" />
+    </label>
+  </div>
 
   <div class="flex justify-center">
     <router-link :to="{ name: 'Modeler' }" v-if="!searchTerm">
@@ -95,4 +81,6 @@ import { defineComponent } from "vue";
 import botModelApi from "../api/botModelApi";
 import BotModel from "../interfaces/BotModel";
 import BotOverviewCard from "../components/BotOverview/BotOverviewCard.vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 </script>

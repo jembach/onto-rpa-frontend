@@ -5,11 +5,11 @@
     >
       <div class="flex-1">
         <router-link :to="{ name: 'Overview' }" title="Back to Overview">
-          <o-icon
+          <FontAwesomeIcon
             class="cursor-pointer"
-            icon="chevron-left"
-            size="large"
-          ></o-icon>
+            :icon="faChevronLeft"
+            size="2xl"
+          />
         </router-link>
       </div>
 
@@ -19,12 +19,12 @@
         {{ botModel.name }}
       </div>
       <div class="flex-1">
-        <o-icon
+        <FontAwesomeIcon
           class="ml-4 cursor-pointer"
-          icon="camera"
-          size="large"
+          :icon="faCamera"
+          size="2xl"
           @click="takeScreenshot"
-        ></o-icon>
+        />
       </div>
     </div>
     <div class="flex-auto grid grid-cols-6">
@@ -58,131 +58,8 @@
   </div>
 </template>
 
-<script lang="ts">
-export default defineComponent({
-  name: "bot-model-abstractor",
-  data() {
-    return {
-      modelerShown: false,
-      modeler: undefined,
-      selectedElements: [] as ModelerElement[],
-      element: {} as ModelerElement,
-      botModel: {} as BotModel,
-      currentEliminationThreshold: 0,
-      currentAbstractionThreshold: 0,
-      maxAggregationValue: 0 as Number,
-      modelOperations: {} as AbstractionModelOperations,
-      modelerKey: 0,
-      modelAbstractor: {} as BotModelAbstractor,
-    };
-  },
-  async mounted() {
-    if (!this.$route.params.modelId) {
-      this.$oruga.notification.open({
-        message: "Invalid URL, you must provide a bot model id.",
-        variant: "error",
-      });
-      this.$router.push({ name: "Overview" });
-    }
-    try {
-      this.botModel = await botModelApi.getBotModel(
-        this.$route.params.modelId as string
-      );
-    } catch (e) {
-      this.$oruga.notification.open({
-        message: "Could not load the requested bot model.",
-        variant: "error",
-      });
-      this.$router.push({ name: "Overview" });
-    }
-    this.modelAbstractor = new BotModelAbstractor(this.botModel.processTree);
-    this.maxAggregationValue = this.modelAbstractor.maxAggregationValue + 1;
-  },
-  methods: {
-    selectionChanged(e: ModelerSelectionChange) {
-      this.selectedElements = e.newSelection;
-      if (e.newSelection.length > 0) {
-        this.element = e.newSelection[0];
-      } else {
-        this.element = null;
-      }
-    },
-    elementChanged(e: ModelerEvent) {
-      // this.saveDiagram();
-      if (!this.element || !this.element.businessObject) {
-        return;
-      }
-      if (this.element.businessObject.id === e.element.businessObject.id) {
-        this.element = e.element;
-      }
-    },
-    modelerLoaded(modeler): void {
-      this.modeler = modeler;
-      this.modelerShown = true;
-      this.updateAbstractedModel();
-    },
-
-    takeScreenshot: async function () {
-      this.$oruga.notification.open({
-        message: "Not supported.",
-        variant: "warning",
-      });
-    },
-
-    eliminationThresholdChanged(e) {
-      this.currentEliminationThreshold = e;
-      this.modelerKey += 1;
-
-      // this.updateAbstractedModel();
-    },
-    abstractionThresholdChanged(e) {
-      this.currentAbstractionThreshold = e;
-      this.modelerKey += 1;
-
-      // this.updateAbstractedModel();
-    },
-    updateAbstractedModel() {
-      const abstractionPlan =
-        this.modelAbstractor.getAbstractionPlanForBotModel(
-          this.currentEliminationThreshold,
-          this.currentAbstractionThreshold
-        );
-
-      const modelInstructions =
-        abstractionPlanToModelOperations(abstractionPlan);
-
-      console.log(modelInstructions);
-
-      const elementRegistry = this.modeler.get("elementRegistry");
-      const modeling = this.modeler.get("modeling");
-      const process = elementRegistry.get("Process_1");
-
-      modelInstructions.elementsToDelete.forEach((elementToDelete: string) => {
-        const element = elementRegistry.get(elementToDelete);
-        modeling.removeElements([element]);
-      });
-      modelInstructions.elementsToRename.forEach(
-        (elementToRename: [string, string]) => {
-          const element = elementRegistry.get(elementToRename[0]);
-          modeling.updateProperties(element, { name: elementToRename[1] });
-        }
-      );
-    },
-  },
-  computed: {
-    stringifiedProcessTree() {
-      if (!this.botModel.processTree || !this.botModel.processTree.tree) {
-        return "";
-      }
-      return YAML.stringify(this.botModel.processTree.tree);
-    },
-  },
-  components: { AbstractionSettingsSidebar },
-});
-</script>
-
 <script setup lang="ts">
-import { defineComponent } from "vue";
+import { ref, onMounted, computed } from "vue";
 import BotModelerCanvas from "../components/BotModeler/BotModelerCanvas.vue";
 import BotModelerPropertiesPanel from "../components/BotModeler/BotModelerPropertiesPanel.vue";
 import {
@@ -194,9 +71,129 @@ import AbstractionSettingsSidebar from "../components/BotModelAbstractor/Abstrac
 import BotModel from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
+import { useToast } from "vue-toastification";
+import { useRouter, useRoute } from "vue-router";
 import abstractionPlanToModelOperations from "../utils/abstractionPlanToModelOperations";
 import { AbstractionModelOperations } from "../interfaces/BotModelAbstraction";
 import BotModelAbstractor from "../utils/BotModelAbstractor";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { faCamera } from "@fortawesome/free-solid-svg-icons";
+
+const modelerShown = ref(false);
+const modeler = ref({} as any);
+const selectedElements = ref([] as ModelerElement[]);
+const element = ref({} as ModelerElement | null);
+const botModel = ref({} as BotModel);
+const currentEliminationThreshold = ref(0);
+const currentAbstractionThreshold = ref(0);
+const maxAggregationValue = ref(0);
+const modelOperations = ref({} as AbstractionModelOperations);
+const modelerKey = ref(0);
+let modelAbstractor = {} as BotModelAbstractor;
+
+const toast = useToast();
+const router = useRouter();
+const route = useRoute();
+
+onMounted(async () => {
+  if (!route.params.modelId) {
+    toast.error("Invalid URL, you must provide a bot model id.");
+    router.push({ name: "Overview" });
+  }
+  try {
+    botModel.value = await botModelApi.getBotModel(
+      route.params.modelId as string
+    );
+  } catch (e) {
+    toast.error("Could not load the requested bot model.");
+    router.push({ name: "Overview" });
+  }
+  try {
+    modelAbstractor = new BotModelAbstractor(botModel.value.processTree);
+    // console.log(modelAbstractor);
+    maxAggregationValue.value = modelAbstractor.maxAggregationValue + 1;
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+function selectionChanged(e: ModelerSelectionChange) {
+  selectedElements.value = e.newSelection;
+  if (e.newSelection.length > 0) {
+    element.value = e.newSelection[0];
+  } else {
+    element.value = null;
+  }
+}
+
+function elementChanged(e: ModelerEvent) {
+  // this.saveDiagram();
+  if (!element.value || !element.value.businessObject) {
+    return;
+  }
+  if (element.value.businessObject.id === e.element.businessObject.id) {
+    element.value = e.element;
+  }
+}
+
+function modelerLoaded(loadedModeler): void {
+  modeler.value = loadedModeler;
+  modelerShown.value = true;
+  updateAbstractedModel();
+}
+
+function takeScreenshot() {
+  toast.warning("Not supported.");
+}
+
+function eliminationThresholdChanged(e) {
+  currentEliminationThreshold.value = e;
+  modelerKey.value += 1;
+
+  // this.updateAbstractedModel();
+}
+
+function abstractionThresholdChanged(e) {
+  currentAbstractionThreshold.value = e;
+  modelerKey.value += 1;
+
+  // this.updateAbstractedModel();
+}
+
+function updateAbstractedModel() {
+  // console.log(modelAbstractor);
+  const abstractionPlan = modelAbstractor.getAbstractionPlanForBotModel(
+    currentEliminationThreshold.value,
+    currentAbstractionThreshold.value
+  );
+
+  const modelInstructions = abstractionPlanToModelOperations(abstractionPlan);
+
+  // console.log(modelInstructions);
+
+  const elementRegistry = modeler.value.get("elementRegistry");
+  const modeling = modeler.value.get("modeling");
+  const process = elementRegistry.get("Process_1");
+
+  modelInstructions.elementsToDelete.forEach((elementToDelete: string) => {
+    const element = elementRegistry.get(elementToDelete);
+    modeling.removeElements([element]);
+  });
+  modelInstructions.elementsToRename.forEach(
+    (elementToRename: [string, string]) => {
+      const element = elementRegistry.get(elementToRename[0]);
+      modeling.updateProperties(element, { name: elementToRename[1] });
+    }
+  );
+}
+
+const stringifiedProcessTree = computed(() => {
+  if (!botModel.value.processTree || !botModel.value.processTree.tree) {
+    return "";
+  }
+  return YAML.stringify(botModel.value.processTree.tree);
+});
 </script>
 
 <style>

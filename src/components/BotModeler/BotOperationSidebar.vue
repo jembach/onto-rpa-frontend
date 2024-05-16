@@ -2,33 +2,41 @@
   <div class="relative">
     <div class="p-2 h-20 mt-1 text-center">
       <div class="text-center text-xl">Semantic Operation Selector</div>
-      <o-field>
-        <o-input
-          v-model="searchTerm"
-          placeholder="Search operation, concept, application, ..."
-          inputClass="text-center"
-          rootClass="mt-2 mb-2 w-11/12 mx-auto"
-        ></o-input>
-      </o-field>
+
+      <input
+        type="text"
+        class="input input-bordered text-center mt-2 mb-2 w-11/12 mx-auto"
+        v-model="searchTerm"
+        placeholder="Search operation, concept, application, ..."
+      />
     </div>
     <div class="overflow-y-scroll absolute w-full bottom-0 top-24 mt-2 px-2">
-      <o-tabs
-        v-model="activeTab"
-        class="w-full"
-        tabItemWrapperClass="grow"
-        navTabsClass="sticky top-0 z-50 bg-white relative"
-        variant="primary"
-      >
-        <o-tab-item value="0" label="Operations">
+      <div role="tablist" class="tabs tabs-bordered">
+        <input
+          type="radio"
+          name="operation_tabs"
+          role="tab"
+          class="tab"
+          aria-label="Operations"
+          checked
+        />
+        <div role="tabpanel" class="tab-content">
           <BotOperationTree
             :searchTerm="searchTerm"
             @drag-operation="$emit('drag-operation', $event)"
             @click-operation="$emit('click-operation', $event)"
             @tag-clicked="filterForTag"
           ></BotOperationTree>
-        </o-tab-item>
+        </div>
 
-        <o-tab-item value="1" label="Containers">
+        <input
+          type="radio"
+          name="operation_tabs"
+          role="tab"
+          class="tab"
+          aria-label="Containers"
+        />
+        <div role="tabpanel" class="tab-content">
           <BotContextContainerCard
             v-for="container in contextContainers"
             :container="container"
@@ -39,8 +47,8 @@
             @click="$emit('click-operation', $event)"
           >
           </BotContextContainerCard>
-        </o-tab-item>
-      </o-tabs>
+        </div>
+      </div>
     </div>
   </div>
 </template>

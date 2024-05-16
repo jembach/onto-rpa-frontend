@@ -7,35 +7,41 @@
           - {{ element.businessObject.id }}
         </div>
         <hr />
-        <o-field label="Label">
-          <o-input v-model="currentLabel" placeholder="Label" />
-        </o-field>
-        <div>
-          <o-field label="RPA Operation">
-            <o-select
-              placeholder="Select an operation"
-              v-model="currentOperation"
-              rootClass="w-full"
+        <label class="form-control w-full max-w-xs">
+          <div class="label">
+            <span class="label-text">Label</span>
+          </div>
+          <input
+            type="text"
+            class="input input-bordered w-full max-w-xs"
+            v-model="currentLabel"
+            placeholder="Label"
+          />
+        </label>
+        <label class="form-control w-full max-w-xs">
+          <div class="label">
+            <span class="label-text">RPA Operation</span>
+          </div>
+          <select
+            class="select select-bordered w-full max-w-xs"
+            v-model="currentOperation"
+          >
+            <option disabled selected>Select an operation</option>
+            <option
+              v-for="operation in operationsAvailableForShape"
+              :value="operation.id"
             >
-              <option
-                v-for="operation in operationsAvailableForShape"
-                :value="operation.id"
-              >
-                {{ operation.id }}
-              </option>
-            </o-select>
-          </o-field>
-        </div>
+              {{ operation.id }}
+            </option>
+          </select>
+        </label>
       </div>
       <div
         v-if="currentOperation && currentOperation in operations"
         class="operation-description drop-shadow-md bg-slate-100 flex items-start p-2"
       >
-        <o-icon
-          icon="info"
-          size="medium"
-          rootClass="flex-initial mt-1 mr-2 ml-1"
-        ></o-icon>
+        <FontAwesomeIcon :icon="faInfo" class="flex-initial mt-1 mr-2 ml-1" />
+
         <div class="flex-auto">
           <RpaElementExplainer
             :rpa-element="operations[currentOperation]"
@@ -180,6 +186,11 @@ export default defineComponent({
   },
   components: { RpaElementExplainer },
 });
+</script>
+
+<script setup lang="ts">
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faInfo } from "@fortawesome/free-solid-svg-icons";
 </script>
 
 <style scoped>

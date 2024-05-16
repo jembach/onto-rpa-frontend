@@ -1,16 +1,19 @@
 <template>
-  <o-tooltip
-    :position="position"
-    multiline
-    variant="primary"
-    :delay="delay"
-    contentClass="explainer-tooltip"
+  <span
+    v-if="$slots.default"
+    class="rpa-element-name"
+    :onclick="`explain_modal_${$.uid}.showModal()`"
+    ><slot></slot
+  ></span>
+  <span
+    v-else
+    class="rpa-element-name"
+    :onclick="`explain_modal_${$.uid}.showModal()`"
+    >{{ rpaElement.label || rpaElement.id }}</span
   >
-    <span v-if="$slots.default" class="rpa-element-name"><slot></slot></span>
-    <span v-else class="rpa-element-name">{{
-      rpaElement.label || rpaElement.id
-    }}</span>
-    <template v-slot:content>
+
+  <dialog :id="`explain_modal_${$.uid}`" class="modal">
+    <div class="modal-box">
       <div class="mb-1 text-base">{{ rpaElement.label || rpaElement.id }}</div>
       <hr class="mb-1" />
       <div class="text-left">
@@ -36,8 +39,11 @@
           {{ rpaElement.iri }}
         </div>
       </div>
-    </template>
-  </o-tooltip>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
 </template>
 
 <script lang="ts">
