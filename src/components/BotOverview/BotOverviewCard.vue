@@ -33,6 +33,19 @@
           </router-link>
         </div>
 
+        <div class="tooltip tooltip-bottom" data-tip="Explore abstraction">
+          <router-link
+            :to="{
+              name: 'ModelMetrics',
+              params: { modelId: botModel._id },
+            }"
+          >
+            <div class="m-1">
+              <FontAwesomeIcon :icon="faRuler" />
+            </div>
+          </router-link>
+        </div>
+
         <div class="tooltip tooltip-bottom" data-tip="Export script">
           <div class="dropdown">
             <div tabindex="0" role="button" class="m-1">
@@ -74,6 +87,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faBinoculars } from "@fortawesome/free-solid-svg-icons";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
+import { faRuler } from "@fortawesome/free-solid-svg-icons";
 
 // interface BotOverviewCardProps {
 //   botModel: Object as PropType<BotModel>;
