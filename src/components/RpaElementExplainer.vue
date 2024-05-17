@@ -51,6 +51,7 @@ import { defineComponent, PropType } from "vue";
 import { RpaBaseElement } from "../interfaces/RpaOperation";
 export default defineComponent({
   name: "rpa-element-explainer",
+  emits: ["click"],
   props: {
     rpaElement: {
       type: Object as PropType<RpaBaseElement>,

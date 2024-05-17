@@ -9,7 +9,6 @@
         <RpaElementExplainer
           :rpa-element="treeNode"
           position="bottom"
-          class="ml-1"
         ></RpaElementExplainer>
       </div>
       <div class="collapse-content pb-0">
