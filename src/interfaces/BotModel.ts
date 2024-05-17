@@ -18,8 +18,10 @@ export interface ProcessTree {
 export interface ProcessTreeNodeInfo {
   label: string;
   concept: string;
-  dataInput?: string[];
-  dataOutput?: string[];
+  dataResourceInput?: string[];
+  variableInput?: string[];
+  dataResourceOutput?: string[];
+  variableOutput?: string[];
 }
 
 export type ProcessTreeStructure = Record<

@@ -4,6 +4,7 @@ import {
   BotModelMetrics,
   initialBotModelMetrics,
 } from "../interfaces/BotModelMetrics";
+import { RpaDataResourceAccessType } from "../interfaces/RpaOperation";
 import analyzeContexts from "./abstractionContextAnalysis";
 import {
   getOperationBranch,
@@ -40,6 +41,14 @@ class BotModelMetricsCalculator {
 
     this.modelMetrics.no_decisions.value = this.getNumberOfDecisions();
 
+    this.modelMetrics.no_variables.value = this.getNumberOfVariables();
+    this.modelMetrics.no_dataResources.value = this.getNumberOfDataResources();
+    this.modelMetrics.no_dataResourcesRead.value =
+      this.getNumberOfDataResourcesRead();
+    this.modelMetrics.no_dataResourcesWritten.value =
+      this.getNumberOfDataResourcesWritten();
+    this.modelMetrics.ri_dataResourcesAccess.value =
+      this.getRatioOfDataResourcesAccess();
     this.modelMetrics.no_software.value = this.getNumberOfSoftware();
 
     this.modelMetrics.no_contexts.value = this.getNumberOfContexts();
@@ -142,6 +151,71 @@ class BotModelMetricsCalculator {
       nestingDepthMax,
       nestingDepthAvg: nestingDepthTotal / nestingDepthCount,
     };
+  }
+
+  private getNumberOfVariables(): number {
+    return Object.keys(this.processTree.transientDataInfo).length;
+  }
+
+  private getNumberOfDataResources(): number {
+    return Object.keys(this.processTree.dataResourceInfo).length;
+  }
+
+  private getNumberOfDataResourcesRead(): number {
+    const uniqueDataResourcesRead = new Set<string>();
+
+    for (const node in this.processTree.nodeInfo) {
+      const nodeInfo = this.processTree.nodeInfo[node];
+      // Check if node has (i) a data resource input and (ii) is an operation that actually reads data
+      if (!nodeInfo.dataResourceInput) {
+        continue;
+      }
+      const rpaOperation = rpaOperations.individuals[nodeInfo.concept];
+      if (
+        rpaOperation.accessedData &&
+        rpaOperation.accessedData.find(
+          (access) =>
+            access.type === RpaDataResourceAccessType.DIRECTLYREADS ||
+            access.type === RpaDataResourceAccessType.IMPLICITLYREADS
+        )
+      ) {
+        uniqueDataResourcesRead.add(nodeInfo.dataResourceInput[0]);
+      }
+    }
+
+    return uniqueDataResourcesRead.size;
+  }
+
+  private getNumberOfDataResourcesWritten(): number {
+    const uniqueDataResourcesWritten = new Set<string>();
+
+    for (const node in this.processTree.nodeInfo) {
+      const nodeInfo = this.processTree.nodeInfo[node];
+      // Check if node has (i) a data resource output and (ii) is an operation that actually writes data
+      if (!nodeInfo.dataResourceOutput) {
+        continue;
+      }
+      const rpaOperation = rpaOperations.individuals[nodeInfo.concept];
+      if (
+        rpaOperation.accessedData &&
+        rpaOperation.accessedData.find(
+          (access) =>
+            access.type === RpaDataResourceAccessType.DIRECTLYWRITES ||
+            access.type === RpaDataResourceAccessType.IMPLICITLYWRITES
+        )
+      ) {
+        uniqueDataResourcesWritten.add(nodeInfo.dataResourceOutput[0]);
+      }
+    }
+
+    return uniqueDataResourcesWritten.size;
+  }
+
+  private getRatioOfDataResourcesAccess(): number {
+    const noReads = this.modelMetrics.no_dataResourcesRead.value;
+    const noWrites = this.modelMetrics.no_dataResourcesWritten.value;
+
+    return (noReads - noWrites) / (noReads + noWrites);
   }
 
   private getNumberOfSoftware(): number {

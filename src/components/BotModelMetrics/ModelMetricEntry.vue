@@ -35,6 +35,7 @@ const roundedValue = computed(() => {
   if (Number.isInteger(props.modelMetric.value)) {
     return undefined;
   }
-  return Math.round(props.modelMetric.value);
+  // return Math.round(props.modelMetric.value);
+  return props.modelMetric.value.toFixed(2);
 });
 </script>

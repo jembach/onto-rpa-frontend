@@ -40,6 +40,8 @@ class BpmnModdleParser {
       transientDataInfo: this.transientDataInfo,
     };
 
+    // console.log(generatedProcessTree);
+
     return generatedProcessTree;
   }
 
@@ -205,36 +207,49 @@ class BpmnModdleParser {
 
     // Look for data associations
     if (element.$type === "bpmn:Task") {
-      [nodeInfo.dataInput, nodeInfo.dataOutput] = this.addDataAssociationInfo(
-        element as Activity
-      );
+      const resourceInput: string[] = [];
+      const resourceOutput: string[] = [];
+      const variableInput: string[] = [];
+      const variableOutput: string[] = [];
+
+      if (element.dataInputAssociations) {
+        element.dataInputAssociations.forEach((association) => {
+          const dataInformationObject = association.sourceRef[0];
+          if (dataInformationObject.$type === "bpmn:DataStoreReference") {
+            resourceInput.push(dataInformationObject.id);
+          } else {
+            variableInput.push(dataInformationObject.id);
+          }
+          this.addDataInfo(dataInformationObject);
+        });
+      }
+      if (element.dataOutputAssociations) {
+        element.dataOutputAssociations.forEach((association) => {
+          const dataInformationObject = association.targetRef;
+          if (dataInformationObject.$type === "bpmn:DataStoreReference") {
+            resourceOutput.push(dataInformationObject.id);
+          } else {
+            variableOutput.push(dataInformationObject.id);
+          }
+          this.addDataInfo(dataInformationObject);
+        });
+      }
+      if (resourceInput.length > 0) {
+        nodeInfo.dataResourceInput = resourceInput;
+      }
+      if (variableInput.length > 0) {
+        nodeInfo.variableInput = variableInput;
+      }
+      if (resourceOutput.length > 0) {
+        nodeInfo.dataResourceOutput = resourceOutput;
+      }
+      if (variableOutput.length > 0) {
+        nodeInfo.variableOutput = variableOutput;
+      }
     }
 
     // Get basic information about the element
     this.processTreeNodes[element.id] = nodeInfo;
-  }
-
-  private addDataAssociationInfo(element: Activity): [string[], string[]] {
-    const dataInput: string[] = [];
-    const dataOutput: string[] = [];
-
-    if (element.dataInputAssociations) {
-      element.dataInputAssociations.forEach((association) => {
-        const dataInformationObject = association.sourceRef[0];
-        dataInput.push(dataInformationObject.id);
-        this.addDataInfo(dataInformationObject);
-      });
-    }
-
-    if (element.dataOutputAssociations) {
-      element.dataOutputAssociations.forEach((association) => {
-        const dataInformationObject = association.targetRef;
-        dataOutput.push(dataInformationObject.id);
-        this.addDataInfo(dataInformationObject);
-      });
-    }
-
-    return [dataInput, dataOutput];
   }
 
   private addDataInfo(dataNode: ItemAwareElement): void {
