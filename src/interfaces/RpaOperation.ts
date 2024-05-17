@@ -1,5 +1,23 @@
 import { BpmoConcept } from "./bpmoConcepts";
 
+export enum RpaDataResourceAccessType {
+  CREATES = "creates",
+  DELETES = "deletes",
+  CLOSES = "closes",
+  PERSISTS = "persists",
+  PROVISIONS = "provisions",
+  PROVISIONSNEW = "provisionsNew",
+  DIRECTLYREADS = "directlyReads",
+  IMPLICITLYREADS = "implicitlyReads",
+  DIRECTLYWRITES = "directlyWrites",
+  IMPLICITLYWRITES = "implicitlyWrites",
+}
+
+export enum RpaTransientDataAccessType {
+  REQUIRES = "requires",
+  YIELDS = "yields",
+}
+
 export interface RpaBaseElement {
   id: string;
   iri: string;
@@ -19,6 +37,11 @@ export interface RpaBaseInstance<RpaConcept> extends RpaBaseElement {
   concept: RpaConcept;
 }
 
+export interface RpaDataRelation {
+  type: RpaDataResourceAccessType | RpaTransientDataAccessType;
+  data: RpaData;
+}
+
 // ==============
 // RPA OPERATIONS
 
@@ -36,6 +59,7 @@ export interface RpaOperation extends RpaBaseInstance<RpaOperationConcept> {
   bpmoConcept: BpmoConcept;
   automates?: RpaSoftware;
   accesses?: RpaData;
+  accessedData?: RpaDataRelation[];
 }
 
 // ============

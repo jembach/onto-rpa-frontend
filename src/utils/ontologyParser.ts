@@ -12,6 +12,8 @@ import {
   RpaDataTaxonomy,
   RpaTaxonomy,
   RpaContextContainer,
+  RpaDataResourceAccessType,
+  RpaTransientDataAccessType,
 } from "../interfaces/RpaOperation";
 import rpaOperationsOntology from "../resources/rpa-operations.json";
 
@@ -126,12 +128,42 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
         iri: operation["@id"],
         concept: rpaTree.concepts[superElement.id],
       };
+      // Check basic relations
       RELATION_IRIS.forEach((relation_iri) => {
         if (relation_iri[0] in operation) {
           newRpaIndividual[getIdFromIri(relation_iri[0])] =
             relation_iri[1].individuals[
               getIdFromIri(operation[relation_iri[0]][0]["@id"])
             ];
+        }
+      });
+      // Check for special data access relations
+      Object.keys(operation).forEach((propertyKey) => {
+        const propertyName = getIdFromIri(propertyKey);
+        if (!propertyName) return;
+
+        if (propertyName.toUpperCase() in RpaDataResourceAccessType) {
+          if (!newRpaIndividual.accessedData) {
+            newRpaIndividual.accessedData = [];
+          }
+          newRpaIndividual.accessedData.push({
+            type: RpaDataResourceAccessType[propertyName.toUpperCase()],
+            data: rpaData.individuals[
+              getIdFromIri(operation[propertyKey][0]["@id"])
+            ],
+          });
+        }
+
+        if (propertyName.toUpperCase() in RpaTransientDataAccessType) {
+          if (!newRpaIndividual.accessedData) {
+            newRpaIndividual.accessedData = [];
+          }
+          newRpaIndividual.accessedData.push({
+            type: RpaTransientDataAccessType[propertyName.toUpperCase()],
+            data: rpaData.individuals[
+              getIdFromIri(operation[propertyKey][0]["@id"])
+            ],
+          });
         }
       });
       PROPERTY_IRIS.forEach((property_iri) => {
