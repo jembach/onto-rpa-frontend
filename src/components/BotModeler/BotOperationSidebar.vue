@@ -34,6 +34,23 @@
           name="operation_tabs"
           role="tab"
           class="tab"
+          aria-label="Data"
+          checked
+        />
+        <div role="tabpanel" class="tab-content">
+          <BotDataTree
+            :searchTerm="searchTerm"
+            @drag-operation="$emit('drag-operation', $event)"
+            @click-operation="$emit('click-operation', $event)"
+            @tag-clicked="filterForTag"
+          ></BotDataTree>
+        </div>
+
+        <input
+          type="radio"
+          name="operation_tabs"
+          role="tab"
+          class="tab"
           aria-label="Containers"
         />
         <div role="tabpanel" class="tab-content">
@@ -57,6 +74,7 @@
 import { defineComponent } from "vue";
 import { rpaContextContainers } from "../../utils/ontologyParser";
 import BotOperationTree from "./BotOperationSidebar/BotOperationTree.vue";
+import BotDataTree from "./BotOperationSidebar/BotDataTree.vue";
 import BotContextContainerCard from "./BotOperationSidebar/BotContextContainerCard.vue";
 
 export default defineComponent({
@@ -77,6 +95,6 @@ export default defineComponent({
       this.searchTerm += " " + event;
     },
   },
-  components: { BotOperationTree, BotContextContainerCard },
+  components: { BotOperationTree, BotDataTree, BotContextContainerCard },
 });
 </script>
