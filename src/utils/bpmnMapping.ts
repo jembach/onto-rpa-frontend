@@ -8,4 +8,6 @@ export const bpmnMapping: Record<BpmoConcept, string> = {
   MessageEvent: "bpmn:MessageEventDefinition",
   TimerEvent: "bpmn:TimerEventDefinition",
   SignalEvent: "bpmn:SignalEventDefinition",
+  DataStore: "bpmn:DataStoreReference",
+  DataObject: "bpmn:DataObjectReference",
 };

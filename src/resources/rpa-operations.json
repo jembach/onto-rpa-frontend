@@ -541,6 +541,11 @@
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#email"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "DataStore"
+      }
     ]
   },
   {
@@ -719,6 +724,11 @@
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "DataStore"
+      }
     ]
   },
   {
@@ -911,6 +921,11 @@
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rich-text-document"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "DataStore"
+      }
     ]
   },
   {
@@ -942,6 +957,11 @@
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#spreadsheet"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "DataStore"
+      }
     ]
   },
   {
@@ -1109,6 +1129,11 @@
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#pdf"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "DataStore"
+      }
     ]
   },
   {
@@ -1129,6 +1154,11 @@
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#simple-transient-data"
     ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "DataObject"
+      }
+    ],
     "http://www.w3.org/2000/01/rdf-schema#comment": [
       {
         "@value": "Transient data (e.g., variable) of the type string."
@@ -1145,6 +1175,11 @@
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#text-file"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "DataStore"
+      }
     ]
   },
   {
@@ -1346,6 +1381,11 @@
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#rich-text-document"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "DataStore"
+      }
     ]
   },
   {
@@ -3135,6 +3175,11 @@
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#internet-document"
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "DataStore"
+      }
     ],
     "http://www.w3.org/2000/01/rdf-schema#label": [
       {
