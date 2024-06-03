@@ -264,7 +264,27 @@ class BotModelMetricsCalculator {
     return uniqueContexts.size;
   }
   private getNumberOfContextSwitches(): number {
-    return 2;
+    let contextSwitches = 0;
+
+    let previousContext: OperationContext = { software: "", data: "" };
+
+    for (const node in this.processTree.tree["Process"][0]["Flow"]) {
+      const currentNode = this.processTree.tree["Process"][0]["Flow"][node];
+      if (!this.botContext[currentNode]) {
+        continue;
+      }
+
+      const currentContext = this.botContext[currentNode];
+      if (
+        currentContext.software !== previousContext.software ||
+        currentContext.data !== previousContext.data
+      ) {
+        contextSwitches++;
+        previousContext = currentContext;
+      }
+    }
+
+    return contextSwitches;
   }
   private getRatioOfContextSwitches(): number {
     return (

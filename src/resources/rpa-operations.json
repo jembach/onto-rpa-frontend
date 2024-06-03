@@ -225,6 +225,11 @@
       {
         "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#TextFile"
       }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#OperatingSystem"
+      }
     ]
   },
   {
@@ -268,6 +273,13 @@
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
       "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#browser"
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#OperatingSystem",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#operating-system"
     ]
   },
   {
@@ -533,6 +545,11 @@
     "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
       {
         "@value": "AtomicActivity"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#automates": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#OperatingSystem"
       }
     ]
   },
