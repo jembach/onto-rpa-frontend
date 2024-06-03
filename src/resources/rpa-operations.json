@@ -537,6 +537,13 @@
     ]
   },
   {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Database",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#database"
+    ]
+  },
+  {
     "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email",
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
@@ -1149,6 +1156,28 @@
     ]
   },
   {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#StringHash",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#transient-data-operation"
+    ],
+    "http://www.loa-cnr.it/ontologies/ExtendedDnS.owl#requires": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#StringTransientData"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "AtomicActivity"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#yields": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#StringTransientData"
+      }
+    ]
+  },
+  {
     "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#StringTransientData",
     "@type": [
       "http://www.w3.org/2002/07/owl#NamedIndividual",
@@ -1167,6 +1196,28 @@
     "http://www.w3.org/2000/01/rdf-schema#label": [
       {
         "@value": "String"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#StringTrim",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#NamedIndividual",
+      "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#transient-data-operation"
+    ],
+    "http://www.loa-cnr.it/ontologies/ExtendedDnS.owl#requires": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#StringTransientData"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#bpmoConcept": [
+      {
+        "@value": "AtomicActivity"
+      }
+    ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#yields": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#StringTransientData"
       }
     ]
   },
@@ -3167,6 +3218,27 @@
     "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
       {
         "@id": "http://cos.ontoware.org/cso#data"
+      }
+    ]
+  },
+  {
+    "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#transient-data-operation",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Class"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#comment": [
+      {
+        "@value": "Operations that manipulate transient data (i.e., variables) internally"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "Transient Data Operation"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#internal-operation"
       }
     ]
   },
