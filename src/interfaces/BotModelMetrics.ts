@@ -21,6 +21,15 @@ export interface BotModelMetrics {
   no_contexts: BotModelMetric;
   no_contextSwitches: BotModelMetric;
   ri_contextSwitches: BotModelMetric;
+  hpc_n1: BotModelMetric;
+  hpc_n2: BotModelMetric;
+  hpc_N1: BotModelMetric;
+  hpc_N2: BotModelMetric;
+  hpc_vocabulary: BotModelMetric;
+  hpc_length: BotModelMetric;
+  hpc_volume: BotModelMetric;
+  hpc_difficulty: BotModelMetric;
+  cfc: BotModelMetric;
 }
 
 export const initialBotModelMetrics: BotModelMetrics = {
@@ -101,5 +110,53 @@ export const initialBotModelMetrics: BotModelMetrics = {
     value: 0,
     description: "",
     percentage: false,
+  },
+  hpc_n1: {
+    name: "Halstead n1",
+    value: 0,
+    description: "The number of distinct operators",
+  },
+  hpc_n2: {
+    name: "Halstead n2",
+    value: 0,
+    description: "The number of distinct operands",
+  },
+  hpc_N1: {
+    name: "Halstead N1",
+    value: 0,
+    description: "The total number of operators",
+  },
+  hpc_N2: {
+    name: "Halstead N2",
+    value: 0,
+    description: "The total number of operand occurrences",
+  },
+  hpc_vocabulary: {
+    name: "Halstead Vocabulary",
+    value: 0,
+    description: "The total number of distinct operators and operands",
+  },
+  hpc_length: {
+    name: "Halstead Program Length",
+    value: 0,
+    description: "The total number of operators and operands",
+  },
+  hpc_volume: {
+    name: "Halstead Volume",
+    value: 0,
+    description:
+      "The total number of operators and operands multiplied by the logarithm of the vocabulary size",
+  },
+  hpc_difficulty: {
+    name: "Halstead Difficulty",
+    value: 0,
+    description:
+      "The difficulty of understanding the code, calculated as (n1/2) * (N2/n2)",
+  },
+  cfc: {
+    name: "Control-flow Complexity",
+    value: 0,
+    description:
+      "Complexity induced by decisions, loops, and branches in the model",
   },
 };

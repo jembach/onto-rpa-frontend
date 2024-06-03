@@ -1,4 +1,4 @@
-import { ProcessTree } from "../interfaces/BotModel";
+import { ProcessTree, ProcessTreeStructure } from "../interfaces/BotModel";
 import { OperationContext } from "../interfaces/BotModelAbstraction";
 import {
   BotModelMetrics,
@@ -56,6 +56,19 @@ class BotModelMetricsCalculator {
       this.getNumberOfContextSwitches();
     this.modelMetrics.ri_contextSwitches.value =
       this.getRatioOfContextSwitches();
+
+    // Halstead Program Complexity Metrics
+    const [n1, n2, N1, N2] = this.getHalsteadBasics();
+    this.modelMetrics.hpc_n1.value = n1;
+    this.modelMetrics.hpc_n2.value = n2;
+    this.modelMetrics.hpc_N1.value = N1;
+    this.modelMetrics.hpc_N2.value = N2;
+    this.modelMetrics.hpc_vocabulary.value = n1 + n2;
+    this.modelMetrics.hpc_length.value = N1 + N2;
+    this.modelMetrics.hpc_volume.value = (N1 + N2) * Math.log2(n1 + n2);
+    this.modelMetrics.hpc_difficulty.value = (n1 / 2) * (N2 / n2);
+
+    this.modelMetrics.cfc.value = this.computeCfc();
     /*
     const { nestingDepthMax, nestingDepthAvg } = this.getNestingDepth();
     this.modelMetrics.no_nestingDepthMax.value = nestingDepthMax;
@@ -252,6 +265,79 @@ class BotModelMetricsCalculator {
       this.modelMetrics.no_contexts.value /
       this.modelMetrics.no_contextSwitches.value
     );
+  }
+
+  private getHalsteadBasics(): [number, number, number, number] {
+    // Halstead n1 - We look for distinct operations (e.g., ExcelReadCell)
+    const uniqueOperators = new Set<string>();
+    for (const node in this.processTree.nodeInfo) {
+      const nodeInfo = this.processTree.nodeInfo[node];
+      uniqueOperators.add(nodeInfo.concept);
+    }
+    const n1 = uniqueOperators.size;
+
+    // Halstead n2 - We look for distinct data resources or variables.
+    // Compared to operations, we look for distinct labels, not concepts, as there can be two different web pages for example.
+    // However, if they bear the same label, they are considered as one resource only.
+    const uniqueOperands = new Set<string>();
+    for (const node in this.processTree.transientDataInfo) {
+      const dataInfo = this.processTree.transientDataInfo[node];
+      uniqueOperands.add(dataInfo.label);
+    }
+    for (const node in this.processTree.dataResourceInfo) {
+      const dataInfo = this.processTree.dataResourceInfo[node];
+      uniqueOperands.add(dataInfo.label);
+    }
+    const n2 = uniqueOperands.size;
+
+    // Halstead N1 - Total number of operations
+    const N1 = this.modelMetrics.no_operations.value;
+
+    // Halstead N2 - Total number of operand occurrences
+    let N2 = 0;
+    for (const node in this.processTree.nodeInfo) {
+      const nodeInfo = this.processTree.nodeInfo[node];
+      if (nodeInfo.dataResourceInput) {
+        N2 += nodeInfo.dataResourceInput.length;
+      }
+      if (nodeInfo.dataResourceOutput) {
+        N2 += nodeInfo.dataResourceOutput.length;
+      }
+      if (nodeInfo.variableInput) {
+        N2 += nodeInfo.variableInput.length;
+      }
+      if (nodeInfo.variableOutput) {
+        N2 += nodeInfo.variableOutput.length;
+      }
+    }
+
+    return [n1, n2, N1, N2];
+  }
+
+  private computeCfc(): number {
+    const cfc = this.computeCfcForBranch(this.processTree.tree);
+    console.log(cfc);
+    return cfc;
+  }
+
+  private computeCfcForBranch(branch: ProcessTreeStructure | string): number {
+    if (typeof branch === "string") {
+      return 0;
+    }
+    let branchCfc = 0;
+    for (const node in branch) {
+      if (
+        this.processTree.nodeInfo[node] &&
+        this.processTree.nodeInfo[node].concept.endsWith("Decision")
+      ) {
+        branchCfc += branch[node].length;
+      }
+      for (let i = 0; i < branch[node].length; i++) {
+        const subtree = branch[node][i];
+        branchCfc += this.computeCfcForBranch(subtree);
+      }
+    }
+    return branchCfc;
   }
 
   getBranchesForProcess(): Map<string, string[]> {

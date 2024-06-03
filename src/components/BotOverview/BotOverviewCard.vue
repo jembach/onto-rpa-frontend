@@ -33,7 +33,7 @@
           </router-link>
         </div>
 
-        <div class="tooltip tooltip-bottom" data-tip="Explore abstraction">
+        <div class="tooltip tooltip-bottom" data-tip="Inspect Metrics">
           <router-link
             :to="{
               name: 'ModelMetrics',
