@@ -68,12 +68,11 @@ class BotModelMetricsCalculator {
     this.modelMetrics.hpc_volume.value = (N1 + N2) * Math.log2(n1 + n2);
     this.modelMetrics.hpc_difficulty.value = (n1 / 2) * (N2 / n2);
 
-    this.modelMetrics.cfc.value = this.computeCfc();
-    /*
+    this.modelMetrics.cfc.value = this.computeCfc(this.processTree.tree);
+
     const { nestingDepthMax, nestingDepthAvg } = this.getNestingDepth();
     this.modelMetrics.no_nestingDepthMax.value = nestingDepthMax;
     this.modelMetrics.no_nestingDepthAvg.value = nestingDepthAvg;
-    */
 
     return this.modelMetrics;
   }
@@ -124,34 +123,9 @@ class BotModelMetricsCalculator {
     nestingDepthMax: number;
     nestingDepthAvg: number;
   } {
-    let nestingDepthMax = 0;
-    let nestingDepthTotal = 0;
-    let nestingDepthCount = 0;
-
     const nestingDepthMap = new Map<string, number>();
 
-    // console.log(this.processTree.tree.Process);
-
-    let branchesToExplore = this.processTree.tree.Process;
-    let currentNestingDepth = 0;
-
-    console.log(branchesToExplore);
-
-    while (branchesToExplore.length > 0) {
-      const currentBranches = branchesToExplore;
-      branchesToExplore = [];
-      while (currentBranches.length > 0) {
-        const currentBranch = currentBranches.pop();
-        currentBranch!.forEach((node) => {
-          if (typeof node === "string") {
-            nestingDepthMap.set(node, currentNestingDepth);
-          } else {
-            branchesToExplore.push(node[1]);
-          }
-        });
-      }
-      currentNestingDepth++;
-    }
+    this.computeNestingDepthForNode(this.processTree.tree, nestingDepthMap, 0);
 
     if (
       nestingDepthMap.size !== Object.keys(this.processTree.nodeInfo).length
@@ -160,10 +134,42 @@ class BotModelMetricsCalculator {
         "Nesting depth map size does not match number of nodes in process tree"
       );
     }
+
+    const nestingDepthMax = Math.max(...nestingDepthMap.values());
+    const nestingDepthTotal = Array.from(nestingDepthMap.values()).reduce(
+      (acc, val) => acc + val,
+      0
+    );
+    const nestingDepthCount = nestingDepthMap.size;
+
     return {
       nestingDepthMax,
       nestingDepthAvg: nestingDepthTotal / nestingDepthCount,
     };
+  }
+
+  private computeNestingDepthForNode(
+    node: ProcessTreeStructure | string,
+    nestingDepthMap: Map<string, number>,
+    currentDepth: number
+  ): void {
+    if (typeof node === "string") {
+      nestingDepthMap.set(node, currentDepth);
+      return;
+    }
+
+    for (const subnode in node) {
+      let subnodeDepth = currentDepth;
+      if (this.processTree.nodeInfo[subnode]) {
+        nestingDepthMap.set(subnode, currentDepth);
+        subnodeDepth++; // Only increment depth if current node is a gateway, not for Process or Flow
+      }
+      for (let i = 0; i < node[subnode].length; i++) {
+        const subtree = node[subnode][i];
+        this.computeNestingDepthForNode(subtree, nestingDepthMap, subnodeDepth);
+      }
+    }
+    return;
   }
 
   private getNumberOfVariables(): number {
@@ -314,13 +320,7 @@ class BotModelMetricsCalculator {
     return [n1, n2, N1, N2];
   }
 
-  private computeCfc(): number {
-    const cfc = this.computeCfcForBranch(this.processTree.tree);
-    console.log(cfc);
-    return cfc;
-  }
-
-  private computeCfcForBranch(branch: ProcessTreeStructure | string): number {
+  private computeCfc(branch: ProcessTreeStructure | string): number {
     if (typeof branch === "string") {
       return 0;
     }
@@ -334,7 +334,7 @@ class BotModelMetricsCalculator {
       }
       for (let i = 0; i < branch[node].length; i++) {
         const subtree = branch[node][i];
-        branchCfc += this.computeCfcForBranch(subtree);
+        branchCfc += this.computeCfc(subtree);
       }
     }
     return branchCfc;
