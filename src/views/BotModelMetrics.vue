@@ -28,9 +28,9 @@
         />
       </div>
     </div>
-    <div class="flex-auto grid grid-cols-6">
+    <div class="flex-auto grid grid-cols-10">
       <MetricsSidebar
-        class="col-span-1 drop-shadow-lg bg-white"
+        class="col-span-2 drop-shadow-lg bg-white"
         :modelMetrics="modelMetrics"
       ></MetricsSidebar>
       <BotModelerCanvas
@@ -40,7 +40,7 @@
         @modeler-shown="modelerLoaded"
         @modeler-selection-changed="selectionChanged"
         @modeler-element-changed="elementChanged"
-        class="col-span-4"
+        class="col-span-8"
       ></BotModelerCanvas>
     </div>
   </div>

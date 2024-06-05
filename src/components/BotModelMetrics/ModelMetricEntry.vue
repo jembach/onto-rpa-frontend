@@ -15,7 +15,7 @@
       :data-tip="props.modelMetric.description"
     >
       <FontAwesomeIcon
-        class="cursor-pointer ml-1"
+        class="cursor-pointer ml-1 text-gray-400"
         :icon="faCircleInfo"
         size="xs"
       />
