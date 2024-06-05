@@ -32,10 +32,18 @@ import { computed } from "vue";
 const props = defineProps<{ modelMetric: BotModelMetric }>();
 
 const roundedValue = computed(() => {
-  if (Number.isInteger(props.modelMetric.value)) {
+  const currentValue = props.modelMetric.value;
+  if (Number.isInteger(currentValue)) {
     return undefined;
   }
+  if (
+    Math.floor(currentValue) === currentValue ||
+    currentValue.toString().split(".")[1].length <= 2
+  ) {
+    return undefined;
+  }
+
   // return Math.round(props.modelMetric.value);
-  return props.modelMetric.value.toFixed(2);
+  return currentValue.toFixed(2);
 });
 </script>
