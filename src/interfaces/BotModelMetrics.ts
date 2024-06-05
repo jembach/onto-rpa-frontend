@@ -94,7 +94,7 @@ export const initialBotModelMetrics: BotModelMetrics = {
   ri_dataResourcesAccess: {
     name: "Ratio of Data Resources Access",
     value: 0,
-    description: "",
+    description: "The ratio of data resources the bot reads from and writes to",
     percentage: false,
   },
   no_software: {
@@ -110,12 +110,14 @@ export const initialBotModelMetrics: BotModelMetrics = {
   no_contextSwitches: {
     name: "Number of Context Switches",
     value: 0,
-    description: "Number of context switches in the model",
+    description:
+      "How often the active context (application + data) changes in the model",
   },
   ri_contextSwitches: {
     name: "Ratio of Context Switches",
     value: 0,
-    description: "",
+    description:
+      "Ratio of the number of context switches to the total number of contexts.",
     percentage: false,
   },
   hpc_n1: {
