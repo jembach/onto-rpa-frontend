@@ -1,7 +1,9 @@
 import {
+  Activity,
   Definitions,
   FlowElement,
   FlowNode,
+  ItemAwareElement,
   Process,
   SequenceFlow,
   SubProcess,
@@ -15,6 +17,8 @@ import YAML from "yaml";
 
 class BpmnModdleParser {
   processTreeNodes: Record<string, ProcessTreeNodeInfo> = {};
+  dataResourceInfo: Record<string, ProcessTreeNodeInfo> = {};
+  transientDataInfo: Record<string, ProcessTreeNodeInfo> = {};
 
   /**
    * Parses a bpmn-js model to a BPMN-independent process tree as a nested list.
@@ -32,9 +36,11 @@ class BpmnModdleParser {
     const generatedProcessTree: ProcessTree = {
       tree: parsedProcess,
       nodeInfo: this.processTreeNodes,
+      dataResourceInfo: this.dataResourceInfo,
+      transientDataInfo: this.transientDataInfo,
     };
 
-    //console.log(generatedProcessTree);
+    // console.log(generatedProcessTree);
 
     return generatedProcessTree;
   }
@@ -121,7 +127,6 @@ class BpmnModdleParser {
   private parseProcessSegment(
     currentElement: FlowNode
   ): [string | ProcessTreeStructure, FlowNode | undefined] {
-    // console.log(currentElement);
     // console.log("Parsing " + elementToString(currentElement));
     switch (currentElement.$type) {
       case "bpmn:Task":
@@ -189,20 +194,77 @@ class BpmnModdleParser {
   }
 
   private addProcessNodeInfo(element: FlowNode): void {
-    this.processTreeNodes[element.id] =
-      BpmnModdleParser.getProcessNodeInfo(element);
-  }
-
-  private static getProcessNodeInfo(element: FlowNode): ProcessTreeNodeInfo {
     if (!element.$attrs || !("rpa:operation" in element.$attrs)) {
       throw new Error(
         "Not all elements are correctly configured with an RPA operation."
       );
     }
-    return {
+
+    const nodeInfo: ProcessTreeNodeInfo = {
       label: element.name || element.id,
       concept: element.$attrs["rpa:operation"],
     };
+
+    // Look for data associations
+    if (element.$type === "bpmn:Task") {
+      const resourceInput: string[] = [];
+      const resourceOutput: string[] = [];
+      const variableInput: string[] = [];
+      const variableOutput: string[] = [];
+
+      if (element.dataInputAssociations) {
+        element.dataInputAssociations.forEach((association) => {
+          const dataInformationObject = association.sourceRef[0];
+          if (dataInformationObject.$type === "bpmn:DataStoreReference") {
+            resourceInput.push(dataInformationObject.id);
+          } else {
+            variableInput.push(dataInformationObject.id);
+          }
+          this.addDataInfo(dataInformationObject);
+        });
+      }
+      if (element.dataOutputAssociations) {
+        element.dataOutputAssociations.forEach((association) => {
+          const dataInformationObject = association.targetRef;
+          if (dataInformationObject.$type === "bpmn:DataStoreReference") {
+            resourceOutput.push(dataInformationObject.id);
+          } else {
+            variableOutput.push(dataInformationObject.id);
+          }
+          this.addDataInfo(dataInformationObject);
+        });
+      }
+      if (resourceInput.length > 0) {
+        nodeInfo.dataResourceInput = resourceInput;
+      }
+      if (variableInput.length > 0) {
+        nodeInfo.variableInput = variableInput;
+      }
+      if (resourceOutput.length > 0) {
+        nodeInfo.dataResourceOutput = resourceOutput;
+      }
+      if (variableOutput.length > 0) {
+        nodeInfo.variableOutput = variableOutput;
+      }
+    }
+
+    // Get basic information about the element
+    this.processTreeNodes[element.id] = nodeInfo;
+  }
+
+  private addDataInfo(dataNode: ItemAwareElement): void {
+    const nodeInfo: ProcessTreeNodeInfo = {
+      label: dataNode.name || dataNode.id,
+      concept: dataNode.$attrs["rpa:operation"],
+    };
+
+    if (dataNode.$type === "bpmn:DataStoreReference") {
+      this.dataResourceInfo[dataNode.id] = nodeInfo;
+    } else if (dataNode.$type === "bpmn:DataObjectReference") {
+      this.transientDataInfo[dataNode.id] = nodeInfo;
+    } else {
+      throw new Error("Data node is neither a data store nor a data object.");
+    }
   }
 
   /**

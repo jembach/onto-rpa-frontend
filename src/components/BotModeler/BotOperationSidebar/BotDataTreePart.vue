@@ -15,7 +15,7 @@
         <div class="card-content">
           <div class="content">
             <div v-bind:class="{ hidden: !nodeVisibility[treeNode.id] }">
-              <BotOperationTreePart
+              <BotDataTreePart
                 :rpa-tree="rpaTree"
                 :rootNode="treeNode.id"
                 :search-term="searchTerm"
@@ -24,7 +24,7 @@
                 @node-visibility="setNodeVisibility"
                 @tag-clicked="$emit('tag-clicked', $event)"
               >
-              </BotOperationTreePart>
+              </BotDataTreePart>
             </div>
           </div>
         </div>
@@ -32,8 +32,8 @@
     </div>
   </div>
   <div
-    v-if="operationsOfRoot.length > 0"
-    v-for="operation in filteredOperations"
+    v-if="dataOfRoot.length > 0"
+    v-for="operation in filteredData"
     class="ml-2"
   >
     <BotOperationCard
@@ -53,13 +53,14 @@ import { defineComponent, PropType } from "vue";
 import RpaElementExplainer from "../../RpaElementExplainer.vue";
 import {
   RpaBaseElement,
+  RpaData,
   RpaOperation,
   RpaTaxonomy,
 } from "../../../interfaces/RpaOperation";
 import BotOperationCard from "./BotOperationCard.vue";
 
 export default defineComponent({
-  name: "bot-operation-tree-part",
+  name: "bot-data-tree-part",
   emits: [
     "drag-operation",
     "click-operation",
@@ -82,7 +83,7 @@ export default defineComponent({
       activeTree: this.rpaTree,
       nodeVisibility: {} as Record<string, boolean>,
       subtypesOfRoot: [] as RpaBaseElement[],
-      operationsOfRoot: [] as RpaOperation[],
+      dataOfRoot: [] as RpaData[],
     };
   },
   mounted() {
@@ -90,24 +91,21 @@ export default defineComponent({
     this.subtypesOfRoot = this.subtypesOfRoot.concat(
       this.getRootNodeConcepts()
     );
-    this.operationsOfRoot = this.getOperationsOfConcept(this.rootNode);
-    if (
-      this.subtypesOfRoot.length === 0 &&
-      this.operationsOfRoot.length === 0
-    ) {
+    this.dataOfRoot = this.getDataOfConcept(this.rootNode);
+    if (this.subtypesOfRoot.length === 0 && this.dataOfRoot.length === 0) {
       this.emitNodeVisibility(false);
     }
   },
   methods: {
-    getOperationsOfConcept(conceptId: string): RpaOperation[] {
-      const operations: RpaOperation[] = [];
-      for (const operation in this.rpaTree.individuals) {
-        const currentOperation = this.rpaTree.individuals[operation];
-        if (currentOperation.concept.id === conceptId) {
-          operations.push(currentOperation);
+    getDataOfConcept(conceptId: string): RpaData[] {
+      const datas: RpaData[] = [];
+      for (const data in this.rpaTree.individuals) {
+        const currentData = this.rpaTree.individuals[data];
+        if (currentData.concept.id === conceptId) {
+          datas.push(currentData);
         }
       }
-      return operations;
+      return datas;
     },
     getRootNodeTypes(): RpaBaseElement[] {
       const elements = [];
@@ -140,24 +138,21 @@ export default defineComponent({
     },
   },
   computed: {
-    filteredOperations(): RpaOperation[] {
+    filteredData(): RpaData[] {
       if (!this.searchTerm) {
-        return this.operationsOfRoot;
+        return this.dataOfRoot;
       }
 
       const searchTerms = this.searchTerm.toLowerCase().split(" ");
-      const filteredOperations = Object.values(this.operationsOfRoot).filter(
-        (operation) =>
-          searchTerms.every(
-            (term) =>
-              operation.id.toLowerCase().includes(term) ||
-              operation.accesses?.id.toLowerCase().includes(term) ||
-              operation.automates?.id.toLowerCase().includes(term) ||
-              operation.concept.id.toLowerCase().includes(term)
-          )
+      const filteredData = Object.values(this.dataOfRoot).filter((data) =>
+        searchTerms.every(
+          (term) =>
+            data.id.toLowerCase().includes(term) ||
+            data.concept.id.toLowerCase().includes(term)
+        )
       );
-      this.emitNodeVisibility(filteredOperations.length > 0);
-      return filteredOperations;
+      this.emitNodeVisibility(filteredData.length > 0);
+      return filteredData;
     },
   },
   watch: {

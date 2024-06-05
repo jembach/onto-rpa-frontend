@@ -1,5 +1,4 @@
 import defaultDiagram from "../resources/defaultDiagram";
-import defaultRpaDiagram from "../resources/defaultRPADiagram";
 
 interface BotModel {
   _id?: string;
@@ -12,12 +11,19 @@ interface BotModel {
 export interface ProcessTree {
   tree: ProcessTreeStructure;
   nodeInfo: Record<string, ProcessTreeNodeInfo>;
+  dataResourceInfo: Record<string, ProcessTreeNodeInfo>;
+  transientDataInfo: Record<string, ProcessTreeNodeInfo>;
 }
 
 export interface ProcessTreeNodeInfo {
   label: string;
   concept: string;
+  dataResourceInput?: string[];
+  variableInput?: string[];
+  dataResourceOutput?: string[];
+  variableOutput?: string[];
 }
+
 export type ProcessTreeStructure = Record<
   string,
   (string | ProcessTreeStructure)[]

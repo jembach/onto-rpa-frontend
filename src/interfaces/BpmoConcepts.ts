@@ -6,4 +6,6 @@ export enum BpmoConcept {
   MessageEvent = "MessageEvent",
   SignalEvent = "SignalEvent",
   TimerEvent = "TimerEvent",
+  DataObject = "DataObject",
+  DataStore = "DataStore",
 }
