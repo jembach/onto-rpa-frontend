@@ -13,6 +13,7 @@ export interface BotModelMetrics {
   no_nestingDepthMax: BotModelMetric;
   no_nestingDepthAvg: BotModelMetric;
   no_variables: BotModelMetric;
+  no_variableTransformation: BotModelMetric;
   no_dataResources: BotModelMetric;
   no_dataResourcesRead: BotModelMetric;
   no_dataResourcesWritten: BotModelMetric;
@@ -68,6 +69,12 @@ export const initialBotModelMetrics: BotModelMetrics = {
     name: "Number of Variables",
     value: 0,
     description: "Number of different variables in the model",
+  },
+  no_variableTransformation: {
+    name: "Number of Variable Transformations",
+    value: 0,
+    description:
+      "How often variables are transformed (read + write in one operation) the model",
   },
   no_dataResources: {
     name: "Number of Data Resources",

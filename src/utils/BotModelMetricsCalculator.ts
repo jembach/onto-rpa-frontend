@@ -42,6 +42,8 @@ class BotModelMetricsCalculator {
     this.modelMetrics.no_decisions.value = this.getNumberOfDecisions();
 
     this.modelMetrics.no_variables.value = this.getNumberOfVariables();
+    this.modelMetrics.no_variableTransformation.value =
+      this.getNumberOfVariableTransformations();
     this.modelMetrics.no_dataResources.value = this.getNumberOfDataResources();
     this.modelMetrics.no_dataResourcesRead.value =
       this.getNumberOfDataResourcesRead();
@@ -174,6 +176,28 @@ class BotModelMetricsCalculator {
 
   private getNumberOfVariables(): number {
     return Object.keys(this.processTree.transientDataInfo).length;
+  }
+
+  private getNumberOfVariableTransformations(): number {
+    let variableTransformations = 0;
+    // Iterate over all nodes in process tree
+    Object.keys(this.processTree.nodeInfo).forEach((node) => {
+      // Get parent concepts of current node up to root
+      if (
+        !this.processTree.nodeInfo[node].variableInput ||
+        !this.processTree.nodeInfo[node].variableOutput
+      ) {
+        return;
+      }
+      const transformedVariables = this.processTree.nodeInfo[
+        node
+      ].variableInput!.filter((variable) =>
+        this.processTree.nodeInfo[node].variableOutput!.includes(variable)
+      );
+      variableTransformations += transformedVariables.length;
+    });
+
+    return variableTransformations;
   }
 
   private getNumberOfDataResources(): number {
