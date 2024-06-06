@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 import BotModelerCanvas from "../components/BotModeler/BotModelerCanvas.vue";
 import BotModelerPropertiesPanel from "../components/BotModeler/BotModelerPropertiesPanel.vue";
 import {
@@ -68,10 +68,9 @@ import BpmnModdleParser from "../utils/BpmnModdleParser";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
-import { useRoute, useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import BotModel from "../utils/BotModel";
 
@@ -84,6 +83,8 @@ const modeler = ref({} as any);
 const selectedElements = ref([] as ModelerElement[]);
 const element = ref({} as ModelerElement | null);
 const botModel = ref({} as BotModel);
+
+let modelDirty = false;
 
 onMounted(async () => {
   if (route.params.modelId as string) {
@@ -110,6 +111,7 @@ function selectionChanged(e: ModelerSelectionChange) {
 
 function elementChanged(e: ModelerEvent) {
   // this.saveDiagram();
+  modelDirty = true;
 
   if (!element.value || !element.value.businessObject) {
     return;
@@ -149,6 +151,7 @@ async function saveBot() {
         params: { modelId: newBotModel.id },
       });
     }
+    modelDirty = false;
     toast.success("Model successfully saved.");
   } catch (e) {
     toast.error("Bot could not be saved.\n" + e);
@@ -235,5 +238,36 @@ const stringifiedProcessTree = computed(() => {
     return "";
   }
   return YAML.stringify(botModel.value.tree.tree);
+});
+
+// Handle unsaved changes on page leave
+function confirmPageLeave() {
+  return confirm(
+    "You have unsaved changes. Are you sure you want to leave the modeler?"
+  );
+}
+
+function beforeWindowUnload(e) {
+  if (modelDirty && !confirmPageLeave()) {
+    e.preventDefault();
+    e.returnValue = "";
+  }
+}
+
+onBeforeRouteLeave((to, from, next) => {
+  if (modelDirty && !confirmPageLeave()) {
+    next(false);
+    return;
+  } else {
+    next();
+  }
+});
+
+onBeforeMount(() => {
+  window.addEventListener("beforeunload", beforeWindowUnload);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("beforeunload", beforeWindowUnload);
 });
 </script>
