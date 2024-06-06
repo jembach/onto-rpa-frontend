@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-sky-700 text-center text-slate-100 py-6 flex-initial flex justify-around shadow-md z-50"
+    class="bg-sky-700 text-center text-slate-100 py-6 min-h-24 flex-initial flex justify-around shadow-md z-50"
   >
     <div class="flex-1">
       <router-link :to="{ name: 'Overview' }" title="Back to Overview">
