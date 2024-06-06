@@ -1,7 +1,7 @@
 <template>
   <div class="h-screen max-h-screen flex flex-col">
     <div
-      class="bg-sky-700 text-center text-slate-100 py-12 flex-initial flex justify-around"
+      class="bg-sky-700 text-center text-slate-100 py-8 flex-initial flex justify-around"
     >
       <div class="flex-1">
         <router-link :to="{ name: 'Overview' }" title="Back to Overview">
@@ -27,6 +27,7 @@
         />
       </div>
     </div>
+    <ModelNavigationBar :botModelId="botModel.id"></ModelNavigationBar>
     <div class="flex-auto grid grid-cols-6">
       <AbstractionSettingsSidebar
         class="col-span-1 drop-shadow-lg bg-white"
@@ -68,6 +69,7 @@ import {
   ModelerSelectionChange,
 } from "../interfaces/ModelerEvents";
 import AbstractionSettingsSidebar from "../components/BotModelAbstractor/AbstractionSettingsSidebar.vue";
+import ModelNavigationBar from "../components/ModelNavigationBar.vue";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
 import { useToast } from "vue-toastification";
