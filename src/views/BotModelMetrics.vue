@@ -1,33 +1,15 @@
 <template>
   <div class="h-screen max-h-screen flex flex-col">
-    <div
-      class="bg-sky-700 text-center text-slate-100 py-8 flex-initial flex justify-around"
-    >
-      <div class="flex-1">
-        <router-link :to="{ name: 'Overview' }" title="Back to Overview">
-          <FontAwesomeIcon
-            class="cursor-pointer"
-            :icon="faChevronLeft"
-            size="2xl"
-          />
-        </router-link>
-      </div>
-
-      <div
-        class="text-white bg-transparent text-4xl border-0 border-b-2 w-4/5 shadow-none"
-      >
-        {{ botModel.name }}
-      </div>
-
-      <div class="flex-1">
+    <ModelTopBar :model-name-editable="false" v-model="botModel.name">
+      <template #right>
         <FontAwesomeIcon
           class="ml-4 cursor-pointer"
           :icon="faCamera"
           size="2xl"
           @click="takeScreenshot"
         />
-      </div>
-    </div>
+      </template>
+    </ModelTopBar>
     <ModelNavigationBar :botModelId="botModel.id"></ModelNavigationBar>
 
     <div class="flex-auto grid grid-cols-10">
@@ -66,6 +48,7 @@ import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { BotModelMetrics } from "../interfaces/BotModelMetrics";
 import MetricsSidebar from "../components/BotModelMetrics/ModelMetricsSidebar.vue";
 import ModelNavigationBar from "../components/ModelNavigationBar.vue";
+import ModelTopBar from "../components/ModelTopBar.vue";
 import BotModelMetricsCalculator from "../utils/BotModelMetricsCalculator";
 
 const modelerShown = ref(false);

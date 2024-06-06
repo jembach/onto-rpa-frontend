@@ -1,7 +1,7 @@
 <!-- Adapted from https://github.com/bpmn-io/vue-bpmn/blob/master/src/index.vue -->
 
 <template>
-  <div ref="container-modeler"></div>
+  <div ref="container-modeler" class="m-3"></div>
 </template>
 
 <script lang="ts">

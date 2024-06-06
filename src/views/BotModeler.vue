@@ -1,44 +1,30 @@
 <template>
   <div class="h-screen max-h-screen flex flex-col">
-    <div
-      class="bg-sky-700 text-center text-slate-100 py-8 flex-initial flex justify-around"
-    >
-      <div class="flex-1">
-        <router-link :to="{ name: 'Overview' }" title="Back to Overview">
-          <FontAwesomeIcon
-            class="cursor-pointer"
-            :icon="faChevronLeft"
-            size="2xl"
-          />
-        </router-link>
+    <ModelTopBar :model-name-editable="true" v-model="botModel.name">
+      <template #left>
         <FontAwesomeIcon
           class="ml-8 cursor-pointer"
           :icon="faSave"
           size="2xl"
           @click="saveBot"
         />
-      </div>
-
-      <input
-        class="text-center text-white bg-transparent text-4xl border-0 border-b-2 w-4/5 shadow-none"
-        placeholder="Name your new Bot"
-        v-model="botModel.name"
-      />
-      <div class="flex-1">
+      </template>
+      <template #right>
         <FontAwesomeIcon
           class="ml-4 cursor-pointer"
           :icon="faTrash"
           size="2xl"
           @click="deleteBot"
         />
-      </div>
-    </div>
+      </template>
+    </ModelTopBar>
+
     <ModelNavigationBar :botModelId="botModel.id"></ModelNavigationBar>
     <div class="flex-auto grid grid-cols-6">
       <BotOperationSidebar
         @drag-operation="dragOperation"
         @click-operation="clickOperation"
-        class="col-span-1 drop-shadow-lg bg-white"
+        class="col-span-1 shadow-lg bg-white"
       >
       </BotOperationSidebar>
       <BotModelerCanvas
@@ -75,6 +61,7 @@ import {
 } from "../interfaces/ModelerEvents";
 import BotOperationSidebar from "../components/BotModeler/BotOperationSidebar.vue";
 import ModelNavigationBar from "../components/ModelNavigationBar.vue";
+import ModelTopBar from "../components/ModelTopBar.vue";
 import { bpmnMapping } from "../utils/bpmnMapping";
 import { BpmoConcept } from "../interfaces/bpmoConcepts";
 import BpmnModdleParser from "../utils/BpmnModdleParser";

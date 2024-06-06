@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-sky-500 text-center text-slate-100 py-2 flex-initial flex justify-around"
+    class="bg-sky-500 text-center text-slate-100 py-2 flex-initial flex justify-around shadow-md z-40"
   >
     <div v-if="botModelId">
       <div role="tablist" class="tabs tabs-bordered">
