@@ -76,7 +76,6 @@ import BotOperationSidebar from "../components/BotModeler/BotOperationSidebar.vu
 import { bpmnMapping } from "../utils/bpmnMapping";
 import { BpmoConcept } from "../interfaces/bpmoConcepts";
 import BpmnModdleParser from "../utils/BpmnModdleParser";
-import BotModel, { createDefaultBotModel } from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -85,6 +84,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
+import BotModel from "../utils/BotModel";
 
 const toast = useToast();
 const router = useRouter();
@@ -106,7 +106,7 @@ onMounted(async () => {
       toast.error("Could not load the requested bot model.");
     }
   } else {
-    botModel.value = createDefaultBotModel();
+    botModel.value = new BotModel();
   }
 });
 
@@ -146,18 +146,18 @@ async function saveBot() {
 
     const bpmnModdleParser = new BpmnModdleParser();
 
-    botModel.value.processTree = bpmnModdleParser.parseBpmnModdle(
+    botModel.value.tree = bpmnModdleParser.parseBpmnModdle(
       modeler.value._definitions
     );
 
-    if (botModel.value._id) {
+    if (botModel.value.id) {
       await botModelApi.updateBotModel(botModel.value);
     } else {
       const newBotModel = await botModelApi.addBotModel(botModel.value);
       botModel.value = newBotModel;
       router.replace({
         name: "Modeler",
-        params: { modelId: newBotModel._id },
+        params: { modelId: newBotModel.id },
       });
     }
     toast.success("Model successfully saved.");
@@ -167,11 +167,11 @@ async function saveBot() {
 }
 
 async function deleteBot() {
-  if (!botModel.value._id) {
-    botModel.value = createDefaultBotModel();
+  if (!botModel.value.id) {
+    botModel.value = new BotModel();
   } else {
     try {
-      await botModelApi.deleteBotModel(botModel.value._id);
+      await botModelApi.deleteBotModel(botModel.value.id);
     } catch (e) {
       toast.error("Bot could not be deleted.\n" + e);
       return;
@@ -242,9 +242,9 @@ function dragOperation(e) {
 }
 
 const stringifiedProcessTree = computed(() => {
-  if (!botModel.value.processTree || !botModel.value.processTree.tree) {
+  if (!botModel.value.tree || !botModel.value.tree.tree) {
     return "";
   }
-  return YAML.stringify(botModel.value.processTree.tree);
+  return YAML.stringify(botModel.value.tree.tree);
 });
 </script>

@@ -54,7 +54,7 @@ import {
   ModelerEvent,
   ModelerSelectionChange,
 } from "../interfaces/ModelerEvents";
-import BotModel from "../interfaces/BotModel";
+import BotModel from "../utils/BotModel";
 import botModelApi from "../api/botModelApi";
 import { useToast } from "vue-toastification";
 import { useRouter, useRoute } from "vue-router";
@@ -92,9 +92,7 @@ onMounted(async () => {
     toast.error("Could not load the requested bot model.");
     router.push({ name: "Overview" });
   }
-  modelMetricsCalculator = new BotModelMetricsCalculator(
-    botModel.value.processTree
-  );
+  modelMetricsCalculator = new BotModelMetricsCalculator(botModel.value);
   updateMetrics();
 });
 
@@ -108,7 +106,11 @@ function takeScreenshot() {
 }
 
 function updateMetrics() {
-  modelMetrics.value = modelMetricsCalculator.getModelMetrics();
+  try {
+    modelMetrics.value = modelMetricsCalculator.getModelMetrics();
+  } catch (e) {
+    toast.error("Error while calculating metrics.\n" + e.message);
+  }
 }
 
 function selectionChanged(e: ModelerSelectionChange) {

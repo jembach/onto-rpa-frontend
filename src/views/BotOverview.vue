@@ -59,12 +59,8 @@ export default defineComponent({
       return this.botModels.filter((botModel) =>
         searchTerms.every((term) => {
           let foundTerm = false;
-          for (const node in botModel.processTree.nodeInfo) {
-            if (
-              botModel.processTree.nodeInfo[node].concept
-                .toLowerCase()
-                .includes(term)
-            ) {
+          for (const node in botModel.nodeInfo) {
+            if (botModel.nodeInfo[node].concept.toLowerCase().includes(term)) {
               foundTerm = true;
             }
           }
@@ -79,8 +75,8 @@ export default defineComponent({
 <script setup lang="ts">
 import { defineComponent } from "vue";
 import botModelApi from "../api/botModelApi";
-import BotModel from "../interfaces/BotModel";
 import BotOverviewCard from "../components/BotOverview/BotOverviewCard.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import BotModel from "../utils/BotModel";
 </script>

@@ -1,4 +1,4 @@
-import { ProcessTree, ProcessTreeStructure } from "../interfaces/BotModel";
+import { ProcessTree, ProcessTreeStructure } from "../interfaces/BotModelData";
 import {
   AbsMethod,
   getInheritedAbstractionConfigForConcept,
@@ -10,20 +10,19 @@ import {
 } from "../interfaces/BotModelAbstraction";
 import analyzeContexts from "./abstractionContextAnalysis";
 import { getOperationBranch, rpaOperations } from "./ontologyParser";
+import BotModel from "./BotModel";
 
 class BotModelAbstractor {
-  processTree: ProcessTree;
-  botContext: Record<string, OperationContext>;
+  botModel: BotModel;
   operationBranches: Map<string, string[]>;
   maxAggregationValue: number;
 
-  constructor(processTree: ProcessTree) {
+  constructor(botModel: BotModel) {
     // console.log(rpaOperations);
     // console.log(processTree);
     // console.log(botContext);
 
-    this.processTree = processTree;
-    this.botContext = analyzeContexts(processTree);
+    this.botModel = botModel;
     this.maxAggregationValue = this.getMaxAggregationValue();
     this.operationBranches = this.getBranchesForProcess();
   }
@@ -62,8 +61,8 @@ class BotModelAbstractor {
   computeEliminations(threshold: number): string[] {
     const elimCandidates: string[] = [];
 
-    for (const nodeId in this.processTree.nodeInfo) {
-      const currentConcept = this.processTree.nodeInfo[nodeId].concept;
+    for (const nodeId in this.botModel.nodeInfo) {
+      const currentConcept = this.botModel.nodeInfo[nodeId].concept;
       const conceptAbsConfig =
         getInheritedAbstractionConfigForConcept(currentConcept);
 
@@ -95,7 +94,7 @@ class BotModelAbstractor {
     }
 
     const lastCandidate = this.getAggregationCandidatesFromTreeStructure(
-      this.processTree.tree,
+      this.botModel.tree,
       eliminationCandidates,
       threshold,
       ignoreDataContext,
@@ -134,7 +133,7 @@ class BotModelAbstractor {
       if (eliminationCandidates.includes(tree)) {
         return currentCandidate;
       }
-      const currentConcept = this.processTree.nodeInfo[tree].concept;
+      const currentConcept = this.botModel.nodeInfo[tree].concept;
       const conceptAbsConfig =
         getInheritedAbstractionConfigForConcept(currentConcept);
 
@@ -158,8 +157,8 @@ class BotModelAbstractor {
 
         // Determine concept at current set level
         const operationOfFirstInCandidate =
-          this.processTree.nodeInfo[firstInCandidate].concept;
-        const operationOfCurrent = this.processTree.nodeInfo[tree].concept;
+          this.botModel.nodeInfo[firstInCandidate].concept;
+        const operationOfCurrent = this.botModel.nodeInfo[tree].concept;
         const branchFirstInCandidate = this.operationBranches.get(
           operationOfFirstInCandidate
         )!;
@@ -172,11 +171,11 @@ class BotModelAbstractor {
         const indexCurrent = Math.max(0, branchCurrent!.length - threshold);
 
         if (
-          this.botContext[firstInCandidate].software ===
-            this.botContext[tree].software &&
+          this.botModel.operationContexts[firstInCandidate].software ===
+            this.botModel.operationContexts[tree].software &&
           (ignoreDataContext ||
-            this.botContext[firstInCandidate].data ===
-              this.botContext[tree].data) &&
+            this.botModel.operationContexts[firstInCandidate].data ===
+              this.botModel.operationContexts[tree].data) &&
           branchFirstInCandidate[indexFirstInCandidate] ===
             branchCurrent[indexCurrent]
         ) {
@@ -219,7 +218,7 @@ class BotModelAbstractor {
     for (let currThresh = threshold; currThresh < 10; currThresh++) {
       const newConceptsAtThresh = new Set<string>();
       aggregationCandidate.operations.forEach((operation) => {
-        const concept = this.processTree.nodeInfo[operation].concept;
+        const concept = this.botModel.nodeInfo[operation].concept;
         const branch = this.operationBranches.get(concept)!;
         const index = Math.max(0, branch.length - currThresh);
         newConceptsAtThresh.add(branch[index]);
@@ -234,9 +233,9 @@ class BotModelAbstractor {
     return (
       conceptsAtCurrentLevel.values().next().value +
       " in " +
-      this.botContext[firstInCandidate].software +
+      this.botModel.operationContexts[firstInCandidate].software +
       " at " +
-      this.botContext[firstInCandidate].data
+      this.botModel.operationContexts[firstInCandidate].data
     );
   }
 
@@ -287,8 +286,8 @@ class BotModelAbstractor {
     const uniqueConcepts = new Set<string>();
     const branches = new Map<string, string[]>();
 
-    for (const nodeId in this.processTree.nodeInfo) {
-      uniqueConcepts.add(this.processTree.nodeInfo[nodeId].concept);
+    for (const nodeId in this.botModel.nodeInfo) {
+      uniqueConcepts.add(this.botModel.nodeInfo[nodeId].concept);
     }
 
     uniqueConcepts.forEach((concept) => {

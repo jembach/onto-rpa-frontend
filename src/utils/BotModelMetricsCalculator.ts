@@ -1,34 +1,20 @@
-import { ProcessTree, ProcessTreeStructure } from "../interfaces/BotModel";
+import { ProcessTreeStructure } from "../interfaces/BotModelData";
 import { OperationContext } from "../interfaces/BotModelAbstraction";
 import {
   BotModelMetrics,
   initialBotModelMetrics,
 } from "../interfaces/BotModelMetrics";
 import { RpaDataResourceAccessType } from "../interfaces/RpaOperation";
-import analyzeContexts from "./abstractionContextAnalysis";
-import {
-  getOperationBranch,
-  rpaData,
-  rpaOperations,
-  rpaSoftware,
-} from "./ontologyParser";
+import { rpaOperations } from "./ontologyParser";
+import BotModel from "./BotModel";
 
 class BotModelMetricsCalculator {
-  processTree: ProcessTree;
-  botContext: Record<string, OperationContext>;
-  operationBranches: Map<string, string[]>;
   modelMetrics: BotModelMetrics = { ...initialBotModelMetrics };
 
-  //   ontologyOperations = rpaOperations;
-  //   ontologySoftware = rpaSoftware;
-  //   ontologyData = rpaData;
+  botModel: BotModel;
 
-  constructor(processTree: ProcessTree) {
-    this.processTree = processTree;
-    this.botContext = analyzeContexts(processTree);
-    this.operationBranches = this.getBranchesForProcess();
-
-    console.log(this.processTree);
+  constructor(botModel: BotModel) {
+    this.botModel = botModel;
   }
 
   public getModelMetrics(): BotModelMetrics {
@@ -70,7 +56,7 @@ class BotModelMetricsCalculator {
     this.modelMetrics.hpc_volume.value = (N1 + N2) * Math.log2(n1 + n2);
     this.modelMetrics.hpc_difficulty.value = (n1 / 2) * (N2 / n2);
 
-    this.modelMetrics.cfc.value = this.computeCfc(this.processTree.tree);
+    this.modelMetrics.cfc.value = this.computeCfc(this.botModel.tree);
 
     const { nestingDepthMax, nestingDepthAvg } = this.getNestingDepth();
     this.modelMetrics.no_nestingDepthMax.value = nestingDepthMax;
@@ -80,22 +66,12 @@ class BotModelMetricsCalculator {
   }
 
   private getNumberOfOperations(): number {
-    return Object.keys(this.processTree.nodeInfo).length;
+    return Object.keys(this.botModel.nodeInfo).length;
   }
 
   private getNumberOfAutomationOperations(): number {
-    let automationOperations = 0;
-    // Iterate over all nodes in process tree
-    Object.keys(this.processTree.nodeInfo).forEach((node) => {
-      // Get parent concepts of current node up to root
-      const parentConcepts = this.operationBranches.get(
-        this.processTree.nodeInfo[node].concept
-      );
-      if (parentConcepts!.includes("automation-operation")) {
-        automationOperations++;
-      }
-    });
-    return automationOperations;
+    return this.botModel.filterOperationsBySupertType("automation-operation")
+      .length;
   }
 
   private getRatioOfAutomationOperations(): number {
@@ -107,18 +83,8 @@ class BotModelMetricsCalculator {
   }
 
   private getNumberOfDecisions(): number {
-    let decisions = 0;
-    // Iterate over all nodes in process tree
-    Object.keys(this.processTree.nodeInfo).forEach((node) => {
-      // Get parent concepts of current node up to root
-      const parentConcepts = this.operationBranches.get(
-        this.processTree.nodeInfo[node].concept
-      );
-      if (parentConcepts!.includes("control-flow-operation")) {
-        decisions++;
-      }
-    });
-    return decisions;
+    return this.botModel.filterOperationsBySupertType("control-flow-operation")
+      .length;
   }
 
   private getNestingDepth(): {
@@ -127,11 +93,9 @@ class BotModelMetricsCalculator {
   } {
     const nestingDepthMap = new Map<string, number>();
 
-    this.computeNestingDepthForNode(this.processTree.tree, nestingDepthMap, 0);
+    this.computeNestingDepthForNode(this.botModel.tree, nestingDepthMap, 0);
 
-    if (
-      nestingDepthMap.size !== Object.keys(this.processTree.nodeInfo).length
-    ) {
+    if (nestingDepthMap.size !== Object.keys(this.botModel.nodeInfo).length) {
       throw new Error(
         "Nesting depth map size does not match number of nodes in process tree"
       );
@@ -162,7 +126,7 @@ class BotModelMetricsCalculator {
 
     for (const subnode in node) {
       let subnodeDepth = currentDepth;
-      if (this.processTree.nodeInfo[subnode]) {
+      if (this.botModel.nodeInfo[subnode]) {
         nestingDepthMap.set(subnode, currentDepth);
         subnodeDepth++; // Only increment depth if current node is a gateway, not for Process or Flow
       }
@@ -175,24 +139,24 @@ class BotModelMetricsCalculator {
   }
 
   private getNumberOfVariables(): number {
-    return Object.keys(this.processTree.transientDataInfo).length;
+    return Object.keys(this.botModel.transientDataInfo).length;
   }
 
   private getNumberOfVariableTransformations(): number {
     let variableTransformations = 0;
     // Iterate over all nodes in process tree
-    Object.keys(this.processTree.nodeInfo).forEach((node) => {
+    Object.keys(this.botModel.nodeInfo).forEach((node) => {
       // Get parent concepts of current node up to root
       if (
-        !this.processTree.nodeInfo[node].variableInput ||
-        !this.processTree.nodeInfo[node].variableOutput
+        !this.botModel.nodeInfo[node].variableInput ||
+        !this.botModel.nodeInfo[node].variableOutput
       ) {
         return;
       }
-      const transformedVariables = this.processTree.nodeInfo[
+      const transformedVariables = this.botModel.nodeInfo[
         node
       ].variableInput!.filter((variable) =>
-        this.processTree.nodeInfo[node].variableOutput!.includes(variable)
+        this.botModel.nodeInfo[node].variableOutput!.includes(variable)
       );
       variableTransformations += transformedVariables.length;
     });
@@ -201,14 +165,14 @@ class BotModelMetricsCalculator {
   }
 
   private getNumberOfDataResources(): number {
-    return Object.keys(this.processTree.dataResourceInfo).length;
+    return Object.keys(this.botModel.dataResourceInfo).length;
   }
 
   private getNumberOfDataResourcesRead(): number {
     const uniqueDataResourcesRead = new Set<string>();
 
-    for (const node in this.processTree.nodeInfo) {
-      const nodeInfo = this.processTree.nodeInfo[node];
+    for (const node in this.botModel.nodeInfo) {
+      const nodeInfo = this.botModel.nodeInfo[node];
       // Check if node has (i) a data resource input and (ii) is an operation that actually reads data
       if (!nodeInfo.dataResourceInput) {
         continue;
@@ -232,8 +196,8 @@ class BotModelMetricsCalculator {
   private getNumberOfDataResourcesWritten(): number {
     const uniqueDataResourcesWritten = new Set<string>();
 
-    for (const node in this.processTree.nodeInfo) {
-      const nodeInfo = this.processTree.nodeInfo[node];
+    for (const node in this.botModel.nodeInfo) {
+      const nodeInfo = this.botModel.nodeInfo[node];
       // Check if node has (i) a data resource output and (ii) is an operation that actually writes data
       if (!nodeInfo.dataResourceOutput) {
         continue;
@@ -264,9 +228,9 @@ class BotModelMetricsCalculator {
   private getNumberOfSoftware(): number {
     const uniqueSoftware = new Set<string>();
 
-    for (const context in this.botContext) {
-      if (this.botContext[context].software) {
-        uniqueSoftware.add(this.botContext[context].software);
+    for (const context in this.botModel.operationContexts) {
+      if (this.botModel.operationContexts[context].software) {
+        uniqueSoftware.add(this.botModel.operationContexts[context].software);
       }
     }
 
@@ -275,12 +239,15 @@ class BotModelMetricsCalculator {
 
   private getNumberOfContexts(): number {
     const uniqueContexts = new Set<string>();
-    for (const context in this.botContext) {
-      if (this.botContext[context].software && this.botContext[context].data) {
+    for (const context in this.botModel.operationContexts) {
+      if (
+        this.botModel.operationContexts[context].software &&
+        this.botModel.operationContexts[context].data
+      ) {
         uniqueContexts.add(
-          this.botContext[context].software +
+          this.botModel.operationContexts[context].software +
             "//" +
-            this.botContext[context].data
+            this.botModel.operationContexts[context].data
         );
       }
     }
@@ -292,13 +259,13 @@ class BotModelMetricsCalculator {
 
     let previousContext: OperationContext = { software: "", data: "" };
 
-    for (const node in this.processTree.tree["Process"][0]["Flow"]) {
-      const currentNode = this.processTree.tree["Process"][0]["Flow"][node];
-      if (!this.botContext[currentNode]) {
+    for (const node in this.botModel.tree["Process"][0]["Flow"]) {
+      const currentNode = this.botModel.tree["Process"][0]["Flow"][node];
+      if (!this.botModel.operationContexts[currentNode]) {
         continue;
       }
 
-      const currentContext = this.botContext[currentNode];
+      const currentContext = this.botModel.operationContexts[currentNode];
       if (
         currentContext.software !== previousContext.software ||
         currentContext.data !== previousContext.data
@@ -320,8 +287,8 @@ class BotModelMetricsCalculator {
   private getHalsteadBasics(): [number, number, number, number] {
     // Halstead n1 - We look for distinct operations (e.g., ExcelReadCell)
     const uniqueOperators = new Set<string>();
-    for (const node in this.processTree.nodeInfo) {
-      const nodeInfo = this.processTree.nodeInfo[node];
+    for (const node in this.botModel.nodeInfo) {
+      const nodeInfo = this.botModel.nodeInfo[node];
       uniqueOperators.add(nodeInfo.concept);
     }
     const n1 = uniqueOperators.size;
@@ -330,12 +297,12 @@ class BotModelMetricsCalculator {
     // Compared to operations, we look for distinct labels, not concepts, as there can be two different web pages for example.
     // However, if they bear the same label, they are considered as one resource only.
     const uniqueOperands = new Set<string>();
-    for (const node in this.processTree.transientDataInfo) {
-      const dataInfo = this.processTree.transientDataInfo[node];
+    for (const node in this.botModel.transientDataInfo) {
+      const dataInfo = this.botModel.transientDataInfo[node];
       uniqueOperands.add(dataInfo.label);
     }
-    for (const node in this.processTree.dataResourceInfo) {
-      const dataInfo = this.processTree.dataResourceInfo[node];
+    for (const node in this.botModel.dataResourceInfo) {
+      const dataInfo = this.botModel.dataResourceInfo[node];
       uniqueOperands.add(dataInfo.label);
     }
     const n2 = uniqueOperands.size;
@@ -345,8 +312,8 @@ class BotModelMetricsCalculator {
 
     // Halstead N2 - Total number of operand occurrences
     let N2 = 0;
-    for (const node in this.processTree.nodeInfo) {
-      const nodeInfo = this.processTree.nodeInfo[node];
+    for (const node in this.botModel.nodeInfo) {
+      const nodeInfo = this.botModel.nodeInfo[node];
       if (nodeInfo.dataResourceInput) {
         N2 += nodeInfo.dataResourceInput.length;
       }
@@ -371,8 +338,8 @@ class BotModelMetricsCalculator {
     let branchCfc = 0;
     for (const node in branch) {
       if (
-        this.processTree.nodeInfo[node] &&
-        this.processTree.nodeInfo[node].concept.endsWith("Decision")
+        this.botModel.nodeInfo[node] &&
+        this.botModel.nodeInfo[node].concept.endsWith("Decision")
       ) {
         branchCfc += branch[node].length;
       }
@@ -382,21 +349,6 @@ class BotModelMetricsCalculator {
       }
     }
     return branchCfc;
-  }
-
-  getBranchesForProcess(): Map<string, string[]> {
-    const uniqueConcepts = new Set<string>();
-    const branches = new Map<string, string[]>();
-
-    for (const nodeId in this.processTree.nodeInfo) {
-      uniqueConcepts.add(this.processTree.nodeInfo[nodeId].concept);
-    }
-
-    uniqueConcepts.forEach((concept) => {
-      branches.set(concept, getOperationBranch(concept));
-    });
-
-    return branches;
   }
 }
 

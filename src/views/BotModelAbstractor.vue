@@ -68,7 +68,6 @@ import {
   ModelerSelectionChange,
 } from "../interfaces/ModelerEvents";
 import AbstractionSettingsSidebar from "../components/BotModelAbstractor/AbstractionSettingsSidebar.vue";
-import BotModel from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
 import { useToast } from "vue-toastification";
@@ -79,6 +78,7 @@ import BotModelAbstractor from "../utils/BotModelAbstractor";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
+import BotModel from "../utils/BotModel";
 
 const modelerShown = ref(false);
 const modeler = ref({} as any);
@@ -110,7 +110,7 @@ onMounted(async () => {
     router.push({ name: "Overview" });
   }
   try {
-    modelAbstractor = new BotModelAbstractor(botModel.value.processTree);
+    modelAbstractor = new BotModelAbstractor(botModel.value);
     // console.log(modelAbstractor);
     maxAggregationValue.value = modelAbstractor.maxAggregationValue + 1;
   } catch (e) {

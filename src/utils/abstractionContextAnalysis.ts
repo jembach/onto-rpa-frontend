@@ -2,7 +2,7 @@ import {
   ProcessTree,
   ProcessTreeNodeInfo,
   ProcessTreeStructure,
-} from "../interfaces/BotModel";
+} from "../interfaces/BotModelData";
 import { OperationContext } from "../interfaces/BotModelAbstraction";
 import { dataContextSwitchOperations } from "./abstractionMapping";
 import { rpaOperations } from "./ontologyParser";

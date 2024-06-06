@@ -12,7 +12,7 @@
     <div v-if="botModel">
       <div>
         <router-link
-          :to="{ name: 'Modeler', params: { modelId: botModel._id } }"
+          :to="{ name: 'Modeler', params: { modelId: botModel.id } }"
           >{{ botModel.name }}</router-link
         >
       </div>
@@ -24,7 +24,7 @@
           <router-link
             :to="{
               name: 'ModelAbstractor',
-              params: { modelId: botModel._id },
+              params: { modelId: botModel.id },
             }"
           >
             <div class="m-1">
@@ -37,7 +37,7 @@
           <router-link
             :to="{
               name: 'ModelMetrics',
-              params: { modelId: botModel._id },
+              params: { modelId: botModel.id },
             }"
           >
             <div class="m-1">
@@ -80,7 +80,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import botModelApi from "../../api/botModelApi";
-import BotModel from "../../interfaces/BotModel";
 import { getFilenameForBot } from "../../utils/utils";
 import { useToast } from "vue-toastification";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -88,12 +87,13 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faBinoculars } from "@fortawesome/free-solid-svg-icons";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
 import { faRuler } from "@fortawesome/free-solid-svg-icons";
+import BotModel from "../../utils/BotModel";
 
 // interface BotOverviewCardProps {
 //   botModel: Object as PropType<BotModel>;
 // }
 
-const props = defineProps<{ botModel: BotModel }>();
+const props = defineProps<{ botModel?: BotModel }>();
 
 const cardHovered = ref(false);
 const hoverLock = ref(false);
@@ -101,12 +101,12 @@ const hoverLock = ref(false);
 const toast = useToast();
 
 async function downloadBot(targetRpaTool: string) {
-  if (!props.botModel || !props.botModel._id) {
+  if (!props.botModel || !props.botModel.id) {
     return;
   }
   try {
     const botFileBlob = await botModelApi.getLinkedBotModel(
-      props.botModel?._id,
+      props.botModel?.id,
       targetRpaTool
     );
     const url = window.URL.createObjectURL(botFileBlob);
