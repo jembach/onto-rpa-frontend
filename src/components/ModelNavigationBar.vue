@@ -1,14 +1,14 @@
 <template>
   <div
-    class="bg-sky-500 text-center text-slate-100 py-2 min-h-12 flex-initial flex justify-around shadow-md z-40"
+    class="bg-sky-500 text-center text-slate-100 h-8 flex-initial flex justify-around shadow-md z-40"
   >
     <div v-if="botModelId">
-      <div role="tablist" class="tabs tabs-bordered">
+      <div role="tablist" class="tabs h-full">
         <router-link
           role="tab"
-          class="tab text-slate-100 w-48"
+          class="tab"
           :class="{
-            'tab-active [--fallback-bc:slate-100]': $route.name === 'Modeler',
+            'tab-active': $route.name === 'Modeler',
           }"
           :to="{ name: 'Modeler', params: { modelId: botModelId } }"
         >
@@ -16,10 +16,9 @@
         </router-link>
         <router-link
           role="tab"
-          class="tab text-slate-100 w-48"
+          class="tab"
           :class="{
-            'tab-active [--fallback-bc:slate-100]':
-              $route.name === 'ModelAbstractor',
+            'tab-active': $route.name === 'ModelAbstractor',
           }"
           :to="{
             name: 'ModelAbstractor',
@@ -30,10 +29,9 @@
         </router-link>
         <router-link
           role="tab"
-          class="tab text-slate-100 w-48"
+          class="tab"
           :class="{
-            'tab-active [--fallback-bc:slate-100]':
-              $route.name === 'ModelMetrics',
+            'tab-active': $route.name === 'ModelMetrics',
           }"
           :to="{
             name: 'ModelMetrics',
@@ -58,3 +56,12 @@ import { faRuler } from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps<{ botModelId?: string }>();
 </script>
+
+<style scoped>
+.tab {
+  @apply text-slate-100 w-48 hover:bg-sky-400;
+}
+.tab-active {
+  @apply bg-sky-300 text-slate-700;
+}
+</style>

@@ -1,6 +1,6 @@
 <template>
-  <div class="navbar bg-sky-700 text-slate-100 shadow-md z-50 p-10">
-    <div class="navbar-start">
+  <div class="navbar bg-sky-700 text-slate-100 shadow-md z-50 h-20">
+    <div class="navbar-start ml-4">
       <router-link :to="{ name: 'Overview' }" title="Back to Overview">
         <FontAwesomeIcon class="cursor-pointer" :icon="faHouse" size="2xl" />
       </router-link>
@@ -21,7 +21,7 @@
         {{ modelName }}
       </div>
     </div>
-    <div class="navbar-end">
+    <div class="navbar-end mr-4">
       <slot name="right"></slot>
     </div>
   </div>
