@@ -6,6 +6,7 @@
     @drag-operation="$emit('drag-operation', $event)"
     @click-operation="$emit('click-operation', $event)"
     @tag-clicked="$emit('tag-clicked', $event)"
+    @hover-operation="$emit('hover-operation', $event)"
   ></BotDataTreePart>
 </template>
 
@@ -17,7 +18,12 @@ import BotDataTreePart from "./BotDataTreePart.vue";
 
 export default defineComponent({
   name: "bot-data-tree",
-  emits: ["drag-operation", "click-operation", "tag-clicked"],
+  emits: [
+    "drag-operation",
+    "click-operation",
+    "tag-clicked",
+    "hover-operation",
+  ],
   props: {
     treeCriteria: {
       type: String,

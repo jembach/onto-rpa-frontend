@@ -23,6 +23,7 @@
                 @click-operation="$emit('click-operation', $event)"
                 @node-visibility="setNodeVisibility"
                 @tag-clicked="$emit('tag-clicked', $event)"
+                @hover-operation="$emit('hover-operation', $event)"
               >
               </BotDataTreePart>
             </div>
@@ -44,6 +45,8 @@
       @dragstart="$emit('drag-operation', $event)"
       @click="$emit('click-operation', $event)"
       @tag-clicked="$emit('tag-clicked', $event)"
+      @mouseenter="$emit('hover-operation', [true, operation.id])"
+      @mouseleave="$emit('hover-operation', [false, operation.id])"
     />
   </div>
 </template>
@@ -66,6 +69,7 @@ export default defineComponent({
     "click-operation",
     "node-visibility",
     "tag-clicked",
+    "hover-operation",
   ],
   props: {
     rpaTree: {

@@ -26,6 +26,7 @@
             @drag-operation="$emit('drag-new-operation', $event)"
             @click-operation="$emit('click-new-operation', $event)"
             @tag-clicked="filterForTag"
+            @hover-operation="$emit('hover-operation', $event)"
           ></BotOperationTree>
         </div>
 
@@ -43,6 +44,7 @@
             @drag-operation="$emit('drag-new-operation', $event)"
             @click-operation="$emit('click-new-operation', $event)"
             @tag-clicked="filterForTag"
+            @hover-operation="$emit('hover-operation', $event)"
           ></BotDataTree>
         </div>
 
@@ -79,7 +81,7 @@ import BotContextContainerCard from "./BotOperationSidebar/BotContextContainerCa
 
 export default defineComponent({
   name: "bot-operation-sidebar",
-  emits: ["drag-new-operation", "click-new-operation"],
+  emits: ["drag-new-operation", "click-new-operation", "hover-operation"],
   data() {
     return {
       searchTerm: "",

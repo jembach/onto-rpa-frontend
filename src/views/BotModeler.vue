@@ -24,6 +24,7 @@
       <BotOperationSidebar
         @drag-new-operation="dragNewOperation"
         @click-new-operation="clickNewOperation"
+        @hover-operation="sidebarElementHovered($event)"
         class="col-span-1 shadow-lg bg-white"
       >
       </BotOperationSidebar>
@@ -250,6 +251,14 @@ function modelerDragStart(element: ModelerElement) {
   setModelHighlightsForElement(element);
 }
 
+function sidebarElementHovered(e) {
+  if (e[0] === true) {
+    setModelHighlightsForConcept(e[1]);
+  } else {
+    clearCurrentHighlights();
+  }
+}
+
 // Logic for highlighting elements
 async function setModelHighlightsForElement(element: ModelerElement | null) {
   clearCurrentHighlights();
@@ -263,12 +272,14 @@ async function setModelHighlightsForElement(element: ModelerElement | null) {
     return;
   }
 
+  setModelHighlightsForConcept(element.businessObject.$attrs["rpa:operation"]);
+}
+
+async function setModelHighlightsForConcept(concept: string) {
   await updateBotModelObject();
 
   const elementsToHighlight =
-    botModel.value.filterOperationsThatInputOutputOfType(
-      element.businessObject.$attrs!["rpa:operation"]
-    );
+    botModel.value.filterOperationsThatInputOutputOfType(concept);
   const canvas = modeler.value.get("canvas");
   elementsToHighlight.forEach((element) => {
     canvas.addMarker(element, "highlight");
