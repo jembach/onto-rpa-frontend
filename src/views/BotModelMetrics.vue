@@ -14,7 +14,7 @@
 
     <div class="flex-auto grid grid-cols-10">
       <MetricsSidebar
-        class="col-span-2 drop-shadow-lg bg-white"
+        class="col-span-2 shadow-lg bg-white"
         :modelMetrics="modelMetrics"
       ></MetricsSidebar>
       <BotModelerCanvas

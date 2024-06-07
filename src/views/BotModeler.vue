@@ -35,7 +35,7 @@
         @modeler-element-changed="elementChanged"
         class="col-span-4"
       ></BotModelerCanvas>
-      <div class="col-span-1 drop-shadow-lg bg-white">
+      <div class="col-span-1 shadow-lg bg-white">
         <BotModelerPropertiesPanel
           v-if="modelerShown"
           :modeler="modeler"

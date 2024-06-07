@@ -13,7 +13,7 @@
     <ModelNavigationBar :botModelId="botModel.id"></ModelNavigationBar>
     <div class="flex-auto grid grid-cols-6">
       <AbstractionSettingsSidebar
-        class="col-span-1 drop-shadow-lg bg-white"
+        class="col-span-1 shadow-lg bg-white"
         :maxAggregationValue="maxAggregationValue"
         @elimination-change="eliminationThresholdChanged"
         @abstraction-change="abstractionThresholdChanged"
@@ -27,7 +27,7 @@
         @modeler-element-changed="elementChanged"
         class="col-span-4"
       ></BotModelerCanvas>
-      <div class="col-span-1 drop-shadow-lg bg-white">
+      <div class="col-span-1 shadow-lg bg-white">
         <BotModelerPropertiesPanel
           v-if="modelerShown"
           :modeler="modeler"
