@@ -22,8 +22,8 @@
     <ModelNavigationBar :botModelId="botModel.id"></ModelNavigationBar>
     <div class="flex-auto grid grid-cols-6">
       <BotOperationSidebar
-        @drag-operation="dragOperation"
-        @click-operation="clickOperation"
+        @drag-new-operation="dragNewOperation"
+        @click-new-operation="clickNewOperation"
         class="col-span-1 shadow-lg bg-white"
       >
       </BotOperationSidebar>
@@ -33,6 +33,7 @@
         @modeler-shown="modelerLoaded"
         @modeler-selection-changed="selectionChanged"
         @modeler-element-changed="elementChanged"
+        @modeler-drag-start="modelerDragStart"
         class="col-span-4"
       ></BotModelerCanvas>
       <div class="col-span-1 shadow-lg bg-white">
@@ -51,7 +52,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
+import {
+  computed,
+  onBeforeMount,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+} from "vue";
 import BotModelerCanvas from "../components/BotModeler/BotModelerCanvas.vue";
 import BotModelerPropertiesPanel from "../components/BotModeler/BotModelerPropertiesPanel.vue";
 import {
@@ -83,6 +91,8 @@ const modeler = ref({} as any);
 const selectedElements = ref([] as ModelerElement[]);
 const element = ref({} as ModelerElement | null);
 const botModel = ref({} as BotModel);
+
+const highlightedElements: string[] = [];
 
 let modelDirty = false;
 
@@ -126,20 +136,24 @@ function modelerLoaded(loadedModeler): void {
   modelerShown.value = true;
 }
 
+async function updateBotModelObject() {
+  const diagramXML = await modeler.value.saveXML();
+  botModel.value.model = diagramXML.xml;
+
+  const bpmnModdleParser = new BpmnModdleParser();
+
+  botModel.value.updateTree(
+    bpmnModdleParser.parseBpmnModdle(modeler.value._definitions)
+  );
+}
+
 async function saveBot() {
   if (!botModel.value.name) {
     toast.warning("Please name your new bot before saving.");
     return;
   }
   try {
-    const diagramXML = await modeler.value.saveXML();
-    botModel.value.model = diagramXML.xml;
-
-    const bpmnModdleParser = new BpmnModdleParser();
-
-    botModel.value.tree = bpmnModdleParser.parseBpmnModdle(
-      modeler.value._definitions
-    );
+    await updateBotModelObject();
 
     if (botModel.value.id) {
       await botModelApi.updateBotModel(botModel.value);
@@ -212,7 +226,7 @@ function newOperationShape(e) {
   return shape;
 }
 
-function clickOperation(e) {
+function clickNewOperation(e) {
   return;
   console.log(e);
   const elementRegistry = modeler.value.get("elementRegistry");
@@ -222,8 +236,7 @@ function clickOperation(e) {
   modeling.createShape(shape, { x: 400, y: 100 }, process);
 }
 
-function dragOperation(e) {
-  // console.log(modeler.value);
+function dragNewOperation(e) {
   e.dataTransfer.effectAllowed = "move";
 
   e.preventDefault();
@@ -231,6 +244,47 @@ function dragOperation(e) {
   const create = modeler.value.get("create");
   const shape = newOperationShape(e);
   create.start(e, shape);
+}
+
+function modelerDragStart(element: ModelerElement) {
+  setModelHighlightsForElement(element);
+}
+
+// Logic for highlighting elements
+async function setModelHighlightsForElement(element: ModelerElement | null) {
+  clearCurrentHighlights();
+
+  if (
+    !element ||
+    !element.businessObject ||
+    !element.businessObject.$attrs ||
+    !element.businessObject.$attrs["rpa:operation"]
+  ) {
+    return;
+  }
+
+  await updateBotModelObject();
+
+  const elementsToHighlight =
+    botModel.value.filterOperationsThatInputOutputOfType(
+      element.businessObject.$attrs!["rpa:operation"]
+    );
+  const canvas = modeler.value.get("canvas");
+  elementsToHighlight.forEach((element) => {
+    canvas.addMarker(element, "highlight");
+    highlightedElements.push(element);
+  });
+}
+
+watch(element, async (newElement) => {
+  setModelHighlightsForElement(newElement);
+});
+
+function clearCurrentHighlights() {
+  highlightedElements.forEach((elementId) => {
+    modeler.value.get("canvas").removeMarker(elementId, "highlight");
+  });
+  highlightedElements.length = 0;
 }
 
 const stringifiedProcessTree = computed(() => {

@@ -39,6 +39,7 @@ export default defineComponent({
     "modeler-loading",
     "modeler-error",
     "modeler-shown",
+    "modeler-drag-start",
   ],
   data() {
     return {
@@ -83,6 +84,11 @@ export default defineComponent({
       }
       self.$emit("modeler-selection-changed", event);
     });
+    this.modeler.on("drag.start", (event) => {
+      if (event.shape) {
+        self.$emit("modeler-drag-start", event.shape);
+      }
+    });
     this.loadDiagram();
   },
   beforeDestroy() {
@@ -100,3 +106,9 @@ export default defineComponent({
 <style src="bpmn-js/dist/assets/diagram-js.css"></style>
 <style src="bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css"></style>
 <!-- <style src="bpmn-js-properties-panel/dist/assets/properties-panel.css"></style> -->
+
+<style>
+.highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
+  @apply !fill-sky-200;
+}
+</style>

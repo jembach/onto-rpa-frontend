@@ -29,9 +29,9 @@ class BpmnModdleParser {
     const process: Process = bpmnModdle.rootElements[0] as Process;
     const parsedProcess = this.parseProcess(process)[0];
 
-    console.log(this.processTreeNodes);
+    // console.log(this.processTreeNodes);
     //console.log(JSON.stringify(parsedProcess));
-    console.log(YAML.stringify(parsedProcess));
+    // console.log(YAML.stringify(parsedProcess));
 
     const generatedProcessTree: ProcessTree = {
       tree: parsedProcess,

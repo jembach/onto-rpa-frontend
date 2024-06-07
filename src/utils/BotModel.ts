@@ -7,7 +7,7 @@ import {
 } from "../interfaces/BotModelData";
 import defaultDiagram from "../resources/defaultDiagram";
 import analyzeContexts from "./abstractionContextAnalysis";
-import { getOperationBranch } from "./ontologyParser";
+import { getOperationBranch, rpaOperations } from "./ontologyParser";
 
 export default class BotModel {
   id?: string;
@@ -36,13 +36,17 @@ export default class BotModel {
     const processTree: ProcessTree = JSON.parse(
       stringifiedBotModel.processTree
     );
+    this.updateTree(processTree);
+
+    this.operationContexts = analyzeContexts(processTree);
+    this.operationHierarchies = this.getBranchesForProcess();
+  }
+
+  updateTree(processTree: ProcessTree): void {
     this.tree = processTree.tree;
     this.nodeInfo = processTree.nodeInfo;
     this.dataResourceInfo = processTree.dataResourceInfo;
     this.transientDataInfo = processTree.transientDataInfo;
-
-    this.operationContexts = analyzeContexts(processTree);
-    this.operationHierarchies = this.getBranchesForProcess();
   }
 
   /**
@@ -60,6 +64,24 @@ export default class BotModel {
         this.nodeInfo[node].concept
       );
       if (parentConcepts!.includes(superType)) {
+        filteredOperations.push(node);
+      }
+    });
+
+    return filteredOperations;
+  }
+
+  filterOperationsThatInputOutputOfType(dataType: string): string[] {
+    const filteredOperations: string[] = [];
+
+    Object.keys(this.nodeInfo).forEach((node) => {
+      const operation = this.nodeInfo[node];
+      const operationConcept = rpaOperations.individuals[operation.concept];
+      console.log;
+      if (
+        operationConcept.accessedData &&
+        operationConcept.accessedData.some((data) => data.data.id === dataType)
+      ) {
         filteredOperations.push(node);
       }
     });

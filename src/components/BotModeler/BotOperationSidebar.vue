@@ -23,8 +23,8 @@
         <div role="tabpanel" class="tab-content">
           <BotOperationTree
             :searchTerm="searchTerm"
-            @drag-operation="$emit('drag-operation', $event)"
-            @click-operation="$emit('click-operation', $event)"
+            @drag-operation="$emit('drag-new-operation', $event)"
+            @click-operation="$emit('click-new-operation', $event)"
             @tag-clicked="filterForTag"
           ></BotOperationTree>
         </div>
@@ -40,8 +40,8 @@
         <div role="tabpanel" class="tab-content">
           <BotDataTree
             :searchTerm="searchTerm"
-            @drag-operation="$emit('drag-operation', $event)"
-            @click-operation="$emit('click-operation', $event)"
+            @drag-operation="$emit('drag-new-operation', $event)"
+            @click-operation="$emit('click-new-operation', $event)"
             @tag-clicked="filterForTag"
           ></BotDataTree>
         </div>
@@ -60,8 +60,8 @@
             :data-operation="container.id"
             data-nodetype="CompoundActivity"
             draggable="true"
-            @dragstart="$emit('drag-operation', $event)"
-            @click="$emit('click-operation', $event)"
+            @dragstart="$emit('drag-new-operation', $event)"
+            @click="$emit('click-new-operation', $event)"
           >
           </BotContextContainerCard>
         </div>
@@ -79,7 +79,7 @@ import BotContextContainerCard from "./BotOperationSidebar/BotContextContainerCa
 
 export default defineComponent({
   name: "bot-operation-sidebar",
-  emits: ["drag-operation", "click-operation"],
+  emits: ["drag-new-operation", "click-new-operation"],
   data() {
     return {
       searchTerm: "",
