@@ -68,13 +68,18 @@ class BpmnModdleParser {
     );
 
     if (process.$attrs && "rpa:operation" in process.$attrs) {
+      // @ts-expect-error untyped
       processTree[process.id] = treePart;
+      // @ts-expect-error untyped
       this.addProcessNodeInfo(process);
     } else {
+      // @ts-expect-error untyped
       processTree["Process"] = treePart;
     }
     // last node can not be the end-event! Otherwise, sub-processes would terminate
     // the parsing as their end events have no outgoing flow to the subsequent parts, but the sub-process itself.
+
+    // @ts-expect-error untyped
     return [processTree, process];
   }
 
@@ -113,6 +118,7 @@ class BpmnModdleParser {
     }
 
     if (parsedProcess.length === 1) {
+      // @ts-expect-error untyped
       return [parsedProcess, nextElementInFlow];
     }
     return [[{ Flow: parsedProcess }], nextElementInFlow];
@@ -165,8 +171,10 @@ class BpmnModdleParser {
       );
 
       if (parsedFlowBranch.length === 1) {
+        // @ts-expect-error untyped
         splittetControlflowBranches.push(parsedFlowBranch[0]);
       } else {
+        // @ts-expect-error untyped
         splittetControlflowBranches.push(parsedFlowBranch);
       }
 
@@ -190,6 +198,7 @@ class BpmnModdleParser {
     const gatewayProcessTree: ProcessTreeStructure = {};
     gatewayProcessTree[gatewayElement.id] = splittetControlflowBranches;
 
+    // @ts-expect-error untyped
     return [gatewayProcessTree, lastElementsOfBranches[0]];
   }
 
@@ -212,7 +221,9 @@ class BpmnModdleParser {
       const variableInput: string[] = [];
       const variableOutput: string[] = [];
 
+      // @ts-expect-error untyped
       if (element.dataInputAssociations) {
+        // @ts-expect-error untyped
         element.dataInputAssociations.forEach((association) => {
           const dataInformationObject = association.sourceRef[0];
           if (dataInformationObject.$type === "bpmn:DataStoreReference") {
@@ -223,7 +234,9 @@ class BpmnModdleParser {
           this.addDataInfo(dataInformationObject);
         });
       }
+      // @ts-expect-error untyped
       if (element.dataOutputAssociations) {
+        // @ts-expect-error untyped
         element.dataOutputAssociations.forEach((association) => {
           const dataInformationObject = association.targetRef;
           if (dataInformationObject.$type === "bpmn:DataStoreReference") {
@@ -254,7 +267,9 @@ class BpmnModdleParser {
 
   private addDataInfo(dataNode: ItemAwareElement): void {
     const nodeInfo: ProcessTreeNodeInfo = {
+      // @ts-expect-error untyped
       label: dataNode.name || dataNode.id,
+      // @ts-expect-error untyped
       concept: dataNode.$attrs["rpa:operation"],
     };
 

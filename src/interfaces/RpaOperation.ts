@@ -1,4 +1,4 @@
-import { BpmoConcept } from "./bpmoConcepts";
+import { BpmoConcept } from "./BpmoConcepts";
 
 export enum RpaDataResourceAccessType {
   CREATES = "creates",

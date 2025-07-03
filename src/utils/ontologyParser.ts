@@ -108,7 +108,9 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
       rpaTree.types[currentId] = newRpaType;
       PROPERTY_IRIS.forEach((property_iri) => {
         if (property_iri in operation) {
+          // @ts-expect-error untyped
           rpaTree.types[currentId][getIdFromIri(property_iri)] =
+            // @ts-expect-error untyped
             operation[property_iri][0]["@value"];
         }
       });
@@ -131,8 +133,10 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
       // Check basic relations
       RELATION_IRIS.forEach((relation_iri) => {
         if (relation_iri[0] in operation) {
+          // @ts-expect-error untyped
           newRpaIndividual[getIdFromIri(relation_iri[0])] =
             relation_iri[1].individuals[
+              // @ts-expect-error untyped
               getIdFromIri(operation[relation_iri[0]][0]["@id"])
             ];
         }
@@ -143,24 +147,34 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
         if (!propertyName) return;
 
         if (propertyName.toUpperCase() in RpaDataResourceAccessType) {
+          // @ts-expect-error untyped
           if (!newRpaIndividual.accessedData) {
+            // @ts-expect-error untyped
             newRpaIndividual.accessedData = [];
           }
+          // @ts-expect-error untyped
           newRpaIndividual.accessedData.push({
+            // @ts-expect-error untyped
             type: RpaDataResourceAccessType[propertyName.toUpperCase()],
             data: rpaData.individuals[
+              // @ts-expect-error untyped
               getIdFromIri(operation[propertyKey][0]["@id"])
             ],
           });
         }
 
         if (propertyName.toUpperCase() in RpaTransientDataAccessType) {
+          // @ts-expect-error untyped
           if (!newRpaIndividual.accessedData) {
+            // @ts-expect-error untyped
             newRpaIndividual.accessedData = [];
           }
+          // @ts-expect-error untyped
           newRpaIndividual.accessedData.push({
+            // @ts-expect-error untyped
             type: RpaTransientDataAccessType[propertyName.toUpperCase()],
             data: rpaData.individuals[
+              // @ts-expect-error untyped
               getIdFromIri(operation[propertyKey][0]["@id"])
             ],
           });
@@ -168,7 +182,9 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
       });
       PROPERTY_IRIS.forEach((property_iri) => {
         if (property_iri in operation) {
+          // @ts-expect-error untyped
           newRpaIndividual[getIdFromIri(property_iri)] =
+            // @ts-expect-error untyped
             operation[property_iri][0]["@value"];
         }
       });
@@ -195,6 +211,7 @@ function parseContextContainers(): Record<string, RpaContextContainer> {
       if (RPA_CONTEXT_CONTAINER_SETUP_RELATION_IRI in operation) {
         // get setup sequence for container
         const firstSetupStepIri: string =
+          // @ts-expect-error untyped
           operation[RPA_CONTEXT_CONTAINER_SETUP_RELATION_IRI][0]["@id"];
         contextContainer.setupSteps =
           getContextContainerSequence(firstSetupStepIri);
@@ -202,6 +219,7 @@ function parseContextContainers(): Record<string, RpaContextContainer> {
       if (RPA_CONTEXT_CONTAINER_CLEANUP_RELATION_IRI in operation) {
         // get cleanup sequence for container
         const firstCleanupStepIri: string =
+          // @ts-expect-error untyped
           operation[RPA_CONTEXT_CONTAINER_CLEANUP_RELATION_IRI][0]["@id"];
         contextContainer.cleanupSteps =
           getContextContainerSequence(firstCleanupStepIri);
@@ -220,10 +238,13 @@ function getContextContainerSequence(firstStepIri: string): RpaOperation[] {
       (entry) => entry["@id"] === currentStepIri
     );
     const referencedOperationId = getIdFromIri(
+      // @ts-expect-error untyped
       currentStep[RPA_CONTEXT_CONTAINER_STEP_OPERATION][0]["@id"]
     );
     steps.push(rpaOperations.individuals[referencedOperationId]);
+    // @ts-expect-error untyped
     if (RPA_CONTEXT_CONTAINER_STEP_NEXT in currentStep) {
+      // @ts-expect-error untyped
       currentStepIri = currentStep[RPA_CONTEXT_CONTAINER_STEP_NEXT][0]["@id"];
     } else {
       currentStepIri = "";
@@ -243,6 +264,7 @@ export const rpaContextContainers: Record<string, RpaContextContainer> =
   parseContextContainers();
 
 function convertTypeToConcept(typeKey: string, rpaTree: RpaTaxonomy) {
+  // @ts-expect-error untyped
   rpaTree.concepts[typeKey] = {};
   Object.assign(rpaTree.concepts[typeKey], rpaTree.types[typeKey]);
   delete rpaTree.types[typeKey];

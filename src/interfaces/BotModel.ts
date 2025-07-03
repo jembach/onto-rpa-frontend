@@ -33,18 +33,21 @@ export function createDefaultBotModel(): BotModel {
   return {
     name: "",
     model: defaultDiagram,
+    // @ts-expect-error untyped
     processTree: {},
   };
 }
 
 export function stringifyBotModel(botModel: BotModel): BotModel {
   botModel.model = JSON.stringify(botModel.model);
+  // @ts-expect-error untyped
   botModel.processTree = JSON.stringify(botModel.processTree);
   return botModel;
 }
 
 export function parseBotModel(botModel: BotModel): BotModel {
   botModel.model = JSON.parse(botModel.model);
+  // @ts-expect-error untyped
   botModel.processTree = JSON.parse(botModel.processTree);
   return botModel;
 }

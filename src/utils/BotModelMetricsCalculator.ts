@@ -292,7 +292,9 @@ class BotModelMetricsCalculator {
 
     let previousContext: OperationContext = { software: "", data: "" };
 
+    // @ts-expect-error untyped
     for (const node in this.processTree.tree["Process"][0]["Flow"]) {
+      // @ts-expect-error untyped
       const currentNode = this.processTree.tree["Process"][0]["Flow"][node];
       if (!this.botContext[currentNode]) {
         continue;
