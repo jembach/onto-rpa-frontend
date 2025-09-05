@@ -35,6 +35,26 @@
             </option>
           </select>
         </label>
+        <div class="form-control w-full max-w-xs">
+          <div class="label">
+            <span class="label-text">Accessed Data</span>
+          </div>
+          <div
+            v-if="accessedData.length > 0"
+            class="border border-slate-200 rounded p-2"
+          >
+            <ul class="list-disc list-inside">
+              <li v-for="dataRelation in accessedData">
+                <span class="italic">
+                  {{ dataRelation.type }} - {{ dataRelation.data.label }} ({{
+                    dataRelation.data.concept.label
+                  }})
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div v-else class="italic text-slate-400">No data accessed</div>
+        </div>
       </div>
       <div
         v-if="currentOperation && currentOperation in operations"
@@ -87,6 +107,7 @@ import {
 import { bpmnMapping } from "../../utils/bpmnMapping";
 import {
   RpaContextContainer,
+  RpaDataRelation,
   RpaOperation,
 } from "../../interfaces/RpaOperation";
 import { BpmoConcept } from "../../interfaces/BpmoConcepts";
@@ -109,15 +130,16 @@ export default defineComponent({
       currentOperation: "" as string | undefined,
       currentLabel: "" as string | undefined,
       explanationPosition: "left",
+      accessedData: [] as RpaDataRelation[],
     };
   },
   methods: {
     getLabel(): string | undefined {
-      if (!this.element || !this.element.id) {
+      const elementBO = this.getCurrentBusinessObject();
+      if (!elementBO) {
         return;
       }
-      const elementRegistry = this.modeler.get("elementRegistry");
-      return elementRegistry.get(this.element.id).businessObject.name;
+      return elementBO.name;
     },
     setLabel(newLabel: string): void {
       const modeling = this.modeler.get("modeling");
@@ -135,6 +157,15 @@ export default defineComponent({
         "rpa:operation": newOperation,
       });
     },
+    getRPAAccessedData(): RpaDataRelation[] {
+      const elementBO = this.getCurrentBusinessObject();
+      if (elementBO && "rpa:operation" in elementBO.$attrs) {
+        const rpaOperation = this.operations[elementBO.$attrs["rpa:operation"]];
+        console.log(rpaOperation?.accessedData);
+        return rpaOperation?.accessedData || [];
+      }
+      return [];
+    },
     getCurrentBusinessObject() {
       if (!this.element || !this.element.id) {
         return;
@@ -147,6 +178,7 @@ export default defineComponent({
     element: function () {
       this.currentOperation = this.getRPAOperation();
       this.currentLabel = this.getLabel();
+      this.accessedData = this.getRPAAccessedData();
     },
     currentOperation: function (newOperation, oldOperation) {
       if (newOperation === this.getRPAOperation()) {
