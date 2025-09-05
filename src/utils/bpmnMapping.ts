@@ -1,4 +1,4 @@
-import { BpmoConcept } from "../interfaces/bpmoConcepts";
+import { BpmoConcept } from "../interfaces/BpmoConcepts";
 
 export const bpmnMapping: Record<BpmoConcept, string> = {
   AtomicActivity: "bpmn:Task",

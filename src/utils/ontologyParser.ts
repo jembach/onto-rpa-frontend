@@ -73,6 +73,8 @@ const PROPERTY_IRIS = [
   "http://www.w3.org/2000/01/rdf-schema#comment",
 ];
 
+const TYPE_IRI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+
 const RPA_OPERATION_ROOT_ELEMENT: RpaBaseElement = {
   id: getIdFromIri(RPA_OPERATION_ROOT_IRI),
   iri: RPA_OPERATION_ROOT_IRI,
@@ -118,7 +120,8 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
     } else if (
       operation["@type"] &&
       operation["@type"].includes(INDIVIDUAL_IRI) &&
-      operation["@type"].includes(superElement.iri)
+      (operation["@type"].includes(superElement.iri) ||
+        operation[TYPE_IRI]?.some((type) => type["@id"] === superElement.iri))
     ) {
       // if an individual of the currently examined class is encountered, add it as concrete operation
       if (superElement.id in rpaTree.types) {
@@ -200,7 +203,10 @@ function parseContextContainers(): Record<string, RpaContextContainer> {
 
     if (
       operation["@type"] &&
-      operation["@type"].includes(RPA_CONTEXT_CONTAINER_ROOT_IRI)
+      (operation["@type"].includes(RPA_CONTEXT_CONTAINER_ROOT_IRI) ||
+        operation[TYPE_IRI]?.some(
+          (type) => type["@id"] === RPA_CONTEXT_CONTAINER_ROOT_IRI
+        ))
     ) {
       const contextContainer: RpaContextContainer = {
         id: currentId,
