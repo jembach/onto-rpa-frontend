@@ -200,8 +200,14 @@ export default defineComponent({
     operationsAvailableForShape(): RpaOperation[] | RpaContextContainer[] {
       let bpmoConceptForCurrentShape: BpmoConcept | undefined = undefined;
       const currentBO = this.getCurrentBusinessObject();
+
+      const currentBOType =
+        currentBO.eventDefinitions?.length > 0
+          ? currentBO.eventDefinitions[0]["$type"]
+          : currentBO["$type"];
+
       for (const bpmoConcept in bpmnMapping) {
-        if (bpmnMapping[bpmoConcept as BpmoConcept] === currentBO["$type"]) {
+        if (bpmnMapping[bpmoConcept as BpmoConcept] === currentBOType) {
           bpmoConceptForCurrentShape = bpmoConcept as BpmoConcept;
         }
       }
