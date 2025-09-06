@@ -23,6 +23,14 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
+    path: "/modeler/:type/:modelId?",
+    name: "ModelerWithType",
+    component: Modeler,
+    meta: {
+      title: "Modeler",
+    },
+  },
+  {
     path: "/abstractor/:modelId",
     name: "ModelAbstractor",
     component: ModelAbstractor,
