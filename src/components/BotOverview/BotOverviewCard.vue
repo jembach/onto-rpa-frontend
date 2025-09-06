@@ -20,26 +20,29 @@
                 class="min-w-0 text-sm/6 font-semibold text-gray-900 dark:text-white"
               >
                 <router-link
-                  :to="{ name: 'Modeler', params: { modelId: bot._id } }"
+                  :to="{
+                    name: 'ModelerWithType',
+                    params: { modelId: bot._id, type: bot.type },
+                  }"
                   class="flex gap-x-2"
                 >
                   <span class="whitespace-nowrap">{{ bot.name }}</span>
                 </router-link>
               </h2>
               <span
-                v-if="bot.type === 'rpa module'"
+                v-if="bot.type === BotModelType.MODULE"
                 class="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/20"
               >
                 RPA Module
               </span>
               <span
-                v-else-if="bot.type === 'rpa template'"
+                v-else-if="bot.type === BotModelType.TEMPLATE"
                 class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/20"
               >
                 RPA Template
               </span>
               <span
-                v-else-if="bot.type === 'rpa decorator'"
+                v-else-if="bot.type === BotModelType.DECORATOR"
                 class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-700/10 dark:bg-yellow-400/10 dark:text-yellow-400 dark:ring-yellow-400/20"
               >
                 RPA Decorator
@@ -80,11 +83,13 @@
                   Inspect Metrics
                 </router-link>
               </div>
-              <p class="whitespace-nowrap">{{ bot.statusText }}</p>
             </div>
           </div>
           <router-link
-            :to="{ name: 'Modeler', params: { modelId: bot._id } }"
+            :to="{
+              name: 'ModelerWithType',
+              params: { modelId: bot._id, type: bot.type },
+            }"
             class="flex-none"
           >
             <FontAwesomeIcon
@@ -102,7 +107,7 @@
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import botModelApi from "../../api/botModelApi";
-import BotModel from "../../interfaces/BotModel";
+import BotModel, { BotModelType } from "../../interfaces/BotModel";
 import { getFilenameForBot } from "../../utils/utils";
 import { useToast } from "vue-toastification";
 

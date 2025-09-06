@@ -3,7 +3,7 @@
     <div class="bg-sky-700 py-10">
       <header>
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <nav class="hidden sm:flex" aria-label="Breadcrumb">
+          <nav class="flex" aria-label="Breadcrumb">
             <ol role="list" class="flex items-center space-x-4">
               <li>
                 <div class="flex">
@@ -58,7 +58,7 @@
         </div>
       </header>
     </div>
-    <div class="flex-auto grid grid-cols-6">
+    <div class="flex-1 grid grid-cols-6 overflow-hidden">
       <BotOperationSidebar
         @drag-operation="dragOperation"
         @click-operation="clickOperation"

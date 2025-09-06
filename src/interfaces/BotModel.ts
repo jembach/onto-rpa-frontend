@@ -1,9 +1,17 @@
 import defaultDiagram from "../resources/defaultDiagram";
 
+export enum BotModelType {
+  BOT = "bot",
+  MODULE = "module",
+  TEMPLATE = "template",
+  DECORATOR = "decorator",
+}
+
 interface BotModel {
   _id?: string;
   name: string;
   description?: string;
+  type: BotModelType;
   model: string;
   processTree: ProcessTree;
 }
