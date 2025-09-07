@@ -1,10 +1,10 @@
 import defaultDiagram from "../resources/defaultDiagram";
+import { RpaDataRelation } from "./RpaOperation";
 
 export enum BotModelType {
   BOT = "bot",
   MODULE = "module",
   TEMPLATE = "template",
-  DECORATOR = "decorator",
 }
 
 interface BotModel {
@@ -14,6 +14,7 @@ interface BotModel {
   type: BotModelType;
   model: string;
   processTree: ProcessTree;
+  accessedData?: RpaDataRelation[];
 }
 
 export interface ProcessTree {

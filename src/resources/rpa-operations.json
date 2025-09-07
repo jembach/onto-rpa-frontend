@@ -652,6 +652,11 @@
         "@value": "MessageEvent"
       }
     ],
+    "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#directlyReads": [
+      {
+        "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#Email"
+      }
+    ],
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
       {
         "@id": "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations#message-trigger"

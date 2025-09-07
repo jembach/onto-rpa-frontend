@@ -79,12 +79,24 @@
               :rpa-element="operations[currentOperation].automates"
               :position="explanationPosition"
             ></RpaElementExplainer>
-            <span v-if="operations[currentOperation].accesses">
+            <span v-if="operations[currentOperation].accessedData.length > 0">
               and accesses
-              <RpaElementExplainer
-                :rpa-element="operations[currentOperation].accesses"
-                :position="explanationPosition"
-              ></RpaElementExplainer>
+              <span
+                v-for="(dataRelation, index) in operations[currentOperation]
+                  .accessedData"
+                :key="dataRelation.data.id"
+              >
+                <RpaElementExplainer
+                  :rpa-element="dataRelation.data"
+                  :position="explanationPosition"
+                />
+                <span
+                  v-if="
+                    index < operations[currentOperation].accessedData.length - 1
+                  "
+                  >,
+                </span>
+              </span>
             </span>
             .
           </span>
@@ -103,6 +115,7 @@ import {
   rpaSoftware,
   rpaData,
   rpaContextContainers,
+  rpaModules,
 } from "../../utils/ontologyParser";
 import { bpmnMapping } from "../../utils/bpmnMapping";
 import {
@@ -127,6 +140,7 @@ export default defineComponent({
   data() {
     return {
       operations: rpaOperations.individuals,
+      modules: rpaModules,
       currentOperation: "" as string | undefined,
       currentLabel: "" as string | undefined,
       explanationPosition: "left",
@@ -159,10 +173,20 @@ export default defineComponent({
     },
     getRPAAccessedData(): RpaDataRelation[] {
       const elementBO = this.getCurrentBusinessObject();
-      if (elementBO && "rpa:operation" in elementBO.$attrs) {
+      if (
+        elementBO &&
+        "rpa:operation" in elementBO.$attrs &&
+        this.operations[elementBO.$attrs["rpa:operation"]]
+      ) {
         const rpaOperation = this.operations[elementBO.$attrs["rpa:operation"]];
-        console.log(rpaOperation?.accessedData);
-        return rpaOperation?.accessedData || [];
+        return rpaOperation.accessedData;
+      } else if (
+        elementBO &&
+        "rpa:operation" in elementBO.$attrs &&
+        this.modules[elementBO.$attrs["rpa:operation"]]
+      ) {
+        const module = this.modules[elementBO.$attrs["rpa:operation"]];
+        return module.accessedData;
       }
       return [];
     },

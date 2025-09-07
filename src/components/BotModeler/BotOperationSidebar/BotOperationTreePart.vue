@@ -104,7 +104,7 @@ export default defineComponent({
       for (const operation in this.rpaTree.individuals) {
         const currentOperation = this.rpaTree.individuals[operation];
         if (currentOperation.concept.id === conceptId) {
-          operations.push(currentOperation);
+          operations.push(currentOperation as RpaOperation);
         }
       }
       return operations;
@@ -131,7 +131,7 @@ export default defineComponent({
       }
       return elements;
     },
-    setNodeVisibility(e) {
+    setNodeVisibility(e: any) {
       const [node, visibility] = e;
       this.nodeVisibility[node] = visibility;
     },
@@ -151,7 +151,9 @@ export default defineComponent({
           searchTerms.every(
             (term) =>
               operation.id.toLowerCase().includes(term) ||
-              operation.accesses?.id.toLowerCase().includes(term) ||
+              operation.accessedData.some((dataRelation) =>
+                dataRelation.data.id.toLowerCase().includes(term)
+              ) ||
               operation.automates?.id.toLowerCase().includes(term) ||
               operation.concept.id.toLowerCase().includes(term)
           )

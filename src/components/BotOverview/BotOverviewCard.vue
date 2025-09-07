@@ -7,12 +7,12 @@
         Projects
       </h3>
     </div>
-    <div class="px-4 py-5 sm:p-6">
+    <div class="px-4 sm:px-6">
       <ul role="list" class="divide-y divide-gray-100 dark:divide-white/5">
         <li
           v-for="bot in bots"
           :key="bot._id"
-          class="relative flex items-center space-x-4"
+          class="relative flex items-center space-x-4 py-5"
         >
           <div class="min-w-0 flex-auto">
             <div class="flex items-center gap-x-3">
@@ -40,12 +40,6 @@
                 class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/20"
               >
                 RPA Template
-              </span>
-              <span
-                v-else-if="bot.type === BotModelType.DECORATOR"
-                class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-700/10 dark:bg-yellow-400/10 dark:text-yellow-400 dark:ring-yellow-400/20"
-              >
-                RPA Decorator
               </span>
               <span
                 v-else

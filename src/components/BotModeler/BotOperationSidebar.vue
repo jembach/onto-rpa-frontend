@@ -35,6 +35,22 @@
           />
           <span class="truncate">Context Containers</span>
         </label>
+        <label class="label cursor-pointer justify-start gap-1">
+          <input
+            type="checkbox"
+            v-model="showRpaModule"
+            class="checkbox checkbox-sm"
+          />
+          <span class="truncate">RPA Module</span>
+        </label>
+        <label class="label cursor-pointer justify-start gap-1">
+          <input
+            type="checkbox"
+            v-model="showRpaTemplate"
+            class="checkbox checkbox-sm"
+          />
+          <span class="truncate">RPA Template</span>
+        </label>
       </fieldset>
     </div>
     <div class="overflow-y-auto flex-1 w-full mt-2 px-2 flex-shrink">
@@ -53,19 +69,31 @@
           @click-operation="$emit('click-operation', $event)"
           @tag-clicked="filterForTag"
         ></BotDataTree>
-        <template v-if="showContextContainers">
-          <BotContextContainerCard
-            v-for="container in contextContainers"
-            :key="container.id"
-            :container="container"
-            :data-operation="container.id"
-            data-nodetype="CompoundActivity"
-            draggable="true"
-            @dragstart="$emit('drag-operation', $event)"
-            @click="$emit('click-operation', $event)"
-          >
-          </BotContextContainerCard>
-        </template>
+        <BotContextContainerCard
+          v-if="showContextContainers"
+          v-for="container in contextContainers"
+          :key="container.id"
+          :container="container"
+          :data-operation="container.id"
+          data-nodetype="CompoundActivity"
+          draggable="true"
+          @dragstart="$emit('drag-operation', $event)"
+          @click="$emit('click-operation', $event)"
+        />
+        <BotModuleTree
+          v-if="showRpaModule"
+          :searchTerm="searchTerm"
+          @drag-operation="$emit('drag-operation', $event)"
+          @click-operation="$emit('click-operation', $event)"
+          @tag-clicked="filterForTag"
+        ></BotModuleTree>
+        <BotTemplateTree
+          v-if="showRpaTemplate"
+          :searchTerm="searchTerm"
+          @drag-operation="$emit('drag-operation', $event)"
+          @click-operation="$emit('click-operation', $event)"
+          @tag-clicked="filterForTag"
+        ></BotTemplateTree>
       </div>
     </div>
   </div>
@@ -77,6 +105,8 @@ import { rpaContextContainers } from "../../utils/ontologyParser";
 import BotOperationTree from "./BotOperationSidebar/BotOperationTree.vue";
 import BotDataTree from "./BotOperationSidebar/BotDataTree.vue";
 import BotContextContainerCard from "./BotOperationSidebar/BotContextContainerCard.vue";
+import BotModuleTree from "./BotOperationSidebar/BotModuleTree.vue";
+import BotTemplateTree from "./BotOperationSidebar/BotTemplateTree.vue";
 
 export default defineComponent({
   name: "bot-operation-sidebar",
@@ -89,6 +119,8 @@ export default defineComponent({
       showOperationTree: true,
       showDataTree: true,
       showContextContainers: true,
+      showRpaModule: true,
+      showRpaTemplate: true,
     };
   },
   methods: {
@@ -99,6 +131,12 @@ export default defineComponent({
       this.searchTerm += " " + event;
     },
   },
-  components: { BotOperationTree, BotDataTree, BotContextContainerCard },
+  components: {
+    BotOperationTree,
+    BotDataTree,
+    BotContextContainerCard,
+    BotModuleTree,
+    BotTemplateTree,
+  },
 });
 </script>

@@ -4,5 +4,4 @@ export const BotModelTypeLng: Record<BotModelType, string> = {
   [BotModelType.BOT]: "RPA Bot",
   [BotModelType.MODULE]: "RPA Module",
   [BotModelType.TEMPLATE]: "RPA Template",
-  [BotModelType.DECORATOR]: "RPA Decorator",
 };

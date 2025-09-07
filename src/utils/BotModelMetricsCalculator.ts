@@ -27,8 +27,6 @@ class BotModelMetricsCalculator {
     this.processTree = processTree;
     this.botContext = analyzeContexts(processTree);
     this.operationBranches = this.getBranchesForProcess();
-
-    console.log(this.processTree);
   }
 
   public getModelMetrics(): BotModelMetrics {

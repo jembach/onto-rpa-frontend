@@ -48,10 +48,5 @@ const items = [
     description:
       "A specialized RPA module that allows you to place custom RPA actions inside it.",
   },
-  {
-    title: "Create an RPA Decorator",
-    type: "decorator",
-    description: "Enhance your bots with additional features using decorators.",
-  },
 ];
 </script>

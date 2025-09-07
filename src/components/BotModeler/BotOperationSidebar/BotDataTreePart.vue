@@ -129,7 +129,7 @@ export default defineComponent({
       }
       return elements;
     },
-    setNodeVisibility(e) {
+    setNodeVisibility(e: any) {
       const [node, visibility] = e;
       this.nodeVisibility[node] = visibility;
     },

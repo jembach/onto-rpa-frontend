@@ -20,10 +20,12 @@
       </div>
       <div class="operation-tagline">
         <RpaElementExplainer
-          v-if="operation.accesses"
-          :rpa-element="operation.accesses"
+          v-if="operation.accessedData.length > 0"
+          v-for="dataRelation in operation.accessedData"
+          :key="dataRelation.data.id"
+          :rpa-element="dataRelation.data"
           :position="explanationPosition"
-          @click="$emit('tag-clicked', operation.accesses?.id)"
+          @click="$emit('tag-clicked', dataRelation.data.id)"
         ></RpaElementExplainer>
       </div>
     </div>

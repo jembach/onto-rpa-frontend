@@ -182,6 +182,14 @@ async function saveBot() {
     botModel.value.processTree = bpmnModdleParser.parseBpmnModdle(
       modeler.value._definitions
     );
+    botModel.value.type = botType.value;
+
+    if (botType.value === BotModelType.MODULE) {
+      botModel.value.accessedData =
+        bpmnModdleParser.parseBpmnModdleInterfaceData(
+          modeler.value._definitions
+        );
+    }
 
     if (botModel.value._id) {
       await botModelApi.updateBotModel(botModel.value);
