@@ -8,4 +8,7 @@ export enum BpmoConcept {
   TimerEvent = "TimerEvent",
   DataObject = "DataObject",
   DataStore = "DataStore",
+  Module = "Module",
+  Template = "Template",
+  TemplatePlaceholder = "TemplatePlaceholder",
 }

@@ -17,17 +17,13 @@
     </label>
   </div>
 
-  <div class="flex justify-center">
-    <router-link :to="{ name: 'Modeler' }" v-if="!searchTerm">
-      <BotOverviewCard></BotOverviewCard>
-    </router-link>
-    <BotOverviewCard
-      v-for="botModel in filteredOperations"
-      :botModel="botModel"
-    >
-    </BotOverviewCard>
-    <div v-if="searchTerm && filteredOperations.length === 0" class="m-4">
-      No Bots found.
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-6">
+    <div class="mx-auto max-w-3xl space-y-6">
+      <BotOverviewCard
+        :bots="filteredOperations"
+        v-if="filteredOperations.length > 0"
+      />
+      <BotCreationCard />
     </div>
   </div>
 </template>
@@ -83,4 +79,5 @@ import BotModel from "../interfaces/BotModel";
 import BotOverviewCard from "../components/BotOverview/BotOverviewCard.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import BotCreationCard from "../components/BotOverview/BotCreationCard.vue";
 </script>

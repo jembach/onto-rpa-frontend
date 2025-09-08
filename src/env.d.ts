@@ -7,4 +7,4 @@ declare module "*.vue" {
   export default component;
 }
 
-declare module "bpmn-js/lib/modeler";
+declare module "bpmn-js/lib/Modeler";

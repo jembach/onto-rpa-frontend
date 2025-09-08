@@ -58,8 +58,7 @@ export interface RpaOperationConcept extends RpaBaseConcept<RpaOperationType> {
 export interface RpaOperation extends RpaBaseInstance<RpaOperationConcept> {
   bpmoConcept: BpmoConcept;
   automates?: RpaSoftware;
-  accesses?: RpaData;
-  accessedData?: RpaDataRelation[];
+  accessedData: RpaDataRelation[];
 }
 
 // ============
@@ -88,6 +87,22 @@ export interface RpaData extends RpaBaseInstance<RpaDataConcept> {}
 export interface RpaContextContainer extends RpaBaseElement {
   setupSteps: RpaOperation[];
   cleanupSteps: RpaOperation[];
+}
+
+// ======================
+// RPA MODULE
+
+export interface RpaModule extends RpaBaseElement {
+  automates: RpaSoftware[];
+  accessedData: RpaDataRelation[];
+}
+
+// ======================
+// RPA TEMPLATE
+
+export interface RpaTemplate extends RpaBaseElement {
+  automates: RpaSoftware[];
+  templatePlaceholders: string[];
 }
 
 // ============

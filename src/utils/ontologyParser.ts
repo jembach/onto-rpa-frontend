@@ -1,3 +1,5 @@
+import botModelApi from "../api/botModelApi";
+import { BotModelType } from "../interfaces/BotModel";
 import {
   RpaBaseElement,
   RpaBaseType,
@@ -14,6 +16,8 @@ import {
   RpaContextContainer,
   RpaDataResourceAccessType,
   RpaTransientDataAccessType,
+  RpaModule,
+  RpaTemplate,
 } from "../interfaces/RpaOperation";
 import rpaOperationsOntology from "../resources/rpa-operations.json";
 
@@ -73,6 +77,8 @@ const PROPERTY_IRIS = [
   "http://www.w3.org/2000/01/rdf-schema#comment",
 ];
 
+const TYPE_IRI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+
 const RPA_OPERATION_ROOT_ELEMENT: RpaBaseElement = {
   id: getIdFromIri(RPA_OPERATION_ROOT_IRI),
   iri: RPA_OPERATION_ROOT_IRI,
@@ -118,7 +124,8 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
     } else if (
       operation["@type"] &&
       operation["@type"].includes(INDIVIDUAL_IRI) &&
-      operation["@type"].includes(superElement.iri)
+      (operation["@type"].includes(superElement.iri) ||
+        operation[TYPE_IRI]?.some((type) => type["@id"] === superElement.iri))
     ) {
       // if an individual of the currently examined class is encountered, add it as concrete operation
       if (superElement.id in rpaTree.types) {
@@ -129,6 +136,7 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
         id: currentId,
         iri: operation["@id"],
         concept: rpaTree.concepts[superElement.id],
+        accessedData: [],
       };
       // Check basic relations
       RELATION_IRIS.forEach((relation_iri) => {
@@ -148,11 +156,6 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
 
         if (propertyName.toUpperCase() in RpaDataResourceAccessType) {
           // @ts-expect-error untyped
-          if (!newRpaIndividual.accessedData) {
-            // @ts-expect-error untyped
-            newRpaIndividual.accessedData = [];
-          }
-          // @ts-expect-error untyped
           newRpaIndividual.accessedData.push({
             // @ts-expect-error untyped
             type: RpaDataResourceAccessType[propertyName.toUpperCase()],
@@ -164,11 +167,6 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
         }
 
         if (propertyName.toUpperCase() in RpaTransientDataAccessType) {
-          // @ts-expect-error untyped
-          if (!newRpaIndividual.accessedData) {
-            // @ts-expect-error untyped
-            newRpaIndividual.accessedData = [];
-          }
           // @ts-expect-error untyped
           newRpaIndividual.accessedData.push({
             // @ts-expect-error untyped
@@ -200,7 +198,10 @@ function parseContextContainers(): Record<string, RpaContextContainer> {
 
     if (
       operation["@type"] &&
-      operation["@type"].includes(RPA_CONTEXT_CONTAINER_ROOT_IRI)
+      (operation["@type"].includes(RPA_CONTEXT_CONTAINER_ROOT_IRI) ||
+        operation[TYPE_IRI]?.some(
+          (type) => type["@id"] === RPA_CONTEXT_CONTAINER_ROOT_IRI
+        ))
     ) {
       const contextContainer: RpaContextContainer = {
         id: currentId,
@@ -228,6 +229,46 @@ function parseContextContainers(): Record<string, RpaContextContainer> {
     }
   });
   return contextContainers;
+}
+
+async function parseModules(): Promise<Record<string, RpaModule>> {
+  const rpaModules: Record<string, RpaModule> = {};
+
+  const modules = await botModelApi.getBotModels(BotModelType.MODULE);
+
+  modules.forEach((module) => {
+    const rpaModule: RpaModule = {
+      id: module._id!,
+      iri: extendId(module.name),
+      accessedData: module.accessedData ?? [],
+      automates: [],
+      comment: "",
+      label: module.name,
+    };
+    rpaModules[module.name] = rpaModule;
+  });
+
+  return rpaModules;
+}
+
+async function parseTemplates(): Promise<Record<string, RpaTemplate>> {
+  const rpaTemplates: Record<string, RpaTemplate> = {};
+
+  const templates = await botModelApi.getBotModels(BotModelType.TEMPLATE);
+
+  templates.forEach((template) => {
+    const rpaModule: RpaTemplate = {
+      id: template._id!,
+      iri: extendId(template.name),
+      templatePlaceholders: template.templatePlaceholders ?? [],
+      automates: [],
+      comment: "",
+      label: template.name,
+    };
+    rpaTemplates[template.name] = rpaModule;
+  });
+
+  return rpaTemplates;
 }
 
 function getContextContainerSequence(firstStepIri: string): RpaOperation[] {
@@ -262,6 +303,22 @@ exploreTree(RPA_OPERATION_ROOT_ELEMENT, rpaOperations);
 
 export const rpaContextContainers: Record<string, RpaContextContainer> =
   parseContextContainers();
+
+export const getRpaModules = async (): Promise<Record<string, RpaModule>> => {
+  if (!(getRpaModules as any)._cache) {
+    (getRpaModules as any)._cache = await parseModules();
+  }
+  return (getRpaModules as any)._cache;
+};
+
+export const getRpaTemplates = async (): Promise<
+  Record<string, RpaTemplate>
+> => {
+  if (!(getRpaTemplates as any)._cache) {
+    (getRpaTemplates as any)._cache = await parseTemplates();
+  }
+  return (getRpaTemplates as any)._cache;
+};
 
 function convertTypeToConcept(typeKey: string, rpaTree: RpaTaxonomy) {
   // @ts-expect-error untyped

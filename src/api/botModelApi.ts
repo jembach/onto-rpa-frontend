@@ -1,5 +1,6 @@
 import axios from "axios";
 import BotModel, {
+  BotModelType,
   parseBotModel,
   stringifyBotModel,
 } from "../interfaces/BotModel";
@@ -8,8 +9,12 @@ const BASE_API_URL =
   import.meta.env.VITE_BASE_API_URL ?? "http://localhost:3001/api";
 
 export default {
-  async getBotModels(): Promise<BotModel[]> {
-    const res = await axios.get(`${BASE_API_URL}/BotModels`);
+  async getBotModels(type?: BotModelType): Promise<BotModel[]> {
+    const res = await axios.get(`${BASE_API_URL}/BotModels`, {
+      params: {
+        type,
+      },
+    });
 
     const botModels: BotModel[] = (res.data as BotModel[]).map((botModel) =>
       parseBotModel(botModel)

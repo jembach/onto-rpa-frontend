@@ -1,11 +1,12 @@
 import {
-  Activity,
   Definitions,
+  EndEvent,
   FlowElement,
   FlowNode,
   ItemAwareElement,
   Process,
   SequenceFlow,
+  StartEvent,
   SubProcess,
 } from "bpmn-moddle";
 import {
@@ -14,6 +15,13 @@ import {
   ProcessTreeStructure,
 } from "../interfaces/BotModel";
 import YAML from "yaml";
+import {
+  RpaDataRelation,
+  RpaDataResourceAccessType,
+  RpaDataType,
+  RpaTransientDataAccessType,
+} from "../interfaces/RpaOperation";
+import { rpaData } from "./ontologyParser";
 
 class BpmnModdleParser {
   processTreeNodes: Record<string, ProcessTreeNodeInfo> = {};
@@ -43,6 +51,111 @@ class BpmnModdleParser {
     // console.log(generatedProcessTree);
 
     return generatedProcessTree;
+  }
+
+  /**
+   * Parses a bpmn-js model and returns from the start event the attached data objects and stores.
+   *
+   * @param bpmnModdle - Definitions object of a bpmn-js modeler
+   *
+   * @returns List of data objects and stores connected to the start event of type RpaDataRelation
+   */
+  parseBpmnModdleInterfaceData(bpmnModdle: Definitions): RpaDataRelation[] {
+    const interfaceData: RpaDataRelation[] = [];
+
+    const process: Process = bpmnModdle.rootElements[0] as Process;
+
+    // Get Interface Data from Start Event
+    const startFlow = BpmnModdleParser.getStartFlowOfProcess(process);
+
+    if (!startFlow || !startFlow.targetRef) {
+      throw new Error("Startevent is not connected to flow!");
+    }
+
+    const startEvent = startFlow.sourceRef as StartEvent;
+
+    for (const dataOutputAssociation of startEvent.dataOutputAssociations ??
+      []) {
+      const dataInformationObject = dataOutputAssociation.targetRef;
+      const rpaDataOperation = dataInformationObject.$attrs?.["rpa:operation"];
+
+      const dataIndividual = rpaData.individuals[rpaDataOperation];
+      const concept = this.determineDataIndividualConcept(rpaDataOperation);
+
+      if (!dataIndividual || !concept) {
+        throw new Error(
+          `Data object ${rpaDataOperation} at start event is not correctly configured with an RPA data concept.`
+        );
+      }
+
+      if (concept === "data-resource") {
+        interfaceData.push({
+          type: RpaDataResourceAccessType.IMPLICITLYREADS,
+          data: dataIndividual,
+        });
+      } else if (concept === "transient-data") {
+        interfaceData.push({
+          type: RpaTransientDataAccessType.REQUIRES,
+          data: dataIndividual,
+        });
+      }
+    }
+
+    // Get Interface Data from all End Event
+    const endEvents: EndEvent[] = process.flowElements.filter(
+      (flowElement) => flowElement.$type === "bpmn:EndEvent"
+    ) as EndEvent[];
+
+    for (const endEvent of endEvents) {
+      for (const dataInputAssociation of endEvent.dataInputAssociations ?? []) {
+        // @ts-expect-error untyped
+        const dataInformationObject = dataInputAssociation.sourceRef[0];
+        const rpaDataOperation =
+          dataInformationObject.$attrs?.["rpa:operation"];
+        const dataIndividual = rpaData.individuals[rpaDataOperation];
+        const concept = this.determineDataIndividualConcept(rpaDataOperation);
+
+        if (!dataIndividual || !concept) {
+          throw new Error(
+            `Data object ${rpaDataOperation} at end event is not correctly configured with an RPA data concept.`
+          );
+        }
+
+        if (concept === "data-resource") {
+          interfaceData.push({
+            type: RpaDataResourceAccessType.IMPLICITLYWRITES,
+            data: dataIndividual,
+          });
+        } else if (concept === "transient-data") {
+          interfaceData.push({
+            type: RpaTransientDataAccessType.YIELDS,
+            data: dataIndividual,
+          });
+        }
+      }
+    }
+
+    console.log(interfaceData);
+
+    return interfaceData;
+  }
+
+  /**
+   * Parse a bpmn-js model and returns all placeholder templates used in the model.
+   *
+   * @param bpmnModdle - Definitions object of a bpmn-js modeler
+   *
+   * @returns List of template operation IRIs used as placeholders in the model
+   */
+  parseBpmnModdleUsedTemplates(bpmnModdle: Definitions): string[] {
+    const process: Process = bpmnModdle.rootElements[0] as Process;
+
+    const subProcesses: SubProcess[] = process.flowElements.filter(
+      (flowElement) =>
+        flowElement.$attrs?.["rpa:operation"] === "TemplatePlaceholder"
+    ) as SubProcess[];
+
+    return subProcesses.map((subProcess) => subProcess.name!);
   }
 
   /**
@@ -302,6 +415,32 @@ class BpmnModdleParser {
 
   private static elementToString(element: FlowNode): string {
     return element.name || element.id + " (" + element.$type + ")";
+  }
+
+  private determineDataIndividualConcept(
+    dataIndividualId: string
+  ): "data-resource" | "transient-data" | undefined {
+    const dataIndividual = rpaData.individuals[dataIndividualId];
+
+    if (!dataIndividual) {
+      throw new Error(
+        `Data object ${dataIndividualId} at start/end event is not correctly configured with an RPA data concept.`
+      );
+    }
+
+    let concept: RpaDataType | undefined = dataIndividual.concept;
+
+    while (concept) {
+      if (concept.iri.includes("rpa-operations#data-resource")) {
+        return "data-resource";
+      } else if (concept.iri.includes("rpa-operations#transient-data")) {
+        return "transient-data";
+      } else {
+        concept = concept.type;
+      }
+    }
+
+    return undefined;
   }
 }
 
