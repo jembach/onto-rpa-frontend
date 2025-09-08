@@ -17,7 +17,7 @@ import { defineComponent } from "vue";
 import BotOperationTreePart from "./BotOperationTreePart.vue";
 import BotModuleCard from "./BotModuleCard.vue";
 import { RpaModule } from "../../../interfaces/RpaOperation";
-import { rpaModules } from "../../../utils/ontologyParser";
+import { getRpaModules } from "../../../utils/ontologyParser";
 
 export default defineComponent({
   name: "bot-module-tree",
@@ -27,7 +27,7 @@ export default defineComponent({
   },
   data() {
     return {
-      rpaModules: Object.values(rpaModules) as RpaModule[],
+      rpaModules: [] as RpaModule[],
     };
   },
   computed: {
@@ -42,6 +42,9 @@ export default defineComponent({
           (module.comment && module.comment.toLowerCase().includes(lowerSearch))
       );
     },
+  },
+  async mounted() {
+    this.rpaModules = Object.values(await getRpaModules()) as RpaModule[];
   },
   components: { BotOperationTreePart, BotModuleCard },
 });

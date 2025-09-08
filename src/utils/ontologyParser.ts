@@ -304,9 +304,21 @@ exploreTree(RPA_OPERATION_ROOT_ELEMENT, rpaOperations);
 export const rpaContextContainers: Record<string, RpaContextContainer> =
   parseContextContainers();
 
-export const rpaModules: Record<string, RpaModule> = await parseModules();
+export const getRpaModules = async (): Promise<Record<string, RpaModule>> => {
+  if (!(getRpaModules as any)._cache) {
+    (getRpaModules as any)._cache = await parseModules();
+  }
+  return (getRpaModules as any)._cache;
+};
 
-export const rpaTemplates: Record<string, RpaTemplate> = await parseTemplates();
+export const getRpaTemplates = async (): Promise<
+  Record<string, RpaTemplate>
+> => {
+  if (!(getRpaTemplates as any)._cache) {
+    (getRpaTemplates as any)._cache = await parseTemplates();
+  }
+  return (getRpaTemplates as any)._cache;
+};
 
 function convertTypeToConcept(typeKey: string, rpaTree: RpaTaxonomy) {
   // @ts-expect-error untyped

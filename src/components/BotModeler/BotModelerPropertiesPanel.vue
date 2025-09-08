@@ -113,14 +113,16 @@ import RpaElementExplainer from "../RpaElementExplainer.vue";
 import {
   rpaOperations,
   rpaContextContainers,
-  rpaModules,
-  rpaTemplates,
+  getRpaModules,
+  getRpaTemplates,
 } from "../../utils/ontologyParser";
 import { bpmnMapping } from "../../utils/bpmnMapping";
 import {
   RpaContextContainer,
   RpaDataRelation,
+  RpaModule,
   RpaOperation,
+  RpaTemplate,
 } from "../../interfaces/RpaOperation";
 import { BpmoConcept } from "../../interfaces/BpmoConcepts";
 
@@ -139,8 +141,8 @@ export default defineComponent({
   data() {
     return {
       operations: rpaOperations.individuals,
-      modules: rpaModules,
-      templates: rpaTemplates,
+      modules: [] as RpaModule[],
+      templates: [] as RpaTemplate[],
       currentOperation: "" as string | undefined,
       currentLabel: "" as string | undefined,
       explanationPosition: "left",
@@ -252,6 +254,10 @@ export default defineComponent({
         );
       }
     },
+  },
+  async mounted() {
+    this.modules = Object.values(await getRpaModules()) as RpaModule[];
+    this.templates = Object.values(await getRpaTemplates()) as RpaTemplate[];
   },
   components: { RpaElementExplainer },
 });

@@ -7,7 +7,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 // import BpmnJS from "bpmn-js/dist/bpmn-modeler.production.min.js";
-import BpmnModeler from "bpmn-js/lib/modeler";
+import BpmnModeler from "bpmn-js/lib/Modeler";
 // https://github.com/bpmn-io/bpmn-js-properties-panel/issues/308#issuecomment-505020061
 // import {
 //   BpmnPropertiesPanelModule,
@@ -60,7 +60,7 @@ export default defineComponent({
       this.options
     );
     this.modeler = markRaw(new BpmnModeler(_options));
-    this.modeler.on("import.done", (event) => {
+    this.modeler.on("import.done", (event: any) => {
       var error = event.error;
       // var warnings = event.warnings;
       if (error) {

@@ -31,7 +31,7 @@ import BotOperationTreePart from "./BotOperationTreePart.vue";
 import BotTemplateCard from "./BotTemplateCard.vue";
 import BotTemplatePlaceholderCard from "./BotTemplatePlaceholderCard.vue";
 import { RpaTemplate } from "../../../interfaces/RpaOperation";
-import { rpaTemplates } from "../../../utils/ontologyParser";
+import { getRpaTemplates } from "../../../utils/ontologyParser";
 
 export default defineComponent({
   name: "bot-template-tree",
@@ -45,7 +45,7 @@ export default defineComponent({
   },
   data() {
     return {
-      rpaTemplates: Object.values(rpaTemplates) as RpaTemplate[],
+      rpaTemplates: [] as RpaTemplate[],
     };
   },
   computed: {
@@ -65,6 +65,9 @@ export default defineComponent({
             template.comment.toLowerCase().includes(lowerSearch))
       );
     },
+  },
+  async mounted() {
+    this.rpaTemplates = Object.values(await getRpaTemplates()) as RpaTemplate[];
   },
   components: {
     BotOperationTreePart,

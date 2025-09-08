@@ -114,7 +114,8 @@ import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { BotModelTypeLng } from "../utils/rpaTypeMapping";
-import { rpaTemplates } from "../utils/ontologyParser";
+import { getRpaTemplates } from "../utils/ontologyParser";
+import { RpaTemplate } from "../interfaces/RpaOperation";
 
 const toast = useToast();
 const router = useRouter();
@@ -125,6 +126,7 @@ const modeler = ref({} as any);
 const selectedElements = ref([] as ModelerElement[]);
 const element = ref({} as ModelerElement | null);
 const botModel = ref({} as BotModel);
+const rpaTemplates = ref({} as Record<string, RpaTemplate>);
 
 const botType = computed(() => {
   return route.params.type as BotModelType;
@@ -142,6 +144,8 @@ onMounted(async () => {
   } else {
     botModel.value = createDefaultBotModel();
   }
+
+  rpaTemplates.value = await getRpaTemplates();
 });
 
 function selectionChanged(e: ModelerSelectionChange) {
@@ -255,7 +259,7 @@ function newOperationShape(e: any) {
   }
 
   if (bpmoConcept === BpmoConcept.Template) {
-    const rpaTemplate = rpaTemplates[operation];
+    const rpaTemplate = rpaTemplates.value[operation];
     if (rpaTemplate && rpaTemplate.templatePlaceholders) {
       shapeOptions["height"] =
         200 + (rpaTemplate.templatePlaceholders.length - 1) * 100;
@@ -280,7 +284,7 @@ function newOperationShape(e: any) {
   }
 
   if (bpmoConcept === BpmoConcept.Template) {
-    const rpaTemplate = rpaTemplates[operation];
+    const rpaTemplate = rpaTemplates.value[operation];
     if (!rpaTemplate || !rpaTemplate.templatePlaceholders) {
       return shape;
     }
