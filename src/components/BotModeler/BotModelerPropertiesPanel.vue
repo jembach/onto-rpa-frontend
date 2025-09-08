@@ -76,7 +76,7 @@
           <span v-if="operations[currentOperation].automates">
             It automates the application
             <RpaElementExplainer
-              :rpa-element="operations[currentOperation].automates"
+              :rpa-element="operations[currentOperation].automates!"
               :position="explanationPosition"
             ></RpaElementExplainer>
             <span v-if="operations[currentOperation].accessedData.length > 0">
@@ -107,15 +107,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, markRaw, PropType, toRaw } from "vue";
+import { defineComponent, PropType, toRaw } from "vue";
 import { ModelerElement } from "../../interfaces/ModelerEvents";
 import RpaElementExplainer from "../RpaElementExplainer.vue";
 import {
   rpaOperations,
-  rpaSoftware,
-  rpaData,
   rpaContextContainers,
   rpaModules,
+  rpaTemplates,
 } from "../../utils/ontologyParser";
 import { bpmnMapping } from "../../utils/bpmnMapping";
 import {
@@ -141,6 +140,7 @@ export default defineComponent({
     return {
       operations: rpaOperations.individuals,
       modules: rpaModules,
+      templates: rpaTemplates,
       currentOperation: "" as string | undefined,
       currentLabel: "" as string | undefined,
       explanationPosition: "left",
@@ -187,6 +187,13 @@ export default defineComponent({
       ) {
         const module = this.modules[elementBO.$attrs["rpa:operation"]];
         return module.accessedData;
+      } else if (
+        elementBO &&
+        "rpa:operation" in elementBO.$attrs &&
+        this.templates[elementBO.$attrs["rpa:operation"]]
+      ) {
+        const template = this.templates[elementBO.$attrs["rpa:operation"]];
+        return template.accessedData;
       }
       return [];
     },

@@ -1,8 +1,12 @@
+<script setup lang="ts">
+import { BotModelType } from "../../../interfaces/BotModel";
+</script>
+
 <template>
-  <div v-for="template in filteredBotTemplates" :key="template._id">
+  <div v-for="template in filteredRpaTemplates" :key="template.id">
     <BotTemplateCard
       :template="template"
-      :data-operation="template.name"
+      :data-operation="template.label"
       data-nodetype="Template"
       draggable="true"
       @dragstart="$emit('drag-operation', $event)"
@@ -10,14 +14,24 @@
       @tag-clicked="$emit('tag-clicked', $event)"
     />
   </div>
+  <BotTemplatePlaceholderCard
+    v-if="botType === BotModelType.TEMPLATE"
+    data-operation="TemplatePlaceholder"
+    data-nodetype="TemplatePlaceholder"
+    draggable="true"
+    @dragstart="$emit('drag-operation', $event)"
+    @click="$emit('click-operation', $event)"
+    @tag-clicked="$emit('tag-clicked', $event)"
+  />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import BotOperationTreePart from "./BotOperationTreePart.vue";
-import botModelApi from "../../../api/botModelApi";
-import BotModel, { BotModelType } from "../../../interfaces/BotModel";
 import BotTemplateCard from "./BotTemplateCard.vue";
+import BotTemplatePlaceholderCard from "./BotTemplatePlaceholderCard.vue";
+import { RpaTemplate } from "../../../interfaces/RpaOperation";
+import { rpaTemplates } from "../../../utils/ontologyParser";
 
 export default defineComponent({
   name: "bot-template-tree",
@@ -31,27 +45,32 @@ export default defineComponent({
   },
   data() {
     return {
-      botTemplates: [] as BotModel[],
+      rpaTemplates: Object.values(rpaTemplates) as RpaTemplate[],
     };
   },
   computed: {
-    filteredBotTemplates(): BotModel[] {
+    botType(): BotModelType {
+      return this.$route.params.type as BotModelType;
+    },
+    filteredRpaTemplates(): RpaTemplate[] {
       if (!this.searchTerm || this.searchTerm.trim() === "") {
-        return this.botTemplates;
+        return this.rpaTemplates;
       }
       const lowerSearch = this.searchTerm.toLowerCase();
-      return this.botTemplates.filter(
+      return this.rpaTemplates.filter(
         (template) =>
-          template.name.toLowerCase().includes(lowerSearch) ||
-          (template.description &&
-            template.description.toLowerCase().includes(lowerSearch))
+          (template.label &&
+            template.label.toLowerCase().includes(lowerSearch)) ||
+          (template.comment &&
+            template.comment.toLowerCase().includes(lowerSearch))
       );
     },
   },
-  async mounted(): Promise<void> {
-    this.botTemplates = await botModelApi.getBotModels(BotModelType.TEMPLATE);
+  components: {
+    BotOperationTreePart,
+    BotTemplateCard,
+    BotTemplatePlaceholderCard,
   },
-  components: { BotOperationTreePart, BotTemplateCard },
 });
 </script>
 

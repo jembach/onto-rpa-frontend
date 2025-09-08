@@ -97,6 +97,14 @@ export interface RpaModule extends RpaBaseElement {
   accessedData: RpaDataRelation[];
 }
 
+// ======================
+// RPA TEMPLATE
+
+export interface RpaTemplate extends RpaBaseElement {
+  automates: RpaSoftware[];
+  templatePlaceholders: string[];
+}
+
 // ============
 // RPA TAXONOMY
 

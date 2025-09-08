@@ -1,5 +1,4 @@
 import {
-  Activity,
   Definitions,
   EndEvent,
   FlowElement,
@@ -139,6 +138,24 @@ class BpmnModdleParser {
     console.log(interfaceData);
 
     return interfaceData;
+  }
+
+  /**
+   * Parse a bpmn-js model and returns all placeholder templates used in the model.
+   *
+   * @param bpmnModdle - Definitions object of a bpmn-js modeler
+   *
+   * @returns List of template operation IRIs used as placeholders in the model
+   */
+  parseBpmnModdleUsedTemplates(bpmnModdle: Definitions): string[] {
+    const process: Process = bpmnModdle.rootElements[0] as Process;
+
+    const subProcesses: SubProcess[] = process.flowElements.filter(
+      (flowElement) =>
+        flowElement.$attrs?.["rpa:operation"] === "TemplatePlaceholder"
+    ) as SubProcess[];
+
+    return subProcesses.map((subProcess) => subProcess.name!);
   }
 
   /**

@@ -9,4 +9,6 @@ export enum BpmoConcept {
   DataObject = "DataObject",
   DataStore = "DataStore",
   Module = "Module",
+  Template = "Template",
+  TemplatePlaceholder = "TemplatePlaceholder",
 }

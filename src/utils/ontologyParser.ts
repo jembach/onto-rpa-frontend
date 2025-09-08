@@ -17,6 +17,7 @@ import {
   RpaDataResourceAccessType,
   RpaTransientDataAccessType,
   RpaModule,
+  RpaTemplate,
 } from "../interfaces/RpaOperation";
 import rpaOperationsOntology from "../resources/rpa-operations.json";
 
@@ -250,6 +251,26 @@ async function parseModules(): Promise<Record<string, RpaModule>> {
   return rpaModules;
 }
 
+async function parseTemplates(): Promise<Record<string, RpaTemplate>> {
+  const rpaTemplates: Record<string, RpaTemplate> = {};
+
+  const templates = await botModelApi.getBotModels(BotModelType.TEMPLATE);
+
+  templates.forEach((template) => {
+    const rpaModule: RpaTemplate = {
+      id: template._id!,
+      iri: extendId(template.name),
+      templatePlaceholders: template.templatePlaceholders ?? [],
+      automates: [],
+      comment: "",
+      label: template.name,
+    };
+    rpaTemplates[template.name] = rpaModule;
+  });
+
+  return rpaTemplates;
+}
+
 function getContextContainerSequence(firstStepIri: string): RpaOperation[] {
   let currentStepIri = firstStepIri;
   let steps: RpaOperation[] = [];
@@ -284,6 +305,8 @@ export const rpaContextContainers: Record<string, RpaContextContainer> =
   parseContextContainers();
 
 export const rpaModules: Record<string, RpaModule> = await parseModules();
+
+export const rpaTemplates: Record<string, RpaTemplate> = await parseTemplates();
 
 function convertTypeToConcept(typeKey: string, rpaTree: RpaTaxonomy) {
   // @ts-expect-error untyped

@@ -114,6 +114,7 @@ import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { BotModelTypeLng } from "../utils/rpaTypeMapping";
+import { rpaTemplates } from "../utils/ontologyParser";
 
 const toast = useToast();
 const router = useRouter();
@@ -191,6 +192,13 @@ async function saveBot() {
         );
     }
 
+    if (botType.value === BotModelType.TEMPLATE) {
+      botModel.value.templatePlaceholders =
+        bpmnModdleParser.parseBpmnModdleUsedTemplates(
+          modeler.value._definitions
+        );
+    }
+
     if (botModel.value._id) {
       await botModelApi.updateBotModel(botModel.value);
     } else {
@@ -226,7 +234,8 @@ function newOperationShape(e: any) {
   const bpmnFactory = modeler.value.get("bpmnFactory");
   const elementFactory = modeler.value.get("elementFactory");
   const operation = e.target.dataset["operation"];
-  let bpmnType = bpmnMapping[e.target.dataset["nodetype"] as BpmoConcept];
+  const bpmoConcept = e.target.dataset["nodetype"] as BpmoConcept;
+  let bpmnType = bpmnMapping[bpmoConcept];
 
   const shapeOptions: any = {
     type: bpmnType,
@@ -237,8 +246,20 @@ function newOperationShape(e: any) {
     shapeOptions["type"] = "bpmn:IntermediateCatchEvent";
     bpmnType = "bpmn:IntermediateCatchEvent";
   }
-  if (bpmnType.includes("SubProcess")) {
+
+  if (
+    bpmoConcept === BpmoConcept.CompoundActivity ||
+    bpmoConcept === BpmoConcept.Template
+  ) {
     shapeOptions["isExpanded"] = true;
+  }
+
+  if (bpmoConcept === BpmoConcept.Template) {
+    const rpaTemplate = rpaTemplates[operation];
+    if (rpaTemplate && rpaTemplate.templatePlaceholders) {
+      shapeOptions["height"] =
+        200 + (rpaTemplate.templatePlaceholders.length - 1) * 100;
+    }
   }
 
   shapeOptions["businessObject"] = bpmnFactory.create(bpmnType, {
@@ -248,7 +269,7 @@ function newOperationShape(e: any) {
 
   const shape = elementFactory.createShape(shapeOptions);
 
-  if (bpmnType.includes("SubProcess")) {
+  if (bpmoConcept === BpmoConcept.CompoundActivity) {
     const startEvent = elementFactory.createShape({
       type: "bpmn:StartEvent",
       x: 40,
@@ -256,6 +277,33 @@ function newOperationShape(e: any) {
       parent: shape,
     });
     return [shape, startEvent];
+  }
+
+  if (bpmoConcept === BpmoConcept.Template) {
+    const rpaTemplate = rpaTemplates[operation];
+    if (!rpaTemplate || !rpaTemplate.templatePlaceholders) {
+      return shape;
+    }
+
+    const shapes = [shape];
+
+    for (let i = 0; i < rpaTemplate.templatePlaceholders.length; i++) {
+      const placeholder = rpaTemplate.templatePlaceholders[i];
+      const shapeOptionsStartEvent = {
+        type: "bpmn:StartEvent",
+        businessObject: bpmnFactory.create("bpmn:StartEvent", {
+          name: placeholder,
+          "rpa:operation": placeholder,
+        }),
+        x: 40,
+        y: 82 + i * 100,
+        parent: shape,
+      };
+      const startEvent = elementFactory.createShape(shapeOptionsStartEvent);
+      shapes.push(startEvent);
+    }
+
+    return shapes;
   }
 
   return shape;

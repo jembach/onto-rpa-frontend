@@ -15,6 +15,7 @@ interface BotModel {
   model: string;
   processTree: ProcessTree;
   accessedData?: RpaDataRelation[];
+  templatePlaceholders?: string[];
 }
 
 export interface ProcessTree {

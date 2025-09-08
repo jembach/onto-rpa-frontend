@@ -4,7 +4,7 @@
   >
     <div class="flex flex-col justify-center h-full">
       <div class="w-full text-center">
-        {{ template.name || template._id }}
+        {{ template.label || template.id }}
       </div>
     </div>
   </div>
@@ -12,19 +12,15 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import BotModel from "../../../interfaces/BotModel";
+import { RpaTemplate } from "../../../interfaces/RpaOperation";
+
 export default defineComponent({
   name: "bot-template-container-card",
   props: {
     template: {
-      type: Object as PropType<BotModel>,
+      type: Object as PropType<RpaTemplate>,
       required: true,
     },
-  },
-  data() {
-    return {
-      explanationPosition: "bottom",
-    };
   },
   components: {},
 });
