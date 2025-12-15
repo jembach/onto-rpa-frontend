@@ -4,7 +4,7 @@
   >
     <div class="flex flex-col justify-center h-full">
       <div class="w-full text-center">
-        {{ template.label || template.id }}
+        {{ templateMethod.label || templateMethod.id }}
       </div>
     </div>
   </div>
@@ -12,13 +12,13 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { RpaTemplate } from "../../../interfaces/RpaOperation";
+import { RpaReuseTemplateMethod } from "../../../../interfaces/RpaOperation";
 
 export default defineComponent({
-  name: "bot-template-container-card",
+  name: "bot-template-method-container-card",
   props: {
-    template: {
-      type: Object as PropType<RpaTemplate>,
+    templateMethod: {
+      type: Object as PropType<RpaReuseTemplateMethod>,
       required: true,
     },
   },

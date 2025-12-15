@@ -11,11 +11,15 @@ export enum RpaDataResourceAccessType {
   IMPLICITLYREADS = "implicitlyReads",
   DIRECTLYWRITES = "directlyWrites",
   IMPLICITLYWRITES = "implicitlyWrites",
+  PROVIDES = "provides",
+  TAKES = "takes",
 }
 
 export enum RpaTransientDataAccessType {
   REQUIRES = "requires",
   YIELDS = "yields",
+  TRANSFORMS_FROM = "transformsFrom",
+  TRANSFORMS_TO = "transformsTo",
 }
 
 export interface RpaBaseElement {
@@ -40,6 +44,16 @@ export interface RpaBaseInstance<RpaConcept> extends RpaBaseElement {
 export interface RpaDataRelation {
   type: RpaDataResourceAccessType | RpaTransientDataAccessType;
   data: RpaData;
+}
+
+export interface RpaTransientDataRelation {
+  type: RpaTransientDataAccessType;
+  data: RpaTransientData;
+}
+
+export interface RpaDataResourceRelation {
+  type: RpaDataResourceAccessType;
+  data: RpaDataResource;
 }
 
 // ==============
@@ -81,6 +95,29 @@ export interface RpaDataConcept extends RpaBaseConcept<RpaDataType> {}
 
 export interface RpaData extends RpaBaseInstance<RpaDataConcept> {}
 
+// ========
+// RPA TRANSIENT DATA
+
+export interface RpaTransientDataType
+  extends RpaBaseType<RpaTransientDataType> {}
+
+export interface RpaTransientDataConcept
+  extends RpaBaseConcept<RpaTransientDataType> {}
+
+export interface RpaTransientData
+  extends RpaBaseInstance<RpaTransientDataConcept> {}
+
+// ========
+// RPA DATA RESOURCE
+
+export interface RpaDataResourceType extends RpaBaseType<RpaDataResourceType> {}
+
+export interface RpaDataResourceConcept
+  extends RpaBaseConcept<RpaDataResourceType> {}
+
+export interface RpaDataResource
+  extends RpaBaseInstance<RpaDataResourceConcept> {}
+
 // ======================
 // RPA CONTEXT CONTAINERS
 
@@ -90,19 +127,57 @@ export interface RpaContextContainer extends RpaBaseElement {
 }
 
 // ======================
-// RPA MODULE
+// RPA FACADE
 
-export interface RpaModule extends RpaBaseElement {
+export interface RpaReuseFacade extends RpaBaseElement {
   automates: RpaSoftware[];
-  accessedData: RpaDataRelation[];
+  accessedData: (RpaDataResourceRelation | RpaTransientDataRelation)[];
 }
 
 // ======================
-// RPA TEMPLATE
-
-export interface RpaTemplate extends RpaBaseElement {
+// RPA DECORATOR
+export interface RpaReuseDecorator extends RpaBaseElement {
   automates: RpaSoftware[];
-  templatePlaceholders: string[];
+  accessedData: (RpaDataResourceRelation | RpaTransientDataRelation)[];
+  injectionPoints: {
+    id: string;
+    label: string;
+    accessedData: (RpaDataResourceRelation | RpaTransientDataRelation)[];
+  }[];
+}
+
+// ======================
+// RPA PROXY
+
+export interface RpaReuseProxy extends RpaBaseElement {
+  automates: RpaSoftware[];
+  accessedData: (RpaDataResourceRelation | RpaTransientDataRelation)[];
+}
+
+// ======================
+// RPA CHAIN OF RESPONSIBILITY
+
+export interface RpaReuseChainOfResponsibility extends RpaBaseElement {
+  automates: RpaSoftware[];
+  accessedData: (RpaDataResourceRelation | RpaTransientDataRelation)[];
+  injectionPoints: {
+    id: string;
+    label: string;
+    accessedData: (RpaDataResourceRelation | RpaTransientDataRelation)[];
+  }[];
+}
+
+// ======================
+// RPA TEMPLATE METHOD
+
+export interface RpaReuseTemplateMethod extends RpaBaseElement {
+  automates: RpaSoftware[];
+  accessedData: (RpaDataResourceRelation | RpaTransientDataRelation)[];
+  injectionPoints: {
+    id: string;
+    label: string;
+    accessedData: (RpaDataResourceRelation | RpaTransientDataRelation)[];
+  }[];
 }
 
 // ============
@@ -132,7 +207,21 @@ export type RpaDataTaxonomy = GenericRpaTaxonomy<
   RpaData
 >;
 
+export type RpaDataResourceTaxonomy = GenericRpaTaxonomy<
+  RpaDataResourceType,
+  RpaDataResourceConcept,
+  RpaDataResource
+>;
+
+export type RpaTransientDataTaxonomy = GenericRpaTaxonomy<
+  RpaTransientDataType,
+  RpaTransientDataConcept,
+  RpaTransientData
+>;
+
 export type RpaTaxonomy =
   | RpaOperationTaxonomy
   | RpaSoftwareTaxonomy
-  | RpaDataTaxonomy;
+  | RpaDataTaxonomy
+  | RpaDataResourceTaxonomy
+  | RpaTransientDataTaxonomy;

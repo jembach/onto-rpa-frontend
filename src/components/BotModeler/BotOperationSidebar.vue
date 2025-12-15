@@ -38,18 +38,50 @@
         <label class="label cursor-pointer justify-start gap-1">
           <input
             type="checkbox"
-            v-model="showRpaModule"
+            v-model="showRpaReuseFacade"
             class="checkbox checkbox-sm"
           />
-          <span class="truncate">RPA Module</span>
+          <span class="truncate">Reuse Facade</span>
         </label>
         <label class="label cursor-pointer justify-start gap-1">
           <input
             type="checkbox"
-            v-model="showRpaTemplate"
+            v-model="showRpaReuseProxy"
             class="checkbox checkbox-sm"
           />
-          <span class="truncate">RPA Template</span>
+          <span class="truncate">Reuse Proxy</span>
+        </label>
+        <label class="label cursor-pointer justify-start gap-1">
+          <input
+            type="checkbox"
+            v-model="showReuseDecorator"
+            class="checkbox checkbox-sm"
+          />
+          <span class="truncate">Reuse Decorator</span>
+        </label>
+        <label class="label cursor-pointer justify-start gap-1">
+          <input
+            type="checkbox"
+            v-model="showReuseChainOfResponsibility"
+            class="checkbox checkbox-sm"
+          />
+          <span class="truncate">Reuse Chain of Responsibility</span>
+        </label>
+        <label class="label cursor-pointer justify-start gap-1">
+          <input
+            type="checkbox"
+            v-model="showReuseTemplateMethod"
+            class="checkbox checkbox-sm"
+          />
+          <span class="truncate">Reuse Template Method</span>
+        </label>
+        <label class="label cursor-pointer justify-start gap-1">
+          <input
+            type="checkbox"
+            v-model="showReuseArtefacts"
+            class="checkbox checkbox-sm"
+          />
+          <span class="truncate">Reuse Artefacts</span>
         </label>
       </fieldset>
     </div>
@@ -80,20 +112,47 @@
           @dragstart="$emit('drag-operation', $event)"
           @click="$emit('click-operation', $event)"
         />
-        <BotModuleTree
-          v-if="showRpaModule"
+        <ReuseOperationFacadeTree
+          v-if="showRpaReuseFacade"
           :searchTerm="searchTerm"
           @drag-operation="$emit('drag-operation', $event)"
           @click-operation="$emit('click-operation', $event)"
           @tag-clicked="filterForTag"
-        ></BotModuleTree>
-        <BotTemplateTree
-          v-if="showRpaTemplate"
+        ></ReuseOperationFacadeTree>
+        <ReuseOperationProxyTree
+          v-if="showRpaReuseProxy"
           :searchTerm="searchTerm"
           @drag-operation="$emit('drag-operation', $event)"
           @click-operation="$emit('click-operation', $event)"
           @tag-clicked="filterForTag"
-        ></BotTemplateTree>
+        ></ReuseOperationProxyTree>
+        <ReuseOperationDecoratorTree
+          v-if="showReuseDecorator"
+          :searchTerm="searchTerm"
+          @drag-operation="$emit('drag-operation', $event)"
+          @click-operation="$emit('click-operation', $event)"
+          @tag-clicked="filterForTag"
+        ></ReuseOperationDecoratorTree>
+        <ReuseOperationChainOfResponsibilityTree
+          v-if="showReuseChainOfResponsibility"
+          :searchTerm="searchTerm"
+          @drag-operation="$emit('drag-operation', $event)"
+          @click-operation="$emit('click-operation', $event)"
+          @tag-clicked="filterForTag"
+        ></ReuseOperationChainOfResponsibilityTree>
+        <ReuseOperationTemplateMethodTree
+          v-if="showReuseTemplateMethod"
+          :searchTerm="searchTerm"
+          @drag-operation="$emit('drag-operation', $event)"
+          @click-operation="$emit('click-operation', $event)"
+          @tag-clicked="filterForTag"
+        ></ReuseOperationTemplateMethodTree>
+        <ReuseArtefactsTree
+          v-if="showReuseArtefacts"
+          @drag-operation="$emit('drag-operation', $event)"
+          @click-operation="$emit('click-operation', $event)"
+          @tag-clicked="filterForTag"
+        ></ReuseArtefactsTree>
       </div>
     </div>
   </div>
@@ -105,8 +164,12 @@ import { rpaContextContainers } from "../../utils/ontologyParser";
 import BotOperationTree from "./BotOperationSidebar/BotOperationTree.vue";
 import BotDataTree from "./BotOperationSidebar/BotDataTree.vue";
 import BotContextContainerCard from "./BotOperationSidebar/BotContextContainerCard.vue";
-import BotModuleTree from "./BotOperationSidebar/BotModuleTree.vue";
-import BotTemplateTree from "./BotOperationSidebar/BotTemplateTree.vue";
+import ReuseOperationFacadeTree from "./BotOperationSidebar/ReuseOperationFacade/ReuseOperationFacadeTree.vue";
+import ReuseOperationProxyTree from "./BotOperationSidebar/ReuseOperationProxy/ReuseOperationProxyTree.vue";
+import ReuseOperationDecoratorTree from "./BotOperationSidebar/ReuseOperationDecorator/ReuseOperationDecoratorTree.vue";
+import ReuseOperationChainOfResponsibilityTree from "./BotOperationSidebar/ReuseOperationChainOfResponsibility/ReuseOperationChainOfResponsibilityTree.vue";
+import ReuseOperationTemplateMethodTree from "./BotOperationSidebar/ReuseOperationTemplateMethod/ReuseOperationTemplateMethodTree.vue";
+import ReuseArtefactsTree from "./BotOperationSidebar/ReuseArtefacts/ReuseArtefactsTree.vue";
 
 export default defineComponent({
   name: "bot-operation-sidebar",
@@ -119,8 +182,12 @@ export default defineComponent({
       showOperationTree: true,
       showDataTree: true,
       showContextContainers: true,
-      showRpaModule: true,
-      showRpaTemplate: true,
+      showRpaReuseFacade: true,
+      showRpaReuseProxy: true,
+      showReuseDecorator: true,
+      showReuseChainOfResponsibility: true,
+      showReuseTemplateMethod: true,
+      showReuseArtefacts: true,
     };
   },
   methods: {
@@ -135,8 +202,12 @@ export default defineComponent({
     BotOperationTree,
     BotDataTree,
     BotContextContainerCard,
-    BotModuleTree,
-    BotTemplateTree,
+    ReuseOperationFacadeTree,
+    ReuseOperationProxyTree,
+    ReuseOperationDecoratorTree,
+    ReuseOperationChainOfResponsibilityTree,
+    ReuseOperationTemplateMethodTree,
+    ReuseArtefactsTree,
   },
 });
 </script>

@@ -92,7 +92,7 @@ onMounted(async () => {
     toast.error("Could not load the requested bot model.");
     router.push({ name: "Overview" });
   }
-  modelMetricsCalculator = new BotModelMetricsCalculator(
+  modelMetricsCalculator = await BotModelMetricsCalculator.createInstance(
     botModel.value.processTree
   );
   updateMetrics();

@@ -36,12 +36,12 @@ const roundedValue = computed(() => {
   if (Number.isInteger(currentValue)) {
     return undefined;
   }
-  if (
-    Math.floor(currentValue) === currentValue ||
-    currentValue.toString().split(".")[1].length <= 2
-  ) {
-    return undefined;
-  }
+  // if (
+  //   Math.floor(currentValue) === currentValue ||
+  //   currentValue.toString().split(".")[1].length <= 2
+  // ) {
+  //   return undefined;
+  // }
 
   // return Math.round(props.modelMetric.value);
   return currentValue.toFixed(2);

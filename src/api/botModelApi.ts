@@ -9,22 +9,26 @@ const BASE_API_URL =
   import.meta.env.VITE_BASE_API_URL ?? "http://localhost:3001/api";
 
 export default {
-  async getBotModels(type?: BotModelType): Promise<BotModel[]> {
+  async getBotModels<IBotModel extends BotModel>(
+    type?: BotModelType
+  ): Promise<IBotModel[]> {
     const res = await axios.get(`${BASE_API_URL}/BotModels`, {
       params: {
         type,
       },
     });
 
-    const botModels: BotModel[] = (res.data as BotModel[]).map((botModel) =>
+    const botModels: IBotModel[] = (res.data as IBotModel[]).map((botModel) =>
       parseBotModel(botModel)
     );
     return botModels;
   },
-  async getBotModel(botModelId: string): Promise<BotModel> {
+  async getBotModel<IBotModel extends BotModel>(
+    botModelId: string
+  ): Promise<IBotModel> {
     const res = await axios.get(`${BASE_API_URL}/BotModels/${botModelId}`);
 
-    return parseBotModel(res.data as BotModel);
+    return parseBotModel(res.data as IBotModel);
   },
   async getLinkedBotModel(
     botModelId: string,

@@ -1,23 +1,39 @@
 import botModelApi from "../api/botModelApi";
-import { BotModelType } from "../interfaces/BotModel";
+import {
+  BotModelChainOfResponsibility,
+  BotModelDecorator,
+  BotModelFacade,
+  BotModelProxy,
+  BotModelTemplateMethod,
+  BotModelType,
+} from "../interfaces/BotModel";
 import {
   RpaBaseElement,
   RpaBaseType,
-  RpaData,
-  RpaDataType,
+  RpaDataResource,
+  RpaDataResourceType,
+  RpaTransientData,
+  RpaTransientDataType,
   RpaOperation,
   RpaOperationType,
   RpaSoftware,
   RpaSoftwareType,
   RpaOperationTaxonomy,
   RpaSoftwareTaxonomy,
-  RpaDataTaxonomy,
+  RpaDataResourceTaxonomy,
+  RpaTransientDataTaxonomy,
   RpaTaxonomy,
   RpaContextContainer,
   RpaDataResourceAccessType,
   RpaTransientDataAccessType,
-  RpaModule,
-  RpaTemplate,
+  RpaReuseFacade,
+  RpaReuseProxy,
+  RpaReuseDecorator,
+  RpaReuseChainOfResponsibility,
+  RpaReuseTemplateMethod,
+  RpaDataTaxonomy,
+  RpaDataType,
+  RpaData,
 } from "../interfaces/RpaOperation";
 import rpaOperationsOntology from "../resources/rpa-operations.json";
 
@@ -39,10 +55,24 @@ export const rpaData: RpaDataTaxonomy = {
   individuals: {},
 };
 
+export const rpaTransientData: RpaTransientDataTaxonomy = {
+  types: {},
+  concepts: {},
+  individuals: {},
+};
+
+export const rpaDataResource: RpaDataResourceTaxonomy = {
+  types: {},
+  concepts: {},
+  individuals: {},
+};
+
 const RPA_IRI =
   "http://www.semanticweb.org/maximilian.voelker/ontologies/rpa-operations";
 const RPA_OPERATION_ROOT_IRI = RPA_IRI + "#" + "rpa-operation";
 const RPA_DATA_ROOT_IRI = "http://cos.ontoware.org/cso#data";
+const RPA_TRANSIENT_DATA_ROOT_IRI = RPA_IRI + "#" + "transient-data";
+const RPA_DATA_RESOURCE_ROOT_IRI = RPA_IRI + "#" + "data-resource";
 const RPA_SOFTWARE_ROOT_IRI = "http://cos.ontoware.org/cso#software";
 const RPA_CONTEXT_CONTAINER_ROOT_IRI = RPA_IRI + "#" + "rpa-context-container";
 const RPA_CONTEXT_CONTAINER_SETUP_RELATION_IRI =
@@ -87,6 +117,14 @@ const RPA_DATA_ROOT_ELEMENT: RpaBaseElement = {
   id: getIdFromIri(RPA_DATA_ROOT_IRI),
   iri: RPA_DATA_ROOT_IRI,
 };
+const RPA_TRANSIENT_DATA_ROOT_ELEMENT: RpaBaseElement = {
+  id: getIdFromIri(RPA_TRANSIENT_DATA_ROOT_IRI),
+  iri: RPA_TRANSIENT_DATA_ROOT_IRI,
+};
+const RPA_DATA_RESOURCE_ROOT_ELEMENT: RpaBaseElement = {
+  id: getIdFromIri(RPA_DATA_RESOURCE_ROOT_IRI),
+  iri: RPA_DATA_RESOURCE_ROOT_IRI,
+};
 const RPA_SOFTWARE_ROOT_ELEMENT: RpaBaseElement = {
   id: getIdFromIri(RPA_SOFTWARE_ROOT_IRI),
   iri: RPA_SOFTWARE_ROOT_IRI,
@@ -105,7 +143,11 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
     if (operation[SUBCLASS_IRI]?.[0]["@id"] === superElement.iri) {
       // if the current element is a subclass of the currently examined class, add it as new type
       const newRpaType: RpaBaseType<
-        RpaOperationType | RpaSoftwareType | RpaDataType
+        | RpaOperationType
+        | RpaSoftwareType
+        | RpaDataType
+        | RpaDataResourceType
+        | RpaTransientDataType
       > = {
         id: currentId,
         iri: operation["@id"],
@@ -132,7 +174,12 @@ function exploreTree(superElement: RpaBaseElement, rpaTree: RpaTaxonomy): void {
         // in case the concept of the current indiv. was already added to types, move it to concepts
         convertTypeToConcept(superElement.id, rpaTree);
       }
-      const newRpaIndividual: RpaOperation | RpaSoftware | RpaData = {
+      const newRpaIndividual:
+        | RpaOperation
+        | RpaSoftware
+        | RpaData
+        | RpaDataResource
+        | RpaTransientData = {
         id: currentId,
         iri: operation["@id"],
         concept: rpaTree.concepts[superElement.id],
@@ -231,44 +278,127 @@ function parseContextContainers(): Record<string, RpaContextContainer> {
   return contextContainers;
 }
 
-async function parseModules(): Promise<Record<string, RpaModule>> {
-  const rpaModules: Record<string, RpaModule> = {};
+async function parseRpaReuseFacade(): Promise<Record<string, RpaReuseFacade>> {
+  const rpaReuseFacades: Record<string, RpaReuseFacade> = {};
 
-  const modules = await botModelApi.getBotModels(BotModelType.MODULE);
+  const facades = await botModelApi.getBotModels<BotModelFacade>(
+    BotModelType.FACADE
+  );
 
-  modules.forEach((module) => {
-    const rpaModule: RpaModule = {
-      id: module._id!,
-      iri: extendId(module.name),
-      accessedData: module.accessedData ?? [],
+  facades.forEach((facade) => {
+    const rpaFacade: RpaReuseFacade = {
+      id: facade._id!,
+      iri: extendId(facade.name),
+      accessedData: facade.accessedData ?? [],
       automates: [],
       comment: "",
-      label: module.name,
+      label: facade.name,
     };
-    rpaModules[module.name] = rpaModule;
+    rpaReuseFacades[facade._id!] = rpaFacade;
   });
 
-  return rpaModules;
+  return rpaReuseFacades;
 }
 
-async function parseTemplates(): Promise<Record<string, RpaTemplate>> {
-  const rpaTemplates: Record<string, RpaTemplate> = {};
+async function parseRpaReuseProxy(): Promise<Record<string, RpaReuseProxy>> {
+  const rpaReuseProxies: Record<string, RpaReuseProxy> = {};
 
-  const templates = await botModelApi.getBotModels(BotModelType.TEMPLATE);
+  const proxies = await botModelApi.getBotModels<BotModelProxy>(
+    BotModelType.PROXY
+  );
 
-  templates.forEach((template) => {
-    const rpaModule: RpaTemplate = {
-      id: template._id!,
-      iri: extendId(template.name),
-      templatePlaceholders: template.templatePlaceholders ?? [],
+  proxies.forEach((proxy) => {
+    const rpaProxy: RpaReuseProxy = {
+      id: proxy._id!,
+      iri: extendId(proxy.name),
+      accessedData: proxy.accessedData ?? [],
       automates: [],
       comment: "",
-      label: template.name,
+      label: proxy.name,
     };
-    rpaTemplates[template.name] = rpaModule;
+    rpaReuseProxies[proxy._id!] = rpaProxy;
   });
 
-  return rpaTemplates;
+  return rpaReuseProxies;
+}
+
+async function parseRpaReuseDecorator(): Promise<
+  Record<string, RpaReuseDecorator>
+> {
+  const rpaReuseDecorators: Record<string, RpaReuseDecorator> = {};
+
+  const decorators = await botModelApi.getBotModels<BotModelDecorator>(
+    BotModelType.DECORATOR
+  );
+
+  decorators.forEach((decorator) => {
+    const rpaDecorator: RpaReuseDecorator = {
+      id: decorator._id!,
+      iri: extendId(decorator.name),
+      accessedData: decorator.accessedData ?? [],
+      injectionPoints: decorator.injectionPoints ?? [],
+      automates: [],
+      comment: "",
+      label: decorator.name,
+    };
+    rpaReuseDecorators[decorator._id!] = rpaDecorator;
+  });
+
+  return rpaReuseDecorators;
+}
+
+async function parseRpaReuseChainOfResponsibility(): Promise<
+  Record<string, RpaReuseChainOfResponsibility>
+> {
+  const rpaReuseChainOfResponsibilities: Record<
+    string,
+    RpaReuseChainOfResponsibility
+  > = {};
+
+  const chains = await botModelApi.getBotModels<BotModelChainOfResponsibility>(
+    BotModelType.CHAIN_OF_RESPONSIBILITY
+  );
+
+  chains.forEach((chain) => {
+    const rpaChain: RpaReuseChainOfResponsibility = {
+      id: chain._id!,
+      iri: extendId(chain.name),
+      accessedData: chain.accessedData ?? [],
+      injectionPoints: chain.injectionPoints ?? [],
+      automates: [],
+      comment: "",
+      label: chain.name,
+    };
+    rpaReuseChainOfResponsibilities[chain._id!] = rpaChain;
+  });
+
+  return rpaReuseChainOfResponsibilities;
+}
+
+async function parseTemplateMethods(): Promise<
+  Record<string, RpaReuseTemplateMethod>
+> {
+  const rpaReuseTemplateMethods: Record<string, RpaReuseTemplateMethod> = {};
+
+  const templateMethods =
+    await botModelApi.getBotModels<BotModelTemplateMethod>(
+      BotModelType.TEMPLATE_METHOD
+    );
+
+  templateMethods.forEach((templateMethod) => {
+    const rpaReuseTemplateMethod: RpaReuseTemplateMethod = {
+      id: templateMethod._id!,
+      iri: extendId(templateMethod.name),
+      accessedData: templateMethod.accessedData ?? [],
+      injectionPoints: templateMethod.injectionPoints ?? [],
+      automates: [],
+      comment: "",
+      label: templateMethod.name,
+    };
+    rpaReuseTemplateMethods[templateMethod._id!] = rpaReuseTemplateMethod;
+  });
+
+  return rpaReuseTemplateMethods;
 }
 
 function getContextContainerSequence(firstStepIri: string): RpaOperation[] {
@@ -296,6 +426,10 @@ function getContextContainerSequence(firstStepIri: string): RpaOperation[] {
 
 // Load Data taxonomy (has no relation to other taxonomies)
 exploreTree(RPA_DATA_ROOT_ELEMENT, rpaData);
+// Load Transient Data taxonomy (has no relation to other taxonomies)
+exploreTree(RPA_TRANSIENT_DATA_ROOT_ELEMENT, rpaTransientData);
+// Load Data Resource taxonomy (has no relation to other taxonomies)
+exploreTree(RPA_DATA_RESOURCE_ROOT_ELEMENT, rpaDataResource);
 // Load Software taxonomy (has only relations to data)
 exploreTree(RPA_SOFTWARE_ROOT_ELEMENT, rpaSoftware);
 // Load Operations taxonomy
@@ -304,20 +438,50 @@ exploreTree(RPA_OPERATION_ROOT_ELEMENT, rpaOperations);
 export const rpaContextContainers: Record<string, RpaContextContainer> =
   parseContextContainers();
 
-export const getRpaModules = async (): Promise<Record<string, RpaModule>> => {
-  if (!(getRpaModules as any)._cache) {
-    (getRpaModules as any)._cache = await parseModules();
+export const getRpaReuseFacades = async (): Promise<
+  Record<string, RpaReuseFacade>
+> => {
+  if (!(getRpaReuseFacades as any)._cache) {
+    (getRpaReuseFacades as any)._cache = await parseRpaReuseFacade();
   }
-  return (getRpaModules as any)._cache;
+  return (getRpaReuseFacades as any)._cache;
 };
 
-export const getRpaTemplates = async (): Promise<
-  Record<string, RpaTemplate>
+export const getRpaReuseProxies = async (): Promise<
+  Record<string, RpaReuseProxy>
 > => {
-  if (!(getRpaTemplates as any)._cache) {
-    (getRpaTemplates as any)._cache = await parseTemplates();
+  if (!(getRpaReuseProxies as any)._cache) {
+    (getRpaReuseProxies as any)._cache = await parseRpaReuseProxy();
   }
-  return (getRpaTemplates as any)._cache;
+  return (getRpaReuseProxies as any)._cache;
+};
+
+export const getRpaReuseDecorators = async (): Promise<
+  Record<string, RpaReuseDecorator>
+> => {
+  if (!(getRpaReuseDecorators as any)._cache) {
+    (getRpaReuseDecorators as any)._cache = await parseRpaReuseDecorator();
+  }
+  return (getRpaReuseDecorators as any)._cache;
+};
+
+export const getRpaReuseChainOfResponsibilities = async (): Promise<
+  Record<string, RpaReuseChainOfResponsibility>
+> => {
+  if (!(getRpaReuseChainOfResponsibilities as any)._cache) {
+    (getRpaReuseChainOfResponsibilities as any)._cache =
+      await parseRpaReuseChainOfResponsibility();
+  }
+  return (getRpaReuseChainOfResponsibilities as any)._cache;
+};
+
+export const getRpaReuseTemplateMethods = async (): Promise<
+  Record<string, RpaReuseTemplateMethod>
+> => {
+  if (!(getRpaReuseTemplateMethods as any)._cache) {
+    (getRpaReuseTemplateMethods as any)._cache = await parseTemplateMethods();
+  }
+  return (getRpaReuseTemplateMethods as any)._cache;
 };
 
 function convertTypeToConcept(typeKey: string, rpaTree: RpaTaxonomy) {
@@ -335,6 +499,12 @@ function extendId(id: string): string {
 }
 
 export function getOperationBranch(operation: string): string[] {
+  console.log(operation);
+  // For reuse operations not defined in ontology, just return operation itself
+  if (!rpaOperations.individuals[operation]) {
+    return [operation];
+  }
+
   var currentConcept: string | undefined = operation;
   // Add operation itself (leaf) to branch list
   const branch = [operation];

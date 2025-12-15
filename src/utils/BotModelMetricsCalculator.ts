@@ -4,10 +4,25 @@ import {
   BotModelMetrics,
   initialBotModelMetrics,
 } from "../interfaces/BotModelMetrics";
-import { RpaDataResourceAccessType } from "../interfaces/RpaOperation";
+import {
+  RpaDataResourceAccessType,
+  RpaDataTaxonomy,
+  RpaOperationTaxonomy,
+  RpaReuseChainOfResponsibility,
+  RpaReuseDecorator,
+  RpaReuseFacade,
+  RpaReuseProxy,
+  RpaReuseTemplateMethod,
+  RpaSoftwareTaxonomy,
+} from "../interfaces/RpaOperation";
 import analyzeContexts from "./abstractionContextAnalysis";
 import {
   getOperationBranch,
+  getRpaReuseChainOfResponsibilities,
+  getRpaReuseDecorators,
+  getRpaReuseFacades,
+  getRpaReuseProxies,
+  getRpaReuseTemplateMethods,
   rpaData,
   rpaOperations,
   rpaSoftware,
@@ -18,18 +33,62 @@ class BotModelMetricsCalculator {
   botContext: Record<string, OperationContext>;
   operationBranches: Map<string, string[]>;
   modelMetrics: BotModelMetrics = { ...initialBotModelMetrics };
+  rpaReuseFacades: Record<string, RpaReuseFacade>;
+  rpaReuseProxies: Record<string, RpaReuseProxy>;
+  rpaReuseDecorators: Record<string, RpaReuseDecorator>;
+  rpaReuseTemplateMethods: Record<string, RpaReuseTemplateMethod>;
+  rpaReuseChainOfResponsibilities: Record<
+    string,
+    RpaReuseChainOfResponsibility
+  >;
+  rpaOperations: RpaOperationTaxonomy;
+  rpaSoftware: RpaSoftwareTaxonomy;
+  rpaData: RpaDataTaxonomy;
 
-  //   ontologyOperations = rpaOperations;
-  //   ontologySoftware = rpaSoftware;
-  //   ontologyData = rpaData;
-
-  constructor(processTree: ProcessTree) {
+  constructor(
+    processTree: ProcessTree,
+    concepts: {
+      rpaOperations: RpaOperationTaxonomy;
+      rpaSoftware: RpaSoftwareTaxonomy;
+      rpaData: RpaDataTaxonomy;
+      rpaReuseFacades: Record<string, RpaReuseFacade>;
+      rpaReuseProxies: Record<string, any>;
+      rpaReuseDecorators: Record<string, any>;
+      rpaReuseTemplateMethods: Record<string, any>;
+      rpaReuseChainOfResponsibilities: Record<string, any>;
+    }
+  ) {
     this.processTree = processTree;
     this.botContext = analyzeContexts(processTree);
     this.operationBranches = this.getBranchesForProcess();
+    this.rpaOperations = concepts.rpaOperations;
+    this.rpaSoftware = concepts.rpaSoftware;
+    this.rpaData = concepts.rpaData;
+    this.rpaReuseFacades = concepts.rpaReuseFacades;
+    this.rpaReuseProxies = concepts.rpaReuseProxies;
+    this.rpaReuseDecorators = concepts.rpaReuseDecorators;
+    this.rpaReuseTemplateMethods = concepts.rpaReuseTemplateMethods;
+    this.rpaReuseChainOfResponsibilities =
+      concepts.rpaReuseChainOfResponsibilities;
   }
 
-  public getModelMetrics(): BotModelMetrics {
+  static async createInstance(
+    processTree: ProcessTree
+  ): Promise<BotModelMetricsCalculator> {
+    return new BotModelMetricsCalculator(processTree, {
+      rpaOperations,
+      rpaSoftware,
+      rpaData,
+      rpaReuseFacades: await getRpaReuseFacades(),
+      rpaReuseProxies: await getRpaReuseProxies(),
+      rpaReuseDecorators: await getRpaReuseDecorators(),
+      rpaReuseTemplateMethods: await getRpaReuseTemplateMethods(),
+      rpaReuseChainOfResponsibilities:
+        await getRpaReuseChainOfResponsibilities(),
+    });
+  }
+
+  getModelMetrics(): BotModelMetrics {
     this.modelMetrics.no_operations.value = this.getNumberOfOperations();
     this.modelMetrics.no_automationOperations.value =
       this.getNumberOfAutomationOperations();
@@ -87,7 +146,7 @@ class BotModelMetricsCalculator {
     Object.keys(this.processTree.nodeInfo).forEach((node) => {
       // Get parent concepts of current node up to root
       const parentConcepts = this.operationBranches.get(
-        this.processTree.nodeInfo[node].concept
+        this.processTree.nodeInfo[node].implementation
       );
       if (parentConcepts!.includes("automation-operation")) {
         automationOperations++;
@@ -110,7 +169,7 @@ class BotModelMetricsCalculator {
     Object.keys(this.processTree.nodeInfo).forEach((node) => {
       // Get parent concepts of current node up to root
       const parentConcepts = this.operationBranches.get(
-        this.processTree.nodeInfo[node].concept
+        this.processTree.nodeInfo[node].implementation
       );
       if (parentConcepts!.includes("control-flow-operation")) {
         decisions++;
@@ -127,13 +186,13 @@ class BotModelMetricsCalculator {
 
     this.computeNestingDepthForNode(this.processTree.tree, nestingDepthMap, 0);
 
-    if (
-      nestingDepthMap.size !== Object.keys(this.processTree.nodeInfo).length
-    ) {
-      throw new Error(
-        "Nesting depth map size does not match number of nodes in process tree"
-      );
-    }
+    // if (
+    //   nestingDepthMap.size !== Object.keys(this.processTree.nodeInfo).length
+    // ) {
+    //   throw new Error(
+    //     "Nesting depth map size does not match number of nodes in process tree"
+    //   );
+    // }
 
     const nestingDepthMax = Math.max(...nestingDepthMap.values());
     const nestingDepthTotal = Array.from(nestingDepthMap.values()).reduce(
@@ -189,8 +248,10 @@ class BotModelMetricsCalculator {
       }
       const transformedVariables = this.processTree.nodeInfo[
         node
-      ].variableInput!.filter((variable) =>
-        this.processTree.nodeInfo[node].variableOutput!.includes(variable)
+      ].variableInput!.filter(({ variable }) =>
+        this.processTree.nodeInfo[node].variableOutput!.some(
+          ({ variable: v }) => v === variable
+        )
       );
       variableTransformations += transformedVariables.length;
     });
@@ -208,13 +269,16 @@ class BotModelMetricsCalculator {
     for (const node in this.processTree.nodeInfo) {
       const nodeInfo = this.processTree.nodeInfo[node];
       // Check if node has (i) a data resource input and (ii) is an operation that actually reads data
-      if (!nodeInfo.dataResourceInput) {
+      if (nodeInfo.dataResourceInput.length === 0) {
         continue;
       }
-      const rpaOperation = rpaOperations.individuals[nodeInfo.concept];
+
+      const accessedData = this.getOperationAccessedData(
+        nodeInfo.implementation
+      );
+
       if (
-        rpaOperation.accessedData &&
-        rpaOperation.accessedData.find(
+        accessedData.find(
           (access) =>
             access.type === RpaDataResourceAccessType.DIRECTLYREADS ||
             access.type === RpaDataResourceAccessType.IMPLICITLYREADS
@@ -233,13 +297,16 @@ class BotModelMetricsCalculator {
     for (const node in this.processTree.nodeInfo) {
       const nodeInfo = this.processTree.nodeInfo[node];
       // Check if node has (i) a data resource output and (ii) is an operation that actually writes data
-      if (!nodeInfo.dataResourceOutput) {
+      if (nodeInfo.dataResourceOutput.length === 0) {
         continue;
       }
-      const rpaOperation = rpaOperations.individuals[nodeInfo.concept];
+
+      const accessedData = this.getOperationAccessedData(
+        nodeInfo.implementation
+      );
+
       if (
-        rpaOperation.accessedData &&
-        rpaOperation.accessedData.find(
+        accessedData.find(
           (access) =>
             access.type === RpaDataResourceAccessType.DIRECTLYWRITES ||
             access.type === RpaDataResourceAccessType.IMPLICITLYWRITES
@@ -389,7 +456,7 @@ class BotModelMetricsCalculator {
     const branches = new Map<string, string[]>();
 
     for (const nodeId in this.processTree.nodeInfo) {
-      uniqueConcepts.add(this.processTree.nodeInfo[nodeId].concept);
+      uniqueConcepts.add(this.processTree.nodeInfo[nodeId].implementation);
     }
 
     uniqueConcepts.forEach((concept) => {
@@ -397,6 +464,39 @@ class BotModelMetricsCalculator {
     });
 
     return branches;
+  }
+
+  private getOperationAccessedData(implementation: string) {
+    if (this.rpaOperations.individuals[implementation]) {
+      return this.rpaOperations.individuals[implementation].accessedData;
+    } else if (this.rpaReuseFacades[implementation]) {
+      return this.rpaReuseFacades[implementation].accessedData;
+    } else if (this.rpaReuseProxies[implementation]) {
+      return this.rpaReuseProxies[implementation].accessedData;
+    } else if (this.rpaReuseDecorators[implementation]) {
+      return [
+        ...this.rpaReuseDecorators[implementation].accessedData,
+        ...this.rpaReuseDecorators[implementation].injectionPoints.flatMap(
+          (ip) => ip.accessedData
+        ),
+      ];
+    } else if (this.rpaReuseTemplateMethods[implementation]) {
+      return [
+        ...this.rpaReuseTemplateMethods[implementation].accessedData,
+        ...this.rpaReuseTemplateMethods[implementation].injectionPoints.flatMap(
+          (ip) => ip.accessedData
+        ),
+      ];
+    } else if (this.rpaReuseChainOfResponsibilities[implementation]) {
+      return [
+        ...this.rpaReuseChainOfResponsibilities[implementation].accessedData,
+        ...this.rpaReuseChainOfResponsibilities[
+          implementation
+        ].injectionPoints.flatMap((ip) => ip.accessedData),
+      ];
+    }
+
+    return [];
   }
 }
 

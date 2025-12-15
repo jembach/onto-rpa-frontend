@@ -1,4 +1,6 @@
 import {
+  DataInputAssociation,
+  DataOutputAssociation,
   Definitions,
   EndEvent,
   FlowElement,
@@ -13,8 +15,9 @@ import {
   ProcessTreeNodeInfo,
   ProcessTree,
   ProcessTreeStructure,
+  ReuseArtefactSequenceInjectionPoint,
+  ProcessTreeNodeDataInfo,
 } from "../interfaces/BotModel";
-import YAML from "yaml";
 import {
   RpaDataRelation,
   RpaDataResourceAccessType,
@@ -22,6 +25,7 @@ import {
   RpaTransientDataAccessType,
 } from "../interfaces/RpaOperation";
 import { rpaData } from "./ontologyParser";
+import { BpmoConcept } from "../interfaces/BpmoConcepts";
 
 class BpmnModdleParser {
   processTreeNodes: Record<string, ProcessTreeNodeInfo> = {};
@@ -37,10 +41,6 @@ class BpmnModdleParser {
     const process: Process = bpmnModdle.rootElements[0] as Process;
     const parsedProcess = this.parseProcess(process)[0];
 
-    console.log(this.processTreeNodes);
-    //console.log(JSON.stringify(parsedProcess));
-    console.log(YAML.stringify(parsedProcess));
-
     const generatedProcessTree: ProcessTree = {
       tree: parsedProcess,
       nodeInfo: this.processTreeNodes,
@@ -48,7 +48,7 @@ class BpmnModdleParser {
       transientDataInfo: this.transientDataInfo,
     };
 
-    // console.log(generatedProcessTree);
+    console.log("Generated Process Tree:", generatedProcessTree);
 
     return generatedProcessTree;
   }
@@ -74,32 +74,7 @@ class BpmnModdleParser {
 
     const startEvent = startFlow.sourceRef as StartEvent;
 
-    for (const dataOutputAssociation of startEvent.dataOutputAssociations ??
-      []) {
-      const dataInformationObject = dataOutputAssociation.targetRef;
-      const rpaDataOperation = dataInformationObject.$attrs?.["rpa:operation"];
-
-      const dataIndividual = rpaData.individuals[rpaDataOperation];
-      const concept = this.determineDataIndividualConcept(rpaDataOperation);
-
-      if (!dataIndividual || !concept) {
-        throw new Error(
-          `Data object ${rpaDataOperation} at start event is not correctly configured with an RPA data concept.`
-        );
-      }
-
-      if (concept === "data-resource") {
-        interfaceData.push({
-          type: RpaDataResourceAccessType.IMPLICITLYREADS,
-          data: dataIndividual,
-        });
-      } else if (concept === "transient-data") {
-        interfaceData.push({
-          type: RpaTransientDataAccessType.REQUIRES,
-          data: dataIndividual,
-        });
-      }
-    }
+    interfaceData.push(...this.parseFlowNodeInterfaceData(startEvent));
 
     // Get Interface Data from all End Event
     const endEvents: EndEvent[] = process.flowElements.filter(
@@ -107,55 +82,133 @@ class BpmnModdleParser {
     ) as EndEvent[];
 
     for (const endEvent of endEvents) {
-      for (const dataInputAssociation of endEvent.dataInputAssociations ?? []) {
-        // @ts-expect-error untyped
-        const dataInformationObject = dataInputAssociation.sourceRef[0];
-        const rpaDataOperation =
-          dataInformationObject.$attrs?.["rpa:operation"];
-        const dataIndividual = rpaData.individuals[rpaDataOperation];
-        const concept = this.determineDataIndividualConcept(rpaDataOperation);
-
-        if (!dataIndividual || !concept) {
-          throw new Error(
-            `Data object ${rpaDataOperation} at end event is not correctly configured with an RPA data concept.`
-          );
-        }
-
-        if (concept === "data-resource") {
-          interfaceData.push({
-            type: RpaDataResourceAccessType.IMPLICITLYWRITES,
-            data: dataIndividual,
-          });
-        } else if (concept === "transient-data") {
-          interfaceData.push({
-            type: RpaTransientDataAccessType.YIELDS,
-            data: dataIndividual,
-          });
-        }
-      }
+      interfaceData.push(...this.parseFlowNodeInterfaceData(endEvent));
     }
-
-    console.log(interfaceData);
 
     return interfaceData;
   }
 
   /**
-   * Parse a bpmn-js model and returns all placeholder templates used in the model.
+   * Parses a bpmn-js FlowNode and returns the attached data objects and stores.
+   *
+   * @param flowNode - FlowNode object of a bpmn-js modeler
+   *
+   * @returns List of data objects and stores connected to the start event of type RpaDataRelation
+   */
+  parseFlowNodeInterfaceData(flowNode: {
+    dataInputAssociations?: DataInputAssociation[];
+    dataOutputAssociations?: DataOutputAssociation[];
+  }): RpaDataRelation[] {
+    const interfaceData: RpaDataRelation[] = [];
+
+    for (const dataOutputAssociation of flowNode.dataOutputAssociations ?? []) {
+      const dataInformationObject = dataOutputAssociation.targetRef;
+      const rpaDataRelation = dataOutputAssociation.$attrs?.["rpa:operation"];
+      const rpaDataType = dataInformationObject.$attrs?.["rpa:operation"];
+
+      const dataIndividual = rpaData.individuals[rpaDataType];
+
+      const concept = this.determineDataIndividualConcept(rpaDataType);
+      if (!dataIndividual || !concept) {
+        throw new Error(
+          `Data object ${rpaDataType} at start event is not correctly configured with an RPA data concept.`
+        );
+      }
+
+      if (concept === "data-resource") {
+        interfaceData.push({
+          type:
+            this.inverseDataRelationType(rpaDataRelation) ??
+            RpaDataResourceAccessType.TAKES,
+          data: dataIndividual,
+        });
+      } else if (concept === "transient-data") {
+        interfaceData.push({
+          type:
+            this.inverseDataRelationType(rpaDataRelation) ??
+            RpaTransientDataAccessType.REQUIRES,
+          data: dataIndividual,
+        });
+      }
+    }
+
+    for (const dataInputAssociation of flowNode.dataInputAssociations ?? []) {
+      // @ts-expect-error untyped
+      const dataInformationObject = dataInputAssociation.sourceRef[0];
+      const rpaDataRelation = dataInputAssociation.$attrs?.["rpa:operation"];
+      const rpaDataType = dataInformationObject.$attrs?.["rpa:operation"];
+      const dataIndividual = rpaData.individuals[rpaDataType];
+
+      const concept = this.determineDataIndividualConcept(rpaDataType);
+      if (!dataIndividual || !concept) {
+        throw new Error(
+          `Data object ${rpaDataType} at end event is not correctly configured with an RPA data concept.`
+        );
+      }
+
+      if (concept === "data-resource") {
+        interfaceData.push({
+          type:
+            this.inverseDataRelationType(rpaDataRelation) ??
+            RpaDataResourceAccessType.PROVIDES,
+          data: dataIndividual,
+        });
+      } else if (concept === "transient-data") {
+        interfaceData.push({
+          type:
+            this.inverseDataRelationType(rpaDataRelation) ??
+            RpaTransientDataAccessType.YIELDS,
+          data: dataIndividual,
+        });
+      }
+    }
+
+    return interfaceData;
+  }
+
+  inverseDataRelationType(
+    relationType: RpaDataResourceAccessType | RpaTransientDataAccessType
+  ): RpaDataResourceAccessType | RpaTransientDataAccessType | undefined {
+    switch (relationType) {
+      case RpaDataResourceAccessType.TAKES:
+        return RpaDataResourceAccessType.PROVIDES;
+      case RpaDataResourceAccessType.PROVIDES:
+        return RpaDataResourceAccessType.TAKES;
+      case RpaTransientDataAccessType.REQUIRES:
+        return RpaTransientDataAccessType.YIELDS;
+      case RpaTransientDataAccessType.YIELDS:
+        return RpaTransientDataAccessType.REQUIRES;
+      case RpaTransientDataAccessType.TRANSFORMS_FROM:
+        return RpaTransientDataAccessType.TRANSFORMS_FROM;
+      case RpaTransientDataAccessType.TRANSFORMS_TO:
+        return RpaTransientDataAccessType.TRANSFORMS_TO;
+      default:
+        return undefined;
+    }
+  }
+
+  /**
+   * Parse a bpmn-js model and returns all injection points used in the model.
    *
    * @param bpmnModdle - Definitions object of a bpmn-js modeler
    *
-   * @returns List of template operation IRIs used as placeholders in the model
+   * @returns List of template operation IRIs used as injection points in the model
    */
-  parseBpmnModdleUsedTemplates(bpmnModdle: Definitions): string[] {
+  parseBpmnModdleUsedInjectionPoints(
+    bpmnModdle: Definitions
+  ): ReuseArtefactSequenceInjectionPoint[] {
     const process: Process = bpmnModdle.rootElements[0] as Process;
 
     const subProcesses: SubProcess[] = process.flowElements.filter(
       (flowElement) =>
-        flowElement.$attrs?.["rpa:operation"] === "TemplatePlaceholder"
+        flowElement.$attrs?.["rpa:operation"] === "SequenceInjectionPoint"
     ) as SubProcess[];
 
-    return subProcesses.map((subProcess) => subProcess.name!);
+    return subProcesses.map((subProcess) => ({
+      id: subProcess.id,
+      label: subProcess.name || subProcess.id,
+      accessedData: this.parseFlowNodeInterfaceData(subProcess),
+    }));
   }
 
   /**
@@ -166,7 +219,9 @@ class BpmnModdleParser {
    * @returns [ProcessTree, last element in flow]
    */
   private parseProcess(
-    process: Process | SubProcess
+    process: Process | SubProcess,
+    concept?: string,
+    implementation?: string
   ): [ProcessTreeStructure, FlowNode | undefined] {
     const startFlow = BpmnModdleParser.getStartFlowOfProcess(process);
     const processTree: ProcessTreeStructure = {};
@@ -176,8 +231,10 @@ class BpmnModdleParser {
     }
 
     const [treePart, lastElement] = this.parseProcessFlowUntilElement(
-      startFlow.targetRef,
-      "bpmn:EndEvent"
+      startFlow,
+      ["bpmn:EndEvent"],
+      concept,
+      implementation
     );
 
     if (process.$attrs && "rpa:operation" in process.$attrs) {
@@ -187,13 +244,138 @@ class BpmnModdleParser {
       this.addProcessNodeInfo(process);
     } else {
       // @ts-expect-error untyped
-      processTree["Process"] = treePart;
+      processTree["Process"] = treePart[0][startFlow.id];
     }
     // last node can not be the end-event! Otherwise, sub-processes would terminate
     // the parsing as their end events have no outgoing flow to the subsequent parts, but the sub-process itself.
 
     // @ts-expect-error untyped
     return [processTree, process];
+  }
+
+  /**
+   * Parses a BPMN-moddle process object to a process tree specialized for template method.
+   *
+   * @param process
+   *
+   * @returns [ProcessTree, last element in flow]
+   */
+  private parseProcessTemplateMethod(
+    templateMethodProcess: Process | SubProcess
+  ): [ProcessTreeStructure, FlowNode | undefined] {
+    const templateMethodHandlers: (string | ProcessTreeStructure)[] = [];
+    const startFlow = BpmnModdleParser.getStartFlowOfProcess(
+      templateMethodProcess
+    );
+
+    if (!startFlow || !startFlow.targetRef) {
+      throw new Error("Startevent is not connected to flow!");
+    }
+
+    const flowInitiatorNodes: FlowNode[] =
+      this.findAllStartEventsForTemplateMethod(startFlow!.targetRef);
+
+    for (const flowInitiatorNode of flowInitiatorNodes) {
+      if (flowInitiatorNode.outgoing?.length !== 1) {
+        throw new Error(
+          "IntermediateCatchEvent in Template Method must have exactly one outgoing flow!"
+        );
+      }
+      const startFlow = flowInitiatorNode.outgoing[0];
+
+      if (!startFlow || !startFlow.targetRef) {
+        throw new Error("Startevent is not connected to flow!");
+      }
+
+      const [parsedFlowHandler, lastElement] =
+        this.parseProcessFlowUntilElement(
+          startFlow,
+          ["bpmn:EndEvent"],
+          templateMethodProcess.$attrs!["rpa:concept"],
+          templateMethodProcess.$attrs!["rpa:operation"]
+        );
+
+      if (parsedFlowHandler.length === 1) {
+        // @ts-expect-error untyped
+        templateMethodHandlers.push(parsedFlowHandler[0]);
+      } else {
+        // @ts-expect-error untyped
+        templateMethodHandlers.push(parsedFlowHandler);
+      }
+    }
+
+    // @ts-expect-error untyped
+    this.addProcessNodeInfo(templateMethodProcess);
+    const templateMethodProcessTree: ProcessTreeStructure = {};
+    templateMethodProcessTree[templateMethodProcess.id] =
+      templateMethodHandlers;
+
+    // @ts-expect-error untyped
+    return [templateMethodProcessTree, templateMethodProcess];
+  }
+
+  private findAllStartEventsForTemplateMethod(
+    startFlowNode: FlowNode
+  ): FlowNode[] {
+    const startEvents: FlowNode[] = [];
+    const outgoingFlows = startFlowNode.outgoing || [];
+
+    for (const outgoingFlow of outgoingFlows) {
+      const targetRef = outgoingFlow.targetRef;
+
+      if (targetRef.$type === "bpmn:IntermediateCatchEvent") {
+        startEvents.push(targetRef);
+      } else {
+        this.findAllStartEventsForTemplateMethod(targetRef);
+      }
+    }
+    return startEvents;
+  }
+  /**
+   * Parses a BPMN-moddle process object to a process tree specialized for chain of responsibility.
+   *
+   * @param process
+   *
+   * @returns [ProcessTree, last element in flow]
+   */
+  private parseProcessChainOfResponsibility(
+    chainOfResponsibilityProcess: Process | SubProcess
+  ): [ProcessTreeStructure, FlowNode | undefined] {
+    const chainOfResponsibilityHandlers: (string | ProcessTreeStructure)[] = [];
+    const startFlows = BpmnModdleParser.getAllStartFlowsOfProcess(
+      chainOfResponsibilityProcess
+    );
+
+    for (const startFlow of startFlows) {
+      if (!startFlow || !startFlow.targetRef) {
+        throw new Error("Startevent is not connected to flow!");
+      }
+
+      const [parsedFlowHandler, lastElement] =
+        this.parseProcessFlowUntilElement(
+          startFlow,
+          ["bpmn:EndEvent"],
+          chainOfResponsibilityProcess.$attrs!["rpa:concept"],
+          chainOfResponsibilityProcess.$attrs!["rpa:operation"]
+        );
+
+      if (parsedFlowHandler.length === 1) {
+        // @ts-expect-error untyped
+        chainOfResponsibilityHandlers.push(parsedFlowHandler[0]);
+      } else {
+        // @ts-expect-error untyped
+        chainOfResponsibilityHandlers.push(parsedFlowHandler);
+      }
+    }
+
+    // @ts-expect-error untyped
+    this.addProcessNodeInfo(chainOfResponsibilityProcess);
+    const chainOfResponsibilityProcessTree: ProcessTreeStructure = {};
+    chainOfResponsibilityProcessTree[chainOfResponsibilityProcess.id] =
+      chainOfResponsibilityHandlers;
+
+    // @ts-expect-error untyped
+    return [chainOfResponsibilityProcessTree, chainOfResponsibilityProcess];
   }
 
   /**
@@ -204,37 +386,41 @@ class BpmnModdleParser {
    * @returns [ProcessTree, last element in flow]
    */
   private parseProcessFlowUntilElement(
-    startElement: FlowNode,
-    TerminationElementType: String
+    sequenceFlow: SequenceFlow,
+    TerminationElementTypes: String[],
+    concept?: string,
+    implementation?: string
   ): [
     ProcessTreeStructure | ProcessTreeStructure[] | string[],
     FlowNode | undefined
   ] {
-    // console.log("Parsing flow starting in " + elementToString(startElement));
-
     const parsedProcess: (string | ProcessTreeStructure)[] = [];
-    let nextElementInFlow: FlowNode | undefined = startElement;
+    let nextElementInFlow: FlowNode | undefined = sequenceFlow.targetRef;
 
     while (
       nextElementInFlow &&
-      nextElementInFlow.$type !== TerminationElementType
+      !TerminationElementTypes.includes(nextElementInFlow.$type)
     ) {
       const [treePart, lastElement] =
         this.parseProcessSegment(nextElementInFlow);
       parsedProcess.push(treePart);
 
-      if (lastElement && lastElement.outgoing) {
-        nextElementInFlow = lastElement.outgoing[0].targetRef;
-      } else {
-        nextElementInFlow = undefined;
-      }
+      // Determine the next element in flow that is not a Proxy
+      nextElementInFlow = lastElement?.outgoing?.find(
+        (flow) => flow.targetRef.$attrs?.["rpa:concept"] !== BpmoConcept.Proxy
+      )?.targetRef;
     }
 
-    if (parsedProcess.length === 1) {
-      // @ts-expect-error untyped
-      return [parsedProcess, nextElementInFlow];
+    if (concept && implementation) {
+      this.addProcessFlowNodeInfo(
+        sequenceFlow,
+        concept,
+        implementation,
+        nextElementInFlow
+      );
     }
-    return [[{ Flow: parsedProcess }], nextElementInFlow];
+
+    return [[{ [sequenceFlow.id]: parsedProcess }], nextElementInFlow];
   }
 
   /**
@@ -246,16 +432,37 @@ class BpmnModdleParser {
   private parseProcessSegment(
     currentElement: FlowNode
   ): [string | ProcessTreeStructure, FlowNode | undefined] {
-    // console.log("Parsing " + elementToString(currentElement));
     switch (currentElement.$type) {
       case "bpmn:Task":
+        this.addProcessNodeInfo(currentElement);
+        return [currentElement.id, currentElement];
+      case "bpmn:CallActivity":
         this.addProcessNodeInfo(currentElement);
         return [currentElement.id, currentElement];
       case "bpmn:ParallelGateway":
       case "bpmn:ExclusiveGateway":
         return this.parseSplittedControlflow(currentElement);
       case "bpmn:SubProcess":
+        if (
+          currentElement.$attrs &&
+          currentElement.$attrs["rpa:concept"] === "TemplateMethod"
+        ) {
+          return this.parseProcessTemplateMethod(currentElement as SubProcess);
+        } else if (
+          currentElement.$attrs &&
+          currentElement.$attrs["rpa:concept"] === "Decorator"
+        ) {
+          return this.parseProcess(
+            currentElement as SubProcess,
+            currentElement.$attrs["rpa:concept"],
+            currentElement.$attrs["rpa:operation"]
+          );
+        }
         return this.parseProcess(currentElement as SubProcess);
+      case "bpmn:AdHocSubProcess":
+        return this.parseProcessChainOfResponsibility(
+          currentElement as SubProcess
+        );
       default:
         return ["", undefined];
     }
@@ -270,17 +477,13 @@ class BpmnModdleParser {
   private parseSplittedControlflow(
     gatewayElement: FlowNode
   ): [ProcessTreeStructure, FlowNode | undefined] {
-    // console.log(
-    //   "Start analyzing splitted control flow for gateway " +
-    //     elementToString(gatewayElement)
-    // );
     const splittetControlflowBranches: (string | ProcessTreeStructure)[] = [];
     const lastElementsOfBranches: FlowElement[] = [];
 
     gatewayElement.outgoing.forEach((branch) => {
       const [parsedFlowBranch, lastElement] = this.parseProcessFlowUntilElement(
-        branch.targetRef,
-        gatewayElement.$type
+        branch,
+        [gatewayElement.$type, "bpmn:EndEvent"]
       );
 
       if (parsedFlowBranch.length === 1) {
@@ -296,16 +499,17 @@ class BpmnModdleParser {
       }
     });
 
-    // Ensure that really every branch ended with the same gateway (should be always true)
+    // Ensure that really every branch ended with the same gateway (should be always true) or an end event
     if (
       !lastElementsOfBranches.every(
-        (element) => element.id === lastElementsOfBranches[0].id
+        (element) =>
+          (element.$type === lastElementsOfBranches[0].$type &&
+            element.id === lastElementsOfBranches[0].id) ||
+          element.$type === "bpmn:EndEvent"
       )
     ) {
       throw new Error("Something is wrong with the structure of your diagram!");
     }
-
-    const gatewayId = gatewayElement.id;
 
     this.addProcessNodeInfo(gatewayElement);
     const gatewayProcessTree: ProcessTreeStructure = {};
@@ -315,6 +519,36 @@ class BpmnModdleParser {
     return [gatewayProcessTree, lastElementsOfBranches[0]];
   }
 
+  private addProcessFlowNodeInfo(
+    sequenceFlow: SequenceFlow,
+    concept: string,
+    implementation: string,
+    endElement?: FlowNode
+  ): void {
+    const startElementNodeDataInfo = this.extractProcessNodeDataInfo(
+      sequenceFlow.sourceRef
+    );
+    const nodeInfo: ProcessTreeNodeInfo = {
+      label: sequenceFlow.id,
+      concept,
+      implementation,
+      dataResourceInput: [],
+      dataResourceOutput: startElementNodeDataInfo.dataResourceOutput,
+      variableInput: [],
+      variableOutput: startElementNodeDataInfo.variableOutput,
+    };
+
+    if (endElement) {
+      const endElementNodeDataInfo =
+        this.extractProcessNodeDataInfo(endElement);
+      nodeInfo.dataResourceInput = endElementNodeDataInfo.dataResourceInput;
+      nodeInfo.variableInput = endElementNodeDataInfo.variableInput;
+    }
+
+    // Get basic information about the element
+    this.processTreeNodes[sequenceFlow.id] = nodeInfo;
+  }
+
   private addProcessNodeInfo(element: FlowNode): void {
     if (!element.$attrs || !("rpa:operation" in element.$attrs)) {
       throw new Error(
@@ -322,60 +556,177 @@ class BpmnModdleParser {
       );
     }
 
+    const nodeDataInfo = this.extractProcessNodeDataInfo(element);
+
     const nodeInfo: ProcessTreeNodeInfo = {
       label: element.name || element.id,
-      concept: element.$attrs["rpa:operation"],
+      concept: element.$attrs["rpa:concept"] || element.$attrs["rpa:operation"],
+      implementation: element.$attrs["rpa:operation"],
+      dataResourceInput: nodeDataInfo.dataResourceInput,
+      dataResourceOutput: nodeDataInfo.dataResourceOutput,
+      variableInput: nodeDataInfo.variableInput,
+      variableOutput: nodeDataInfo.variableOutput,
     };
-
-    // Look for data associations
-    if (element.$type === "bpmn:Task") {
-      const resourceInput: string[] = [];
-      const resourceOutput: string[] = [];
-      const variableInput: string[] = [];
-      const variableOutput: string[] = [];
-
-      // @ts-expect-error untyped
-      if (element.dataInputAssociations) {
-        // @ts-expect-error untyped
-        element.dataInputAssociations.forEach((association) => {
-          const dataInformationObject = association.sourceRef[0];
-          if (dataInformationObject.$type === "bpmn:DataStoreReference") {
-            resourceInput.push(dataInformationObject.id);
-          } else {
-            variableInput.push(dataInformationObject.id);
-          }
-          this.addDataInfo(dataInformationObject);
-        });
-      }
-      // @ts-expect-error untyped
-      if (element.dataOutputAssociations) {
-        // @ts-expect-error untyped
-        element.dataOutputAssociations.forEach((association) => {
-          const dataInformationObject = association.targetRef;
-          if (dataInformationObject.$type === "bpmn:DataStoreReference") {
-            resourceOutput.push(dataInformationObject.id);
-          } else {
-            variableOutput.push(dataInformationObject.id);
-          }
-          this.addDataInfo(dataInformationObject);
-        });
-      }
-      if (resourceInput.length > 0) {
-        nodeInfo.dataResourceInput = resourceInput;
-      }
-      if (variableInput.length > 0) {
-        nodeInfo.variableInput = variableInput;
-      }
-      if (resourceOutput.length > 0) {
-        nodeInfo.dataResourceOutput = resourceOutput;
-      }
-      if (variableOutput.length > 0) {
-        nodeInfo.variableOutput = variableOutput;
-      }
-    }
 
     // Get basic information about the element
     this.processTreeNodes[element.id] = nodeInfo;
+  }
+
+  private extractProcessNodeDataInfo(
+    element: FlowNode
+  ): ProcessTreeNodeDataInfo {
+    const nodeDataInfo: ProcessTreeNodeDataInfo = {
+      dataResourceInput: [],
+      dataResourceOutput: [],
+      variableInput: [],
+      variableOutput: [],
+    };
+
+    if (!element) {
+      return nodeDataInfo;
+    }
+
+    // @ts-expect-error untyped
+    if (element.dataInputAssociations) {
+      // @ts-expect-error untyped
+      element.dataInputAssociations.forEach((association) => {
+        const dataInformationObject = association.sourceRef[0];
+        if (dataInformationObject.$type === "bpmn:DataStoreReference") {
+          nodeDataInfo.dataResourceInput.push(dataInformationObject.id);
+        } else {
+          nodeDataInfo.variableInput.push({
+            variable: dataInformationObject.id,
+            proxiedBy: [],
+          });
+        }
+        this.addDataInfo(dataInformationObject);
+      });
+    }
+    // @ts-expect-error untyped
+    if (element.dataOutputAssociations) {
+      // @ts-expect-error untyped
+      element.dataOutputAssociations.forEach((association) => {
+        const dataInformationObject = association.targetRef;
+        if (dataInformationObject.$type === "bpmn:DataStoreReference") {
+          nodeDataInfo.dataResourceOutput.push(dataInformationObject.id);
+        } else {
+          nodeDataInfo.variableOutput.push({
+            variable: dataInformationObject.id,
+            proxiedBy: [],
+          });
+        }
+        this.addDataInfo(dataInformationObject);
+      });
+    }
+
+    // check for proxies in outgoing flows
+    if (element.outgoing?.length > 0) {
+      for (const outgoingFlow of element.outgoing) {
+        if (
+          outgoingFlow.targetRef.$attrs?.["rpa:concept"] === BpmoConcept.Proxy
+        ) {
+          // follow the proxy until a outgoingFlow with the rpa:concept tranformsTo is found
+          let proxyElement: FlowNode | undefined = outgoingFlow.targetRef;
+          const visitedProxyElements: FlowNode[] = [proxyElement];
+
+          while (proxyElement) {
+            // @ts-expect-error untyped
+            const transformFlow = proxyElement?.dataOutputAssociations?.find(
+              // @ts-expect-error untyped
+              (association) =>
+                association.$attrs?.["rpa:operation"] === "transformsTo"
+            );
+
+            if (transformFlow) {
+              const dataInformationObject = transformFlow.targetRef;
+              if (dataInformationObject.$type === "bpmn:DataObjectReference") {
+                nodeDataInfo.variableOutput.push({
+                  variable: dataInformationObject.id,
+                  proxiedBy: visitedProxyElements.map((el) => el.id),
+                });
+              }
+
+              // Add info for all visited proxies
+              for (const visitedProxyElement of visitedProxyElements) {
+                this.addProcessNodeInfo(visitedProxyElement);
+              }
+
+              this.addDataInfo(dataInformationObject);
+              break;
+            } else {
+              // move to next proxy
+              const nextProxyFlow: SequenceFlow | undefined =
+                proxyElement.outgoing?.find(
+                  (flow) =>
+                    flow.targetRef.$attrs?.["rpa:concept"] === BpmoConcept.Proxy
+                );
+
+              if (nextProxyFlow) {
+                proxyElement = nextProxyFlow.targetRef;
+                visitedProxyElements.push(proxyElement);
+              } else {
+                proxyElement = undefined;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (element.incoming?.length > 0) {
+      for (const incomingFlow of element.incoming) {
+        if (
+          incomingFlow.sourceRef.$attrs?.["rpa:concept"] === BpmoConcept.Proxy
+        ) {
+          // follow the proxy until a incomingFlow with the rpa:concept tranformsFrom is found
+          let proxyElement: FlowNode | undefined = incomingFlow.sourceRef;
+          const visitedProxyElements: FlowNode[] = [proxyElement];
+
+          while (proxyElement) {
+            // @ts-expect-error untyped
+            const transformFlow = proxyElement?.dataInputAssociations?.find(
+              // @ts-expect-error untyped
+              (association) =>
+                association.$attrs?.["rpa:operation"] === "transformsFrom"
+            );
+
+            if (transformFlow) {
+              const dataInformationObject = transformFlow.sourceRef[0];
+              if (dataInformationObject.$type === "bpmn:DataObjectReference") {
+                nodeDataInfo.variableInput.push({
+                  variable: dataInformationObject.id,
+                  proxiedBy: visitedProxyElements.map((el) => el.id),
+                });
+              }
+
+              // Add info for all visited proxies
+              for (const visitedProxyElement of visitedProxyElements) {
+                this.addProcessNodeInfo(visitedProxyElement);
+              }
+
+              this.addDataInfo(dataInformationObject);
+              break;
+            } else {
+              // move to next proxy
+              const nextProxyFlow: SequenceFlow | undefined =
+                proxyElement.incoming?.find(
+                  (flow) =>
+                    flow.sourceRef.$attrs?.["rpa:concept"] === BpmoConcept.Proxy
+                );
+
+              if (nextProxyFlow) {
+                proxyElement = nextProxyFlow.sourceRef;
+                visitedProxyElements.push(proxyElement);
+              } else {
+                proxyElement = undefined;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return nodeDataInfo;
   }
 
   private addDataInfo(dataNode: ItemAwareElement): void {
@@ -384,6 +735,12 @@ class BpmnModdleParser {
       label: dataNode.name || dataNode.id,
       // @ts-expect-error untyped
       concept: dataNode.$attrs["rpa:operation"],
+      // @ts-expect-error untyped
+      implementation: dataNode.$attrs["rpa:operation"],
+      dataResourceInput: [],
+      dataResourceOutput: [],
+      variableInput: [],
+      variableOutput: [],
     };
 
     if (dataNode.$type === "bpmn:DataStoreReference") {
@@ -409,6 +766,24 @@ class BpmnModdleParser {
     ) as SequenceFlow[];
 
     return sequenceFlows.find(
+      (sequenceFlow) => sequenceFlow.sourceRef.$type === "bpmn:StartEvent"
+    );
+  }
+
+  /**
+   * Find the sequence flow that originates from a start event.
+   *
+   * @param sequenceFlows - Set of sequence flows to analyze
+   * @returns The sequence flow originating in start event
+   */
+  private static getAllStartFlowsOfProcess(
+    process: Process | SubProcess
+  ): SequenceFlow[] {
+    const sequenceFlows: SequenceFlow[] = process.flowElements.filter(
+      (flowElement) => flowElement.$type === "bpmn:SequenceFlow"
+    ) as SequenceFlow[];
+
+    return sequenceFlows.filter(
       (sequenceFlow) => sequenceFlow.sourceRef.$type === "bpmn:StartEvent"
     );
   }
