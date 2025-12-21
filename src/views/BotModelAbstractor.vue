@@ -48,6 +48,7 @@
           v-if="modelerShown"
           :modeler="modeler"
           :element="element"
+          :bot-type="botType"
           class="h-128"
         ></BotModelerPropertiesPanel>
         <div class="m-4 text-left">
@@ -68,7 +69,7 @@ import {
   ModelerSelectionChange,
 } from "../interfaces/ModelerEvents";
 import AbstractionSettingsSidebar from "../components/BotModelAbstractor/AbstractionSettingsSidebar.vue";
-import BotModel from "../interfaces/BotModel";
+import BotModel, { BotModelType } from "../interfaces/BotModel";
 import botModelApi from "../api/botModelApi";
 import YAML from "yaml";
 import { useToast } from "vue-toastification";
@@ -91,6 +92,10 @@ const maxAggregationValue = ref(0);
 const modelOperations = ref({} as AbstractionModelOperations);
 const modelerKey = ref(0);
 let modelAbstractor = {} as BotModelAbstractor;
+
+const botType = computed(() => {
+  return (route.params.type as BotModelType) || botModel.value.type;
+});
 
 const toast = useToast();
 const router = useRouter();
@@ -137,7 +142,7 @@ function elementChanged(e: ModelerEvent) {
   }
 }
 
-function modelerLoaded(loadedModeler): void {
+function modelerLoaded(loadedModeler: any): void {
   modeler.value = loadedModeler;
   modelerShown.value = true;
   updateAbstractedModel();
@@ -147,14 +152,14 @@ function takeScreenshot() {
   toast.warning("Not supported.");
 }
 
-function eliminationThresholdChanged(e) {
+function eliminationThresholdChanged(e: any) {
   currentEliminationThreshold.value = e;
   modelerKey.value += 1;
 
   // this.updateAbstractedModel();
 }
 
-function abstractionThresholdChanged(e) {
+function abstractionThresholdChanged(e: any) {
   currentAbstractionThreshold.value = e;
   modelerKey.value += 1;
 

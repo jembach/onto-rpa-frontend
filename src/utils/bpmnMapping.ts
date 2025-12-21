@@ -1,11 +1,14 @@
 import { BpmoConcept } from "../interfaces/BpmoConcepts";
 
 export const bpmnMapping: Record<BpmoConcept, string> = {
+  Proxy: "bpmn:CallActivity",
+  Decorator: "bpmn:SubProcess",
+  ChainOfResponsibility: "bpmn:AdHocSubProcess",
+  SequenceInjectionPoint: "bpmn:Task",
   AtomicActivity: "bpmn:Task",
   CompoundActivity: "bpmn:SubProcess",
-  Module: "bpmn:CallActivity",
-  Template: "bpmn:SubProcess",
-  TemplatePlaceholder: "bpmn:CallActivity",
+  Facade: "bpmn:CallActivity",
+  TemplateMethod: "bpmn:SubProcess",
   ExclusiveGateway: "bpmn:ExclusiveGateway",
   ParallelGateway: "bpmn:ParallelGateway",
   MessageEvent: "bpmn:MessageEventDefinition",
@@ -13,4 +16,8 @@ export const bpmnMapping: Record<BpmoConcept, string> = {
   SignalEvent: "bpmn:SignalEventDefinition",
   DataStore: "bpmn:DataStoreReference",
   DataObject: "bpmn:DataObjectReference",
+  EventBasedGateway: "bpmn:EventBasedGateway",
+  IntermediateSignalCatchEvent: "bpmn:SignalEventDefinition",
+  StartEvent: "bpmn:StartEvent",
+  EndEvent: "bpmn:EndEvent",
 };

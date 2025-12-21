@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { defineComponent } from "vue";
 import { RpaTaxonomy } from "../../../interfaces/RpaOperation";
 import { rpaData } from "../../../utils/ontologyParser";
 import BotDataTreePart from "./BotDataTreePart.vue";
@@ -30,9 +30,6 @@ export default defineComponent({
       activeTree: rpaData as RpaTaxonomy,
       treeRootNode: "data",
     };
-  },
-  mounted() {
-    console.log(rpaData);
   },
   components: { BotDataTreePart },
 });

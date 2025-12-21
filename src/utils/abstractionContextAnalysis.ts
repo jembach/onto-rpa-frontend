@@ -20,10 +20,11 @@ function newContextAnalysis(
 
   // First, we iterate over all nodes and add a context if it can be derived from the node and its associations itself
   for (const node in tree.nodeInfo) {
-    const concept = rpaOperations.individuals[tree.nodeInfo[node].concept];
+    const concept =
+      rpaOperations.individuals[tree.nodeInfo[node].implementation];
     const context: OperationContext = { software: "", data: "" };
 
-    if (concept.automates) {
+    if (concept && concept.automates) {
       // If element automates a specific software, use for context
       context.software = concept.automates.id;
     }

@@ -78,11 +78,9 @@
           v-if="modelerShown"
           :modeler="modeler"
           :element="element!"
+          :bot-type="botType"
           class="h-128"
         ></BotModelerPropertiesPanel>
-        <div class="m-4 text-left">
-          <pre>{{ stringifiedProcessTree }}</pre>
-        </div>
       </div>
     </div>
   </div>
@@ -102,6 +100,12 @@ import { bpmnMapping } from "../utils/bpmnMapping";
 import { BpmoConcept } from "../interfaces/BpmoConcepts";
 import BpmnModdleParser from "../utils/BpmnModdleParser";
 import BotModel, {
+  BotModelBase,
+  BotModelChainOfResponsibility,
+  BotModelDecorator,
+  BotModelFacade,
+  BotModelProxy,
+  BotModelTemplateMethod,
   BotModelType,
   createDefaultBotModel,
 } from "../interfaces/BotModel";
@@ -114,8 +118,12 @@ import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { BotModelTypeLng } from "../utils/rpaTypeMapping";
-import { getRpaTemplates } from "../utils/ontologyParser";
-import { RpaTemplate } from "../interfaces/RpaOperation";
+import {
+  getRpaReuseChainOfResponsibilities,
+  getRpaReuseDecorators,
+  getRpaReuseTemplateMethods,
+} from "../utils/ontologyParser";
+import { RpaReuseTemplateMethod } from "../interfaces/RpaOperation";
 
 const toast = useToast();
 const router = useRouter();
@@ -126,10 +134,14 @@ const modeler = ref({} as any);
 const selectedElements = ref([] as ModelerElement[]);
 const element = ref({} as ModelerElement | null);
 const botModel = ref({} as BotModel);
-const rpaTemplates = ref({} as Record<string, RpaTemplate>);
+const rpaDecorators = ref({} as Record<string, RpaReuseTemplateMethod>);
+const rpaChainsOfResponsibility = ref(
+  {} as Record<string, RpaReuseTemplateMethod>
+);
+const rpaTemplateMethods = ref({} as Record<string, RpaReuseTemplateMethod>);
 
 const botType = computed(() => {
-  return route.params.type as BotModelType;
+  return (route.params.type as BotModelType) || botModel.value.type;
 });
 
 onMounted(async () => {
@@ -145,7 +157,9 @@ onMounted(async () => {
     botModel.value = createDefaultBotModel();
   }
 
-  rpaTemplates.value = await getRpaTemplates();
+  rpaDecorators.value = await getRpaReuseDecorators();
+  rpaChainsOfResponsibility.value = await getRpaReuseChainOfResponsibilities();
+  rpaTemplateMethods.value = await getRpaReuseTemplateMethods();
 });
 
 function selectionChanged(e: ModelerSelectionChange) {
@@ -187,20 +201,25 @@ async function saveBot() {
     botModel.value.processTree = bpmnModdleParser.parseBpmnModdle(
       modeler.value._definitions
     );
-    botModel.value.type = botType.value;
 
-    if (botType.value === BotModelType.MODULE) {
-      botModel.value.accessedData =
-        bpmnModdleParser.parseBpmnModdleInterfaceData(
-          modeler.value._definitions
-        );
-    }
-
-    if (botType.value === BotModelType.TEMPLATE) {
-      botModel.value.templatePlaceholders =
-        bpmnModdleParser.parseBpmnModdleUsedTemplates(
-          modeler.value._definitions
-        );
+    if (botType.value === BotModelType.FACADE) {
+      botModel.value = createFacadeBot(botModel.value, bpmnModdleParser);
+    } else if (botType.value === BotModelType.PROXY) {
+      botModel.value = createProxyBot(botModel.value, bpmnModdleParser);
+    } else if (botType.value === BotModelType.DECORATOR) {
+      botModel.value = createDecoratorBot(botModel.value, bpmnModdleParser);
+    } else if (botType.value === BotModelType.CHAIN_OF_RESPONSIBILITY) {
+      botModel.value = createChainOfResponsibilityBot(
+        botModel.value,
+        bpmnModdleParser
+      );
+    } else if (botType.value === BotModelType.TEMPLATE_METHOD) {
+      botModel.value = createTemplateMethodBot(
+        botModel.value,
+        bpmnModdleParser
+      );
+    } else if (botType.value === BotModelType.BOT) {
+      botModel.value.type = botType.value;
     }
 
     if (botModel.value._id) {
@@ -210,13 +229,97 @@ async function saveBot() {
       botModel.value = newBotModel;
       router.replace({
         name: "Modeler",
-        params: { modelId: newBotModel._id },
+        params: { modelId: newBotModel._id, type: newBotModel.type },
       });
     }
     toast.success("Model successfully saved.");
   } catch (e) {
     toast.error("Bot could not be saved.\n" + e);
   }
+}
+
+function createFacadeBot(
+  baseBot: BotModelBase,
+  bpmnModdleParser: BpmnModdleParser
+): BotModelFacade {
+  const facadeBot: BotModelFacade = {
+    ...baseBot,
+    type: BotModelType.FACADE,
+    accessedData: bpmnModdleParser.parseBpmnModdleInterfaceData(
+      modeler.value._definitions
+    ),
+  };
+
+  return facadeBot;
+}
+
+function createProxyBot(
+  baseBot: BotModelBase,
+  bpmnModdleParser: BpmnModdleParser
+): BotModelProxy {
+  const proxyBot: BotModelProxy = {
+    ...baseBot,
+    type: BotModelType.PROXY,
+    accessedData: bpmnModdleParser.parseBpmnModdleInterfaceData(
+      modeler.value._definitions
+    ),
+  };
+
+  return proxyBot;
+}
+
+function createDecoratorBot(
+  baseBot: BotModelBase,
+  bpmnModdleParser: BpmnModdleParser
+): BotModelDecorator {
+  const decoratorBot: BotModelDecorator = {
+    ...baseBot,
+    type: BotModelType.DECORATOR,
+    accessedData: bpmnModdleParser.parseBpmnModdleInterfaceData(
+      modeler.value._definitions
+    ),
+    injectionPoints: bpmnModdleParser.parseBpmnModdleUsedInjectionPoints(
+      modeler.value._definitions
+    ),
+  };
+
+  return decoratorBot;
+}
+
+function createChainOfResponsibilityBot(
+  baseBot: BotModelBase,
+  bpmnModdleParser: BpmnModdleParser
+): BotModelChainOfResponsibility {
+  const corBot: BotModelChainOfResponsibility = {
+    ...baseBot,
+    type: BotModelType.CHAIN_OF_RESPONSIBILITY,
+    accessedData: bpmnModdleParser.parseBpmnModdleInterfaceData(
+      modeler.value._definitions
+    ),
+    injectionPoints: bpmnModdleParser.parseBpmnModdleUsedInjectionPoints(
+      modeler.value._definitions
+    ),
+  };
+
+  return corBot;
+}
+
+function createTemplateMethodBot(
+  baseBot: BotModelBase,
+  bpmnModdleParser: BpmnModdleParser
+): BotModelTemplateMethod {
+  const templateMethodBot: BotModelTemplateMethod = {
+    ...baseBot,
+    type: BotModelType.TEMPLATE_METHOD,
+    accessedData: bpmnModdleParser.parseBpmnModdleInterfaceData(
+      modeler.value._definitions
+    ),
+    injectionPoints: bpmnModdleParser.parseBpmnModdleUsedInjectionPoints(
+      modeler.value._definitions
+    ),
+  };
+
+  return templateMethodBot;
 }
 
 async function deleteBot() {
@@ -238,6 +341,7 @@ function newOperationShape(e: any) {
   const bpmnFactory = modeler.value.get("bpmnFactory");
   const elementFactory = modeler.value.get("elementFactory");
   const operation = e.target.dataset["operation"];
+  const operationName = e.target.dataset["operationname"] || operation;
   const bpmoConcept = e.target.dataset["nodetype"] as BpmoConcept;
   let bpmnType = bpmnMapping[bpmoConcept];
 
@@ -251,66 +355,194 @@ function newOperationShape(e: any) {
     bpmnType = "bpmn:IntermediateCatchEvent";
   }
 
-  if (
-    bpmoConcept === BpmoConcept.CompoundActivity ||
-    bpmoConcept === BpmoConcept.Template
-  ) {
-    shapeOptions["isExpanded"] = true;
-  }
-
-  if (bpmoConcept === BpmoConcept.Template) {
-    const rpaTemplate = rpaTemplates.value[operation];
-    if (rpaTemplate && rpaTemplate.templatePlaceholders) {
-      shapeOptions["height"] =
-        200 + (rpaTemplate.templatePlaceholders.length - 1) * 100;
-    }
-  }
-
   shapeOptions["businessObject"] = bpmnFactory.create(bpmnType, {
-    name: operation,
+    name: operationName,
     "rpa:operation": operation,
+    "rpa:concept": bpmoConcept,
   });
+
+  if (bpmoConcept === BpmoConcept.CompoundActivity) {
+    extendShapeOptionsContextContainer(operation, shapeOptions);
+  } else if (bpmoConcept === BpmoConcept.Decorator) {
+    extendShapeOptionsDecorator(operation, shapeOptions);
+  } else if (bpmoConcept === BpmoConcept.ChainOfResponsibility) {
+    extendShapeOptionsChainOfResponsibility(operation, shapeOptions);
+  } else if (bpmoConcept === BpmoConcept.TemplateMethod) {
+    extendShapeOptionsTemplateMethod(operation, shapeOptions);
+  }
 
   const shape = elementFactory.createShape(shapeOptions);
 
   if (bpmoConcept === BpmoConcept.CompoundActivity) {
-    const startEvent = elementFactory.createShape({
-      type: "bpmn:StartEvent",
-      x: 40,
-      y: 82,
-      parent: shape,
-    });
-    return [shape, startEvent];
-  }
-
-  if (bpmoConcept === BpmoConcept.Template) {
-    const rpaTemplate = rpaTemplates.value[operation];
-    if (!rpaTemplate || !rpaTemplate.templatePlaceholders) {
-      return shape;
-    }
-
-    const shapes = [shape];
-
-    for (let i = 0; i < rpaTemplate.templatePlaceholders.length; i++) {
-      const placeholder = rpaTemplate.templatePlaceholders[i];
-      const shapeOptionsStartEvent = {
-        type: "bpmn:StartEvent",
-        businessObject: bpmnFactory.create("bpmn:StartEvent", {
-          name: placeholder,
-          "rpa:operation": placeholder,
-        }),
-        x: 40,
-        y: 82 + i * 100,
-        parent: shape,
-      };
-      const startEvent = elementFactory.createShape(shapeOptionsStartEvent);
-      shapes.push(startEvent);
-    }
-
-    return shapes;
+    return createShapesContextContainer(
+      elementFactory,
+      shape,
+      operation,
+      bpmnFactory
+    );
+  } else if (bpmoConcept === BpmoConcept.Decorator) {
+    return createShapesDecorator(elementFactory, shape, operation, bpmnFactory);
+  } else if (bpmoConcept === BpmoConcept.ChainOfResponsibility) {
+    return createShapesChainOfResponsibility(
+      elementFactory,
+      shape,
+      operation,
+      bpmnFactory
+    );
+  } else if (bpmoConcept === BpmoConcept.TemplateMethod) {
+    return createShapesTemplateMethod(
+      elementFactory,
+      shape,
+      operation,
+      bpmnFactory
+    );
   }
 
   return shape;
+}
+
+function extendShapeOptionsContextContainer(operation: any, shapeOptions: any) {
+  shapeOptions["isExpanded"] = true;
+}
+
+function createShapesContextContainer(
+  elementFactory: any,
+  baseShape: any,
+  operation: any,
+  bpmnFactory: any
+) {
+  const startEvent = elementFactory.createShape({
+    type: "bpmn:StartEvent",
+    x: 40,
+    y: 82,
+    parent: baseShape,
+  });
+  return [baseShape, startEvent];
+}
+
+function extendShapeOptionsDecorator(operation: any, shapeOptions: any) {
+  shapeOptions["isExpanded"] = true;
+  shapeOptions["height"] = 200;
+}
+
+function createShapesDecorator(
+  elementFactory: any,
+  baseShape: any,
+  operation: any,
+  bpmnFactory: any
+) {
+  const rpaDecorator = rpaDecorators.value[operation];
+  const injectionPoint = rpaDecorator.injectionPoints[0];
+
+  const shapeOptionsStartEvent = {
+    type: "bpmn:StartEvent",
+    businessObject: bpmnFactory.create("bpmn:StartEvent", {
+      name: "Start " + (injectionPoint.label || injectionPoint.id),
+      "rpa:operation": rpaDecorator.id + "#" + injectionPoint.id + "#start",
+    }),
+    x: 40,
+    y: 82,
+    parent: baseShape,
+  };
+
+  const startEvent = elementFactory.createShape(shapeOptionsStartEvent);
+
+  return [baseShape, startEvent];
+}
+
+function extendShapeOptionsChainOfResponsibility(
+  operation: any,
+  shapeOptions: any
+) {
+  shapeOptions["isExpanded"] = true;
+  shapeOptions["height"] = 200;
+}
+
+function createShapesChainOfResponsibility(
+  elementFactory: any,
+  baseShape: any,
+  operation: any,
+  bpmnFactory: any
+) {
+  const rpaChainOfResponsibility = rpaChainsOfResponsibility.value[operation];
+  const injectionPoint = rpaChainOfResponsibility.injectionPoints[0];
+
+  const shapeOptionsStartEvent = {
+    type: "bpmn:StartEvent",
+    businessObject: bpmnFactory.create("bpmn:StartEvent", {
+      name: "Start " + (injectionPoint.label || injectionPoint.id),
+      "rpa:operation":
+        rpaChainOfResponsibility.id + "#" + injectionPoint.id + "#start",
+    }),
+    x: 40,
+    y: 82,
+    parent: baseShape,
+  };
+
+  const startEvent = elementFactory.createShape(shapeOptionsStartEvent);
+
+  return [baseShape, startEvent];
+}
+
+function extendShapeOptionsTemplateMethod(operation: any, shapeOptions: any) {
+  shapeOptions["isExpanded"] = true;
+
+  const rpaTemplate = rpaTemplateMethods.value[operation];
+  if (rpaTemplate && rpaTemplate.injectionPoints) {
+    shapeOptions["height"] =
+      200 + (rpaTemplate.injectionPoints.length - 1) * 100;
+  }
+}
+
+function createShapesTemplateMethod(
+  elementFactory: any,
+  baseShape: any,
+  operation: any,
+  bpmnFactory: any
+) {
+  const rpaTemplate = rpaTemplateMethods.value[operation];
+  if (!rpaTemplate || !rpaTemplate.injectionPoints) {
+    return baseShape;
+  }
+
+  const shapes = [baseShape];
+
+  const shapeOptionsStartEvent = {
+    type: "bpmn:StartEvent",
+    businessObject: bpmnFactory.create("bpmn:StartEvent", {
+      name: " ",
+    }),
+    x: 40,
+    y: (200 + (rpaTemplate.injectionPoints.length - 1) * 100) / 2 - 82 / 4,
+    parent: baseShape,
+  };
+  const startEvent = elementFactory.createShape(shapeOptionsStartEvent);
+  shapes.push(startEvent);
+
+  console.log(startEvent);
+
+  // const shapeOptionsEventBasedGateway = elementFactory.createShape({
+  //   type: "bpmn:EventBasedGateway",
+  //   businessObject: bpmnFactory.create("bpmn:EventBasedGateway", {
+  //     name: `Gateway`,
+  //   }),
+  //   x: 240,
+  //   y: 95,
+  //   parent: baseShape,
+  // });
+  // const eventBasedGateway = elementFactory.createShape(
+  //   shapeOptionsEventBasedGateway
+  // );
+  // shapes.push(eventBasedGateway);
+
+  // for (let i = 0; i < rpaTemplate.injectionPoints.length; i++) {
+  //   const injectionPoint = rpaTemplate.injectionPoints[i];
+
+  //   const
+  //   shapes.push(startEvent);
+  // }
+
+  return shapes;
 }
 
 function clickOperation(e: any) {

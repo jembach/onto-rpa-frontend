@@ -1,14 +1,12 @@
 <template>
   <div
-    class="divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow dark:divide-white/10 dark:bg-gray-800/50 dark:shadow-none dark:outline dark:outline-1 dark:-outline-offset-1 dark:outline-white/10"
+    class="divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow"
   >
     <div class="px-4 py-5 sm:px-6">
-      <h3 class="text-base font-semibold text-gray-900 dark:text-white">
-        Projects
-      </h3>
+      <h3 class="text-base font-semibold text-gray-900">Projects</h3>
     </div>
     <div class="px-4 sm:px-6">
-      <ul role="list" class="divide-y divide-gray-100 dark:divide-white/5">
+      <ul role="list" class="divide-y divide-gray-100">
         <li
           v-for="bot in bots"
           :key="bot._id"
@@ -16,9 +14,7 @@
         >
           <div class="min-w-0 flex-auto">
             <div class="flex items-center gap-x-3">
-              <h2
-                class="min-w-0 text-sm/6 font-semibold text-gray-900 dark:text-white"
-              >
+              <h2 class="min-w-0 text-sm/6 font-semibold text-gray-900">
                 <router-link
                   :to="{
                     name: 'ModelerWithType',
@@ -30,26 +26,44 @@
                 </router-link>
               </h2>
               <span
-                v-if="bot.type === BotModelType.MODULE"
-                class="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/20"
+                v-if="bot.type === BotModelType.FACADE"
+                class="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
               >
-                RPA Module
+                Reuse Facade
               </span>
               <span
-                v-else-if="bot.type === BotModelType.TEMPLATE"
-                class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10 dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/20"
+                v-else-if="bot.type === BotModelType.DECORATOR"
+                class="inline-flex items-center rounded-full bg-purple-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10"
               >
-                RPA Template
+                Reuse Decorator
+              </span>
+              <span
+                v-else-if="bot.type === BotModelType.PROXY"
+                class="inline-flex items-center rounded-full bg-purple-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10"
+              >
+                Reuse Proxy
+              </span>
+              <span
+                v-else-if="bot.type === BotModelType.CHAIN_OF_RESPONSIBILITY"
+                class="inline-flex items-center rounded-full bg-purple-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-700/10"
+              >
+                Reuse Chain of Responsibility
+              </span>
+              <span
+                v-else-if="bot.type === BotModelType.TEMPLATE_METHOD"
+                class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10"
+              >
+                Reuse Template Method
               </span>
               <span
                 v-else
-                class="inline-flex items-center rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20"
+                class="inline-flex items-center rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
               >
                 RPA Bot
               </span>
             </div>
             <div
-              class="mt-3 flex items-center gap-x-2.5 text-xs/5 text-gray-500 dark:text-gray-400"
+              class="mt-3 flex items-center gap-x-2.5 text-xs/5 text-gray-500"
             >
               <div class="flex gap-2">
                 <button
