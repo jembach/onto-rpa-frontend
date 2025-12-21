@@ -35,28 +35,28 @@ const items = [
     description: "Start building a new Robotic Process Automation bot.",
   },
   {
-    title: "Create an RPA Facade",
+    title: "Create an RPA Reuse Facade",
     type: BotModelType.FACADE,
     description: "Develop a reusable facade for your RPA workflows.",
   },
   {
-    title: "Create an RPA Decorator",
+    title: "Create an RPA Reuse Decorator",
     type: BotModelType.DECORATOR,
     description: "Develop a reusable decorator for your RPA workflows.",
   },
   {
-    title: "Create an RPA Proxy",
+    title: "Create an RPA Reuse Proxy",
     type: BotModelType.PROXY,
     description: "Develop a reusable proxy for your RPA workflows.",
   },
   {
-    title: "Create an RPA Chain of Responsibility",
+    title: "Create an RPA Reuse Chain of Responsibility",
     type: BotModelType.CHAIN_OF_RESPONSIBILITY,
     description:
       "Develop a reusable chain of responsibility for your RPA workflows.",
   },
   {
-    title: "Create an RPA Template Methode",
+    title: "Create an RPA Reuse Template Method",
     type: BotModelType.TEMPLATE_METHOD,
     description: "Develop a reusable template method for your RPA workflows.",
   },
