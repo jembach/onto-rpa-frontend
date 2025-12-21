@@ -219,7 +219,10 @@ class BotModelMetricsCalculator {
 
     for (const subnode in node) {
       let subnodeDepth = currentDepth;
-      if (this.processTree.nodeInfo[subnode]) {
+      if (
+        this.processTree.nodeInfo[subnode] &&
+        !this.processTree.nodeInfo[subnode].label.startsWith("Flow_")
+      ) {
         nestingDepthMap.set(subnode, currentDepth);
         subnodeDepth++; // Only increment depth if current node is a gateway, not for Process or Flow
       }
@@ -246,6 +249,7 @@ class BotModelMetricsCalculator {
       ) {
         return;
       }
+
       const transformedVariables = this.processTree.nodeInfo[
         node
       ].variableInput!.filter(({ variable }) =>
@@ -253,7 +257,18 @@ class BotModelMetricsCalculator {
           ({ variable: v }) => v === variable
         )
       );
+
+      const proxiedInputVariables = this.processTree.nodeInfo[
+        node
+      ].variableInput!.filter(({ proxiedBy }) => proxiedBy.length > 0);
+
+      const proxiedOutputVariables = this.processTree.nodeInfo[
+        node
+      ].variableOutput!.filter(({ proxiedBy }) => proxiedBy.length > 0);
+
       variableTransformations += transformedVariables.length;
+      variableTransformations += proxiedInputVariables.length;
+      variableTransformations += proxiedOutputVariables.length;
     });
 
     return variableTransformations;
