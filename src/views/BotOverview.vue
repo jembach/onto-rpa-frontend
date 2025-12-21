@@ -1,6 +1,8 @@
 <template>
   <div class="bg-sky-700 text-center text-slate-100 py-12">
-    <h1 class="text-4xl font-bold">Conceptual RPA Bot Modeler</h1>
+    <h1 class="text-4xl font-bold">
+      Conceptual RPA Bot Modeler with Reuse Patterns
+    </h1>
   </div>
 
   <div class="bg-sky-700/70 hover:bg-sky-700/60 text-center p-4">
