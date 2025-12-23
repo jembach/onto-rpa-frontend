@@ -85,6 +85,7 @@
                   Explore abstraction
                 </router-link>
                 <router-link
+                  v-if="bot.type === BotModelType.BOT"
                   :to="{ name: 'ModelMetrics', params: { modelId: bot._id } }"
                   class="btn btn-xs"
                 >
